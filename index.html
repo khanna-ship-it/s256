@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>APEX RANKINGS | Server 256 Dominance</title>
+    <title>SERVER 256 COMMAND NEXUS | APEX RANKINGS</title>
     <!-- Load Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Use Inter font family -->
@@ -11,144 +11,163 @@
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #0c0d12; /* Deep space dark */
+            background-color: #0d1117; /* Deep space dark blue/gray */
             color: #e5e7eb; /* Light text */
+            min-height: 100vh;
         }
-        .ranking-card {
-            transition: all 0.2s;
-            border-left: 5px solid transparent;
+
+        /* --- Custom Styling for Tech Aesthetic --- */
+
+        .tech-card {
+            background-color: #161b22; /* Darker card background */
+            border: 1px solid #30363d; /* Subtle border */
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+            border-radius: 0.5rem;
+            transition: all 0.2s ease;
         }
-        
-        /* Gold/Apex for 1st place */
-        .ranking-card:nth-child(2) { 
-            border-left-color: #ffd700; 
-            box-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
-            transform: scale(1.02);
-            background-color: #1a1e28;
+
+        .input-tech {
+            background-color: #0d1117;
+            border-color: #30363d;
+            color: #c9d1d9;
+            transition: border-color 0.3s;
         }
-        /* Silver for 2nd place */
-        .ranking-card:nth-child(3) {
-            border-left-color: #cccccc; 
-            background-color: #1a1e28;
+        .input-tech:focus {
+            border-color: #58a6ff; /* Blue focus glow */
+            box-shadow: 0 0 0 1px #58a6ff;
+            outline: none;
         }
-        /* Bronze for 3rd place */
-        .ranking-card:nth-child(4) {
-            border-left-color: #cd7f32; 
-            background-color: #1a1e28;
+
+        .btn-primary-tech {
+            background-image: linear-gradient(to right, #f87171, #dc2626); /* Red Gradient */
+            color: white;
+            font-weight: 700;
+            box-shadow: 0 0 10px rgba(220, 38, 38, 0.5);
+            transition: transform 0.2s, box-shadow 0.2s;
         }
-        
-        /* Style for the rank number */
+        .btn-primary-tech:hover:not(:disabled) {
+            transform: translateY(-1px) scale(1.01);
+            box-shadow: 0 0 15px rgba(220, 38, 38, 0.8);
+        }
+        .btn-primary-tech:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        /* --- Ranking Specific Highlighting --- */
+        .ranking-row {
+            transition: background-color 0.1s;
+        }
+        .ranking-row:hover {
+            background-color: #1f2731;
+        }
+
+        /* Gold/Apex Accent (First Rank) */
+        .ranking-list > .ranking-row:nth-child(1) { 
+            border-left: 5px solid #ffcc00; 
+            background-color: #1f2731;
+        }
+        .ranking-list > .ranking-row:nth-child(1) .rank-number { color: #ffcc00; }
+
+        /* Silver Accent (Second Rank) */
+        .ranking-list > .ranking-row:nth-child(2) { 
+            border-left: 5px solid #cccccc; 
+        }
+        .ranking-list > .ranking-row:nth-child(2) .rank-number { color: #cccccc; }
+
+        /* Bronze Accent (Third Rank) */
+        .ranking-list > .ranking-row:nth-child(3) { 
+            border-left: 5px solid #cd7f32; 
+        }
+        .ranking-list > .ranking-row:nth-child(3) .rank-number { color: #cd7f32; }
+
         .rank-number {
-            font-size: 1.5rem;
-            font-weight: 800;
-        }
-        .ranking-card:nth-child(2) .rank-number { color: #ffd700; }
-        .ranking-card:nth-child(3) .rank-number { color: #cccccc; }
-        .ranking-card:nth-child(4) .rank-number { color: #cd7f32; }
-
-        .btn-primary {
-            background-image: linear-gradient(to right, #ef4444, #dc2626);
-            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+            font-size: 1.25rem;
+            font-weight: 900;
+            min-width: 40px;
+            text-align: center;
         }
 
-        /* Sorting arrows */
+        /* Sorting Arrows */
         .sort-icon {
             opacity: 0.3;
         }
         .sorted-asc .sort-icon-asc {
             opacity: 1;
-            color: #3b82f6; /* Blue for active sort */
+            color: #58a6ff; /* Blue for active sort */
         }
         .sorted-desc .sort-icon-desc {
             opacity: 1;
-            color: #3b82f6;
+            color: #58a6ff;
         }
         .sort-header:hover .sort-icon {
             opacity: 0.7;
         }
+        
     </style>
 </head>
 <body class="min-h-screen">
-    <div class="max-w-4xl mx-auto p-4 md:p-8">
+    <div class="max-w-5xl mx-auto p-4 md:p-8">
 
-        <!-- Header Section: Aggressive and Exclusive -->
-        <header class="text-center mb-10">
-            <h1 class="text-5xl md:text-6xl font-extrabold mb-2 uppercase text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-red-600 tracking-wider">
-                SERVER 256
+        <!-- --- HEADER: COMMAND NEXUS --- -->
+        <header class="text-center mb-10 p-6">
+            <h1 class="text-6xl font-extrabold mb-2 uppercase text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-yellow-400 tracking-widest">
+                256 COMMAND NEXUS
             </h1>
-            <p class="text-xl md:text-2xl font-semibold text-gray-300 mb-6">
-                The APEX of Power. The Elite of Warfare.
+            <p class="text-2xl font-light text-gray-400">
+                KRAKEN PROTOCOL: The Apex Power Registry
             </p>
-
-            <!-- Call to Action for Krakens & Whales -->
-            <div class="bg-gray-900 border border-red-700/50 p-6 rounded-xl shadow-2xl">
-                <h2 class="text-2xl font-bold text-red-400 mb-3">Krakens & Whales: Your New Home Awaits.</h2>
-                <p class="text-gray-400 mb-6 max-w-2xl mx-auto">
-                    If you seek true **Dominance** and the highest level of warfare, Server 256 is the only battlefield. Join the elite.
-                </p>
-                <!-- NOTE: Replace '#' with your actual Discord/Contact link -->
-                <a href="#" target="_blank" class="inline-block px-12 py-3 text-lg font-bold text-white uppercase rounded-lg btn-primary hover:scale-[1.03] transition duration-300 transform">
-                    Contact the 256 Command
-                </a>
+            <!-- System Status Indicator -->
+            <div class="mt-4 p-3 tech-card inline-flex items-center text-xs">
+                <div id="auth-status-light" class="w-3 h-3 rounded-full mr-2 bg-yellow-400 animate-pulse"></div>
+                <p id="auth-status" class="text-gray-300">Awaiting Secure Link...</p>
             </div>
+            <p id="user-id-display" class="text-xs text-gray-500 mt-1 truncate">Access ID: N/A</p>
         </header>
 
-        <!-- Current User Info (for tracking/reference) -->
-        <div class="text-center text-sm mb-6 p-3 bg-gray-800/50 rounded-lg">
-            <p id="auth-status" class="text-gray-400">Awaiting Authentication...</p>
-            <p id="user-id-display" class="text-xs text-gray-500 mt-1 truncate">User ID: </p>
-        </div>
-
-
-        <!-- RANK Submission Form -->
-        <section class="mb-10 p-6 bg-gray-800 rounded-xl shadow-lg border border-gray-700">
-            <h2 class="text-2xl font-bold mb-4 text-red-300">Submit Your Dominance Profile</h2>
-            <form id="ranking-form" class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <input type="text" id="name" placeholder="Commander Name" required class="p-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-red-500 focus:border-red-500">
-                <input type="number" id="power" placeholder="Total Power (in Millions)" required class="p-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-red-500 focus:border-red-500">
-                <!-- UPDATED: KILLS TO MERITS -->
-                <input type="number" id="merits" placeholder="Total Merits (in Millions)" required class="p-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-red-500 focus:border-red-500">
-                <button type="submit" id="submit-btn" class="md:col-span-3 p-3 font-bold text-white rounded-lg transition duration-200 btn-primary" disabled>
-                    Submit Rank
+        <!-- --- RANK SUBMISSION FORM (DATA ENTRY CONSOLE) --- -->
+        <section class="mb-10 p-6 tech-card border-l-4 border-red-600">
+            <h2 class="text-2xl font-bold mb-4 text-red-400 border-b border-gray-700 pb-2">DATA ENTRY CONSOLE</h2>
+            <p class="text-sm text-gray-400 mb-4">Transmit your current power metrics to the Nexus.</p>
+            <form id="ranking-form" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <input type="text" id="name" placeholder="Commander Call Sign" required class="p-3 rounded-lg input-tech md:col-span-1">
+                <input type="number" id="power" placeholder="Total Power (M)" required class="p-3 rounded-lg input-tech md:col-span-1">
+                <input type="number" id="merits" placeholder="Total Merits (M)" required class="p-3 rounded-lg input-tech md:col-span-1">
+                <button type="submit" id="submit-btn" class="md:col-span-1 p-3 rounded-lg transition duration-200 btn-primary-tech" disabled>
+                    ENGAGE TRANSMIT PROTOCOL
                 </button>
             </form>
-            <div id="message-box" class="mt-4 hidden p-3 rounded-lg text-center" role="alert"></div>
+            <div id="message-box" class="mt-4 hidden p-3 rounded-lg text-center font-semibold" role="alert"></div>
         </section>
 
-        <!-- RANKINGS LIST SECTION -->
-        <section class="bg-gray-900 rounded-xl shadow-2xl overflow-hidden border border-gray-700">
-            <!-- Updated Heading -->
-            <h2 class="text-3xl font-bold p-6 border-b border-gray-700 text-yellow-400/90">
-                Current Server 256 Rankings
+        <!-- --- RANKINGS LIST (LIVE READOUT) --- -->
+        <section class="tech-card border-t-4 border-blue-600">
+            <h2 class="text-2xl font-bold p-4 border-b border-gray-700 text-blue-400/90 flex justify-between items-center">
+                LIVE POWER READOUT
+                <input type="text" id="search-input" placeholder="Filter by Call Sign..." class="w-48 p-2 rounded-lg input-tech text-sm">
             </h2>
             
-            <!-- Filter -->
-            <div class="p-4 border-b border-gray-700">
-                <input type="text" id="search-input" placeholder="Filter by Commander Name..." class="w-full p-3 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-red-500 focus:border-red-500">
-            </div>
-
             <!-- Ranking Header Row (Sortable) -->
             <div class="grid grid-cols-12 text-xs font-semibold uppercase tracking-wider text-gray-400 p-4 border-b border-gray-700">
-                <div class="col-span-1">#</div>
-                <div class="col-span-4">Commander Name</div>
-                <div class="col-span-3 cursor-pointer sort-header" id="sort-power" data-sort-key="power">
+                <div class="col-span-1 flex items-center justify-center">Rank</div>
+                <div class="col-span-5">Commander (Access ID)</div>
+                <div class="col-span-2 cursor-pointer sort-header flex items-center" id="sort-power" data-sort-key="power">
                     Power (M)
-                    <span class="sort-icon-asc sort-icon">▲</span>
+                    <span class="sort-icon-asc sort-icon ml-1">▲</span>
                     <span class="sort-icon-desc sort-icon">▼</span>
                 </div>
-                <!-- UPDATED: KILLS TO MERITS -->
-                <div class="col-span-3 cursor-pointer sort-header" id="sort-merits" data-sort-key="merits">
+                <div class="col-span-2 cursor-pointer sort-header flex items-center" id="sort-merits" data-sort-key="merits">
                     Merits (M)
-                    <span class="sort-icon-asc sort-icon">▲</span>
+                    <span class="sort-icon-asc sort-icon ml-1">▲</span>
                     <span class="sort-icon-desc sort-icon">▼</span>
                 </div>
-                <div class="col-span-1 text-right">Edit</div>
+                <div class="col-span-2 text-right">Admin Control</div>
             </div>
 
             <!-- Ranking Data Container -->
-            <div id="rankings-container" class="divide-y divide-gray-800">
-                <!-- Rankings will be injected here by the JavaScript code via renderRankings() -->
-                <p class="p-4 text-center text-gray-500" id="loading-message">Loading the Apex Rankings...</p>
+            <div id="rankings-container" class="ranking-list divide-y divide-gray-800">
+                <p class="p-4 text-center text-gray-500" id="loading-message">Establishing link to database...</p>
             </div>
         </section>
     </div>
@@ -157,7 +176,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, onSnapshot, collection, query, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, onSnapshot, collection, query, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
 
@@ -166,21 +185,22 @@
         let db;
         let auth;
         let userId = null;
-        // NEW: Store the ID of the user who launched the app (the administrator)
-        let adminUserId = null; 
+        let adminUserId = null; // ID of the user who launched the app
 
+        // CRITICAL: Load and parse the environment variables
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        // CRITICAL UPDATE: Safely parse config and ensure it's not empty before proceeding
         let firebaseConfig = {};
         try {
-            const configString = typeof __firebase_config !== 'undefined' ? __firebase_config : '{}';
-            firebaseConfig = JSON.parse(configString);
+            const configString = typeof __firebase_config !== 'undefined' ? __firebase_config : null;
+            if (configString) {
+                firebaseConfig = JSON.parse(configString);
+            }
         } catch (e) {
             console.error("Failed to parse Firebase configuration string:", e);
         }
         const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
         
-        // Firestore Collection Path
+        // Firestore Collection Path - RETAINING ORIGINAL PATH FOR DATA PERSISTENCE
         const COLLECTION_PATH = `artifacts/${appId}/public/data/server256_rankings`;
 
         // UI Elements
@@ -194,6 +214,7 @@
         const messageBoxEl = document.getElementById('message-box');
         const userIdDisplayEl = document.getElementById('user-id-display');
         const authStatusEl = document.getElementById('auth-status');
+        const authStatusLightEl = document.getElementById('auth-status-light');
         const sortPowerEl = document.getElementById('sort-power');
         const sortMeritsEl = document.getElementById('sort-merits'); 
         
@@ -203,81 +224,95 @@
 
         // --- Utility Functions ---
 
-        /** Shows a temporary status message */
+        /** Shows a temporary status message in the console. */
         const showMessage = (message, isError) => {
             messageBoxEl.textContent = message;
-            messageBoxEl.classList.remove('hidden', 'bg-red-900', 'bg-green-900', 'text-red-300', 'text-green-300');
-            messageBoxEl.classList.add(isError ? 'bg-red-900' : 'bg-green-900', isError ? 'text-red-300' : 'text-green-300');
+            messageBoxEl.classList.remove('hidden', 'bg-red-900/50', 'bg-green-900/50', 'text-red-300', 'text-green-300');
+            messageBoxEl.classList.add(isError ? 'bg-red-900/50' : 'bg-green-900/50', isError ? 'text-red-300' : 'text-green-300');
             setTimeout(() => {
                 messageBoxEl.classList.add('hidden');
             }, 5000);
         };
 
+        /** Displays a custom modal for confirmation (replaces forbidden alert/confirm). */
+        const showConfirmationModal = (title, message, onConfirm) => {
+            const modalId = `modal-${Math.random().toString(36).substring(2, 9)}`;
+            const modal = document.createElement('div');
+            modal.id = modalId;
+            modal.className = 'fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 p-4 backdrop-blur-sm';
+            
+            modal.innerHTML = `
+                <div class="tech-card bg-gray-900 p-6 rounded-lg shadow-2xl w-full max-w-sm border border-red-600/50">
+                    <h3 class="text-xl font-bold text-red-400 mb-3">${title}</h3>
+                    <p class="text-gray-300 mb-5">${message}</p>
+                    <div class="flex justify-end space-x-3">
+                        <button id="cancel-action-${modalId}" class="px-4 py-2 bg-gray-700 text-gray-300 rounded hover:bg-gray-600 transition">Cancel</button>
+                        <button id="confirm-action-${modalId}" class="px-4 py-2 bg-red-600 text-white font-semibold rounded hover:bg-red-700 transition">Confirm</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+
+            document.getElementById(`confirm-action-${modalId}`).onclick = () => {
+                modal.remove();
+                onConfirm();
+            };
+
+            document.getElementById(`cancel-action-${modalId}`).onclick = () => {
+                modal.remove();
+            };
+        };
+
+
         /** Deletes a ranking document */
         const deleteRanking = async (docData) => {
             // SECURITY CHECK: Only allow the admin to delete any ranking
             if (!db || userId !== adminUserId) {
-                showMessage("ERROR: Only the administrator can delete rankings.", true);
+                showMessage("ACCESS DENIED: Only the administrator can delete ranking entries.", true);
                 return;
             }
 
-            const confirmDelete = () => {
-                // Simple custom confirmation UI, since alert() is forbidden
-                const modal = document.createElement('div');
-                modal.className = 'fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50';
-                modal.innerHTML = `
-                    <div class="bg-gray-800 p-6 rounded-lg shadow-xl w-80">
-                        <p class="text-white mb-4">Are you sure you want to delete this ranking?</p>
-                        <div class="flex justify-end space-x-3">
-                            <button id="cancel-delete" class="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-500 transition">Cancel</button>
-                            <button id="confirm-delete" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition">Delete</button>
-                        </div>
-                    </div>
-                `;
-                document.body.appendChild(modal);
-
-                document.getElementById('confirm-delete').onclick = async () => {
-                    modal.remove();
+            showConfirmationModal(
+                "ADMIN CONFIRMATION: DATA PURGE",
+                `Confirm deletion of Commander ${docData.name}'s profile. This action is irreversible.`,
+                async () => {
                     try {
                         const rankDocRef = doc(db, COLLECTION_PATH, docData.id);
                         await deleteDoc(rankDocRef);
-                        showMessage("Ranking deleted successfully.", false);
+                        showMessage("Data purge complete. Ranking deleted.", false);
                     } catch (error) {
                         console.error("Error deleting ranking:", error);
-                        showMessage("Failed to delete ranking.", true);
+                        showMessage("PROTOCOL ERROR: Failed to delete ranking.", true);
                     }
-                };
-
-                document.getElementById('cancel-delete').onclick = () => {
-                    modal.remove();
-                };
-            };
-            
-            confirmDelete();
+                }
+            );
         };
 
         /** Renders the list of rankings */
         const renderRankings = (rankings) => {
-            const isAdmin = userId && userId === adminUserId; // Check if the current user is the admin
+            const isAdmin = userId && userId === adminUserId; 
 
-            // Sort the filtered list (defaulting to power descending)
+            // 1. Sort the filtered list (defaulting to power descending)
             const sortedRankings = [...rankings].sort((a, b) => {
                 const aVal = a[sortState.key];
                 const bVal = b[sortState.key];
 
                 if (aVal < bVal) return sortState.direction === 'asc' ? -1 : 1;
                 if (aVal > bVal) return sortState.direction === 'asc' ? 1 : -1;
-                return 0; // Fallback to maintain original order if values are equal
+                // Secondary sort by Name if primary key is equal
+                if (a.name < b.name) return -1;
+                if (a.name > b.name) return 1;
+                return 0; 
             });
 
             rankingsContainerEl.innerHTML = '';
             
             if (sortedRankings.length === 0) {
-                rankingsContainerEl.innerHTML = '<p class="p-4 text-center text-gray-500">No elite commanders match the current filter.</p>';
+                rankingsContainerEl.innerHTML = '<p class="p-4 text-center text-gray-500">No elite commanders match the current filter criteria.</p>';
                 return;
             }
 
-            // Update header arrows to show current sort state
+            // 2. Update header arrows to show current sort state
             [sortPowerEl, sortMeritsEl].forEach(el => {
                 el.classList.remove('sorted-asc', 'sorted-desc');
                 if (el.dataset.sortKey === sortState.key) {
@@ -286,35 +321,35 @@
             });
 
 
+            // 3. Render rows
             sortedRankings.forEach((rank, index) => {
                 const rankNumber = index + 1;
                 
                 const rankEl = document.createElement('div');
-                rankEl.className = 'ranking-card grid grid-cols-12 items-center p-4 hover:bg-gray-700/50 transition duration-150';
+                rankEl.className = 'ranking-row grid grid-cols-12 items-center p-3 text-sm transition duration-150';
                 
-                // Content for the row
+                // Format numbers to display in millions (M)
+                const formattedPower = (rank.power / 1000000).toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+                const formattedMerits = (rank.merits / 1000000).toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+
                 let content = `
-                    <div class="col-span-1">
-                        <span class="rank-number">${rankNumber}</span>
+                    <div class="col-span-1 flex items-center justify-center">
+                        <span class="rank-number text-gray-400">${rankNumber}</span>
                     </div>
-                    <div class="col-span-4 font-bold text-lg text-white truncate">
+                    <div class="col-span-5 font-bold text-white truncate">
                         ${rank.name}
+                        <span class="text-xs text-gray-500 ml-1 truncate" title="Owner ID: ${rank.ownerId || 'N/A'}">(ID:${rank.ownerId ? rank.ownerId.substring(0, 4) : 'N/A'})</span>
                     </div>
-                    <div class="col-span-3 text-red-400 font-semibold">
-                        ${(rank.power / 1000000).toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}M
-                    </div>
-                    <!-- UPDATED: Display merits instead of kills -->
-                    <div class="col-span-3 text-red-400 font-semibold">
-                        ${(rank.merits / 1000000).toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}M
-                    </div>
-                    <div class="col-span-1 flex justify-end space-x-2">
+                    <div class="col-span-2 text-red-500 font-mono">${formattedPower}M</div>
+                    <div class="col-span-2 text-blue-400 font-mono">${formattedMerits}M</div>
+                    <div class="col-span-2 flex justify-end space-x-2">
                         ${isAdmin ? `
-                            <button data-id="${rank.id}" class="edit-btn text-blue-400 hover:text-blue-300 transition duration-150" title="Edit Ranking">
+                            <button data-id="${rank.id}" data-name="${rank.name}" class="edit-btn text-yellow-400 hover:text-yellow-300 transition duration-150 p-1 rounded-full hover:bg-gray-700/50" title="Edit Ranking">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                                     <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zm-1.63 2.828l-7.388 7.388a1 1 0 00-.288.583v3.465a1 1 0 001 1h3.465a1 1 0 00.583-.288l7.388-7.388-2.828-2.828z" />
                                 </svg>
                             </button>
-                            <button data-id="${rank.id}" class="delete-btn text-red-400 hover:text-red-300 transition duration-150" title="Delete Ranking">
+                            <button data-id="${rank.id}" data-name="${rank.name}" class="delete-btn text-red-600 hover:text-red-500 transition duration-150 p-1 rounded-full hover:bg-gray-700/50" title="Delete Ranking">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                                     <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm4 0a1 1 0 100 2v6a1 1 0 100-2V8z" clip-rule="evenodd" />
                                 </svg>
@@ -327,7 +362,7 @@
                 rankingsContainerEl.appendChild(rankEl);
             });
             
-            // Re-attach listeners for dynamically generated buttons (only visible to admin)
+            // 4. Re-attach listeners for dynamically generated buttons (only visible to admin)
             if (isAdmin) {
                 document.querySelectorAll('.edit-btn').forEach(button => {
                     button.addEventListener('click', (e) => {
@@ -335,12 +370,15 @@
                         const rankToEdit = allRankings.find(r => r.id === id);
                         if (rankToEdit) {
                             nameInputEl.value = rankToEdit.name;
-                            powerInputEl.value = rankToEdit.power / 1000000;
-                            // UPDATED: Populate merits field
+                            // Convert back to millions for input display
+                            powerInputEl.value = rankToEdit.power / 1000000; 
                             meritsInputEl.value = rankToEdit.merits / 1000000;
+                            
                             formEl.dataset.editId = id; // Store ID for update
-                            submitBtn.textContent = "Update Rank";
-                            showMessage(`Editing rank for ${rankToEdit.name}.`, false);
+                            submitBtn.textContent = "UPDATE DATA LOG";
+                            submitBtn.classList.add('bg-yellow-600', 'hover:bg-yellow-700', 'shadow-yellow-500/50');
+                            submitBtn.classList.remove('btn-primary-tech');
+                            showMessage(`Editing data log for ${rankToEdit.name}.`, false);
                         }
                     });
                 });
@@ -348,8 +386,8 @@
                 document.querySelectorAll('.delete-btn').forEach(button => {
                     button.addEventListener('click', (e) => {
                         const id = e.currentTarget.dataset.id;
-                        // ownerId is not needed here as we use the admin check in deleteRanking
-                        deleteRanking({ id }); 
+                        const name = e.currentTarget.dataset.name;
+                        deleteRanking({ id, name }); 
                     });
                 });
             }
@@ -371,15 +409,18 @@
 
         const initializeFirebase = async () => {
             
-            // CRITICAL CHECK: Ensure we have config data before trying to initialize Firebase
+            // CRITICAL CHECK: Check if the configuration object is valid
             if (!firebaseConfig || Object.keys(firebaseConfig).length === 0) {
-                authStatusEl.textContent = 'ERROR: Firebase configuration is missing. Cannot connect to database.';
-                userIdDisplayEl.textContent = 'User ID: N/A';
+                authStatusEl.textContent = 'PROTOCOL OFFLINE: Configuration missing.';
+                authStatusLightEl.classList.replace('bg-yellow-400', 'bg-red-600');
+                authStatusLightEl.classList.remove('animate-pulse');
+                userIdDisplayEl.textContent = 'Access ID: CONFIG ERROR';
                 submitBtn.disabled = true;
                 rankingsContainerEl.innerHTML = '<p class="p-4 text-center text-red-400">Database connection failed. Configuration missing.</p>';
                 console.error('Firebase Error: Configuration object is empty or missing required fields.');
                 return;
             }
+
 
             try {
                 const app = initializeApp(firebaseConfig);
@@ -398,13 +439,15 @@
                 onAuthStateChanged(auth, (user) => {
                     if (user) {
                         userId = user.uid;
-                        // NEW: Set the admin ID to the first authenticated user (the user running this app)
+                        // Set the admin ID to the first authenticated user (the user running this app)
                         if (!adminUserId) {
                             adminUserId = user.uid;
                         }
                         
-                        userIdDisplayEl.textContent = `User ID: ${userId} ${userId === adminUserId ? '(ADMIN)' : ''}`;
-                        authStatusEl.textContent = 'Authenticated (Ready to Submit)';
+                        userIdDisplayEl.textContent = `Access ID: ${userId} ${userId === adminUserId ? '(ADMIN)' : ''}`;
+                        authStatusEl.textContent = 'SECURE LINK ESTABLISHED';
+                        authStatusLightEl.classList.replace('bg-yellow-400', 'bg-green-500');
+                        authStatusLightEl.classList.remove('animate-pulse');
                         isAuthReady = true;
                         submitBtn.disabled = false;
                         
@@ -412,13 +455,14 @@
                         setupRealtimeListener();
 
                     } else {
+                        // This case handles anonymous sign-in failure, which shouldn't happen but is a fallback
                         userId = null;
-                        userIdDisplayEl.textContent = 'User ID: N/A';
-                        authStatusEl.textContent = 'Unauthenticated (Limited features)';
-                        isAuthReady = true; // Still ready, but anonymous
-                        submitBtn.disabled = false;
-                        
-                        // Setup the real-time listener for anonymous users too
+                        userIdDisplayEl.textContent = 'Access ID: N/A';
+                        authStatusEl.textContent = 'AUTHENTICATION FAILED';
+                        authStatusLightEl.classList.replace('bg-yellow-400', 'bg-red-600');
+                        authStatusLightEl.classList.remove('animate-pulse');
+                        isAuthReady = true; 
+                        submitBtn.disabled = true; 
                         setupRealtimeListener();
                     }
                 });
@@ -426,7 +470,9 @@
             } catch (error) {
                 // Catch any other Firebase initialization errors
                 console.error("Firebase initialization failed:", error);
-                authStatusEl.textContent = `Error: ${error.message}`;
+                authStatusEl.textContent = `CRITICAL FAILURE: ${error.message}`;
+                authStatusLightEl.classList.replace('bg-yellow-400', 'bg-red-600');
+                authStatusLightEl.classList.remove('animate-pulse');
                 showMessage(`Firebase init failed: ${error.message}`, true);
             }
         };
@@ -436,23 +482,39 @@
              if (!db || !isAuthReady) return;
 
              const rankingsCollectionRef = collection(db, COLLECTION_PATH);
-             // Note: We avoid orderBy in the query and rely on client-side sorting (renderRankings)
+             // We use client-side sorting, so the query is simple
              const q = query(rankingsCollectionRef);
 
-             onSnapshot(q, (snapshot) => {
-                 allRankings = snapshot.docs.map(doc => ({
-                     id: doc.id,
-                     ...doc.data()
-                 }));
-                 
-                 // Apply filters and sort to the new data
-                 applyFiltersAndSort();
-                 document.getElementById('loading-message')?.remove();
+             // Exponential backoff mechanism for onSnapshot
+             const MAX_RETRIES = 5;
+             let retryCount = 0;
+             let baseDelay = 1000; // 1 second
 
-             }, (error) => {
-                 console.error("Error listening to collection:", error);
-                 rankingsContainerEl.innerHTML = '<p class="p-4 text-center text-red-400">Error fetching rankings.</p>';
-             });
+             const attemptSnapshot = () => {
+                onSnapshot(q, (snapshot) => {
+                    allRankings = snapshot.docs.map(doc => ({
+                        id: doc.id,
+                        ...doc.data()
+                    }));
+                    
+                    applyFiltersAndSort();
+                    document.getElementById('loading-message')?.remove();
+                    retryCount = 0; // Reset retry counter on success
+
+                }, (error) => {
+                    console.error("Error listening to collection:", error);
+                    if (retryCount < MAX_RETRIES) {
+                        const delay = baseDelay * Math.pow(2, retryCount) + Math.random() * 1000;
+                        retryCount++;
+                        setTimeout(attemptSnapshot, delay);
+                        rankingsContainerEl.innerHTML = `<p class="p-4 text-center text-yellow-500">Link lost, attempting reconnection (${retryCount}/${MAX_RETRIES})...</p>`;
+                    } else {
+                        rankingsContainerEl.innerHTML = '<p class="p-4 text-center text-red-400">CRITICAL: Max retry attempts failed. Cannot fetch live rankings.</p>';
+                    }
+                });
+             };
+
+             attemptSnapshot();
         };
 
 
@@ -460,32 +522,37 @@
         formEl.addEventListener('submit', async (e) => {
             e.preventDefault();
             if (!db || !userId) {
-                showMessage("Authentication not ready. Please wait.", true);
+                showMessage("Authentication protocol not ready. Please wait.", true);
                 return;
             }
 
+            // Restore primary button state
+            submitBtn.textContent = "Processing...";
             submitBtn.disabled = true;
-            submitBtn.textContent = "Submitting...";
+            submitBtn.classList.remove('bg-yellow-600', 'hover:bg-yellow-700', 'shadow-yellow-500/50');
+            submitBtn.classList.add('btn-primary-tech');
+
 
             const name = nameInputEl.value.trim();
+            // All values entered are expected to be in Millions, convert to absolute integer
             const powerMillions = parseFloat(powerInputEl.value);
             const meritsMillions = parseFloat(meritsInputEl.value);
 
             if (isNaN(powerMillions) || isNaN(meritsMillions) || powerMillions <= 0 || meritsMillions < 0) {
-                 showMessage("Please enter valid, positive numbers for Power and Merits.", true);
-                 submitBtn.textContent = "Submit Rank";
+                 showMessage("INPUT ERROR: Please enter valid, positive numbers (in Millions) for Power and Merits.", true);
+                 submitBtn.textContent = formEl.dataset.editId ? "UPDATE DATA LOG" : "ENGAGE TRANSMIT PROTOCOL";
                  submitBtn.disabled = false;
                  return;
             }
 
-            const power = Math.round(powerMillions * 1000000); // Store as absolute number (integer)
-            const merits = Math.round(meritsMillions * 1000000); // Store merits
+            const power = Math.round(powerMillions * 1000000); 
+            const merits = Math.round(meritsMillions * 1000000); 
             const editId = formEl.dataset.editId;
 
             // Check if this is an update attempt and restrict it to admin
             if (editId && userId !== adminUserId) {
-                showMessage("ERROR: Only the administrator can update existing rankings.", true);
-                submitBtn.textContent = "Submit Rank";
+                showMessage("ACCESS DENIED: Only the administrator can update existing rankings.", true);
+                submitBtn.textContent = "UPDATE DATA LOG";
                 submitBtn.disabled = false;
                 return;
             }
@@ -495,22 +562,32 @@
                 name,
                 power,
                 merits,
-                // If this is a new submission, assign ownerId. If it's an admin update, we keep the original ownerId, but for this specific application, we'll set it to the current user's ID.
-                ownerId: userId, 
+                ownerId: editId ? allRankings.find(r => r.id === editId)?.ownerId || userId : userId,
                 updatedAt: new Date().toISOString(),
             };
+            
+            // If new submission, include ownerId for the first time
+            if (!editId) {
+                newRanking.ownerId = userId;
+            }
+
 
             const rankDocRef = editId ? doc(db, COLLECTION_PATH, editId) : doc(collection(db, COLLECTION_PATH));
             
             try {
-                await setDoc(rankDocRef, newRanking, { merge: true });
-                showMessage(`Ranking for ${name} ${editId ? 'updated' : 'submitted'} successfully!`, false);
+                // Use setDoc with merge: true for reliable upsert (create or update)
+                await setDoc(rankDocRef, newRanking, { merge: true }); 
+                showMessage(`DATA LOG ${editId ? 'UPDATED' : 'TRANSMITTED'} successfully for ${name}!`, false);
+                
+                // Clear state after success
                 formEl.reset();
-                delete formEl.dataset.editId; // Clear edit state
-                submitBtn.textContent = "Submit Rank";
+                delete formEl.dataset.editId; 
+                submitBtn.textContent = "ENGAGE TRANSMIT PROTOCOL";
+
             } catch (error) {
                 console.error("Error submitting ranking:", error);
-                showMessage(`Failed to submit ranking: ${error.message}`, true);
+                showMessage(`TRANSMISSION FAILED: ${error.message}`, true);
+                submitBtn.textContent = "TRANSMISSION FAILED (RETRY)";
             } finally {
                 submitBtn.disabled = false;
             }
@@ -529,9 +606,9 @@
                 // Toggle direction if same key is clicked
                 sortState.direction = sortState.direction === 'desc' ? 'asc' : 'desc';
             } else {
-                // New key, reset to descending (standard for rankings)
+                // New key, set Power/Merits to descending, default other fields to asc
                 sortState.key = newKey;
-                sortState.direction = 'desc';
+                sortState.direction = (newKey === 'power' || newKey === 'merits') ? 'desc' : 'asc';
             }
 
             applyFiltersAndSort();
