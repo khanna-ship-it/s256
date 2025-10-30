@@ -95,7 +95,7 @@
 
         <!-- Current User Info (for tracking/reference) -->
         <div class="text-center text-sm mb-6 p-3 bg-gray-800/50 rounded-lg">
-            <p id="auth-status" class="text-gray-400">Authenticating...</p>
+            <p id="auth-status" class="text-gray-400">Awaiting Authentication...</p>
             <p id="user-id-display" class="text-xs text-gray-500 mt-1 truncate">User ID: </p>
         </div>
 
@@ -106,7 +106,8 @@
             <form id="ranking-form" class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <input type="text" id="name" placeholder="Commander Name" required class="p-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-red-500 focus:border-red-500">
                 <input type="number" id="power" placeholder="Total Power (in Millions)" required class="p-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-red-500 focus:border-red-500">
-                <input type="number" id="kills" placeholder="Total Kills (in Millions)" required class="p-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-red-500 focus:border-red-500">
+                <!-- UPDATED: KILLS TO MERITS -->
+                <input type="number" id="merits" placeholder="Total Merits (in Millions)" required class="p-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-red-500 focus:border-red-500">
                 <button type="submit" id="submit-btn" class="md:col-span-3 p-3 font-bold text-white rounded-lg transition duration-200 btn-primary" disabled>
                     Submit Rank
                 </button>
@@ -116,8 +117,9 @@
 
         <!-- RANKINGS LIST SECTION -->
         <section class="bg-gray-900 rounded-xl shadow-2xl overflow-hidden border border-gray-700">
+            <!-- Updated Heading -->
             <h2 class="text-3xl font-bold p-6 border-b border-gray-700 text-yellow-400/90">
-                Current Server 256 Apex Rankings
+                Current Server 256 Rankings
             </h2>
             
             <!-- Filter -->
@@ -134,8 +136,9 @@
                     <span class="sort-icon-asc sort-icon">▲</span>
                     <span class="sort-icon-desc sort-icon">▼</span>
                 </div>
-                <div class="col-span-3 cursor-pointer sort-header" id="sort-kills" data-sort-key="kills">
-                    Kills (M)
+                <!-- UPDATED: KILLS TO MERITS -->
+                <div class="col-span-3 cursor-pointer sort-header" id="sort-merits" data-sort-key="merits">
+                    Merits (M)
                     <span class="sort-icon-asc sort-icon">▲</span>
                     <span class="sort-icon-desc sort-icon">▼</span>
                 </div>
@@ -144,7 +147,7 @@
 
             <!-- Ranking Data Container -->
             <div id="rankings-container" class="divide-y divide-gray-800">
-                <!-- Rankings will be injected here -->
+                <!-- Rankings will be injected here by the JavaScript code via renderRankings() -->
                 <p class="p-4 text-center text-gray-500" id="loading-message">Loading the Apex Rankings...</p>
             </div>
         </section>
@@ -154,7 +157,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, onSnapshot, collection, query, orderBy, where, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, onSnapshot, collection, query, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
 
@@ -163,8 +166,18 @@
         let db;
         let auth;
         let userId = null;
+        // NEW: Store the ID of the user who launched the app (the administrator)
+        let adminUserId = null; 
+
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+        // CRITICAL UPDATE: Safely parse config and ensure it's not empty before proceeding
+        let firebaseConfig = {};
+        try {
+            const configString = typeof __firebase_config !== 'undefined' ? __firebase_config : '{}';
+            firebaseConfig = JSON.parse(configString);
+        } catch (e) {
+            console.error("Failed to parse Firebase configuration string:", e);
+        }
         const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
         
         // Firestore Collection Path
@@ -174,7 +187,7 @@
         const formEl = document.getElementById('ranking-form');
         const nameInputEl = document.getElementById('name');
         const powerInputEl = document.getElementById('power');
-        const killsInputEl = document.getElementById('kills');
+        const meritsInputEl = document.getElementById('merits');
         const submitBtn = document.getElementById('submit-btn');
         const rankingsContainerEl = document.getElementById('rankings-container');
         const searchInputEl = document.getElementById('search-input');
@@ -182,7 +195,7 @@
         const userIdDisplayEl = document.getElementById('user-id-display');
         const authStatusEl = document.getElementById('auth-status');
         const sortPowerEl = document.getElementById('sort-power');
-        const sortKillsEl = document.getElementById('sort-kills');
+        const sortMeritsEl = document.getElementById('sort-merits'); 
         
         let allRankings = []; // Master list of all rankings
         let sortState = { key: 'power', direction: 'desc' }; // Default sort
@@ -201,9 +214,10 @@
         };
 
         /** Deletes a ranking document */
-        const deleteRanking = async (docId) => {
-            if (!db || docId.ownerId !== userId) {
-                showMessage("Authorization failed or database not ready.", true);
+        const deleteRanking = async (docData) => {
+            // SECURITY CHECK: Only allow the admin to delete any ranking
+            if (!db || userId !== adminUserId) {
+                showMessage("ERROR: Only the administrator can delete rankings.", true);
                 return;
             }
 
@@ -225,7 +239,7 @@
                 document.getElementById('confirm-delete').onclick = async () => {
                     modal.remove();
                     try {
-                        const rankDocRef = doc(db, COLLECTION_PATH, docId.id);
+                        const rankDocRef = doc(db, COLLECTION_PATH, docData.id);
                         await deleteDoc(rankDocRef);
                         showMessage("Ranking deleted successfully.", false);
                     } catch (error) {
@@ -244,6 +258,8 @@
 
         /** Renders the list of rankings */
         const renderRankings = (rankings) => {
+            const isAdmin = userId && userId === adminUserId; // Check if the current user is the admin
+
             // Sort the filtered list (defaulting to power descending)
             const sortedRankings = [...rankings].sort((a, b) => {
                 const aVal = a[sortState.key];
@@ -262,7 +278,7 @@
             }
 
             // Update header arrows to show current sort state
-            [sortPowerEl, sortKillsEl].forEach(el => {
+            [sortPowerEl, sortMeritsEl].forEach(el => {
                 el.classList.remove('sorted-asc', 'sorted-desc');
                 if (el.dataset.sortKey === sortState.key) {
                     el.classList.add(sortState.direction === 'asc' ? 'sorted-asc' : 'sorted-desc');
@@ -272,7 +288,6 @@
 
             sortedRankings.forEach((rank, index) => {
                 const rankNumber = index + 1;
-                const isOwner = userId && rank.ownerId === userId;
                 
                 const rankEl = document.createElement('div');
                 rankEl.className = 'ranking-card grid grid-cols-12 items-center p-4 hover:bg-gray-700/50 transition duration-150';
@@ -288,17 +303,18 @@
                     <div class="col-span-3 text-red-400 font-semibold">
                         ${(rank.power / 1000000).toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}M
                     </div>
+                    <!-- UPDATED: Display merits instead of kills -->
                     <div class="col-span-3 text-red-400 font-semibold">
-                        ${(rank.kills / 1000000).toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}M
+                        ${(rank.merits / 1000000).toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}M
                     </div>
                     <div class="col-span-1 flex justify-end space-x-2">
-                        ${isOwner ? `
-                            <button data-id="${rank.id}" data-owner-id="${rank.ownerId}" class="edit-btn text-blue-400 hover:text-blue-300 transition duration-150" title="Edit Ranking">
+                        ${isAdmin ? `
+                            <button data-id="${rank.id}" class="edit-btn text-blue-400 hover:text-blue-300 transition duration-150" title="Edit Ranking">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                                     <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zm-1.63 2.828l-7.388 7.388a1 1 0 00-.288.583v3.465a1 1 0 001 1h3.465a1 1 0 00.583-.288l7.388-7.388-2.828-2.828z" />
                                 </svg>
                             </button>
-                            <button data-id="${rank.id}" data-owner-id="${rank.ownerId}" class="delete-btn text-red-400 hover:text-red-300 transition duration-150" title="Delete Ranking">
+                            <button data-id="${rank.id}" class="delete-btn text-red-400 hover:text-red-300 transition duration-150" title="Delete Ranking">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                                     <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm4 0a1 1 0 100 2v6a1 1 0 100-2V8z" clip-rule="evenodd" />
                                 </svg>
@@ -311,29 +327,32 @@
                 rankingsContainerEl.appendChild(rankEl);
             });
             
-            // Re-attach listeners for dynamically generated buttons
-            document.querySelectorAll('.edit-btn').forEach(button => {
-                button.addEventListener('click', (e) => {
-                    const id = e.currentTarget.dataset.id;
-                    const rankToEdit = allRankings.find(r => r.id === id);
-                    if (rankToEdit) {
-                        nameInputEl.value = rankToEdit.name;
-                        powerInputEl.value = rankToEdit.power / 1000000;
-                        killsInputEl.value = rankToEdit.kills / 1000000;
-                        formEl.dataset.editId = id; // Store ID for update
-                        submitBtn.textContent = "Update Rank";
-                        showMessage(`Editing rank for ${rankToEdit.name}.`, false);
-                    }
+            // Re-attach listeners for dynamically generated buttons (only visible to admin)
+            if (isAdmin) {
+                document.querySelectorAll('.edit-btn').forEach(button => {
+                    button.addEventListener('click', (e) => {
+                        const id = e.currentTarget.dataset.id;
+                        const rankToEdit = allRankings.find(r => r.id === id);
+                        if (rankToEdit) {
+                            nameInputEl.value = rankToEdit.name;
+                            powerInputEl.value = rankToEdit.power / 1000000;
+                            // UPDATED: Populate merits field
+                            meritsInputEl.value = rankToEdit.merits / 1000000;
+                            formEl.dataset.editId = id; // Store ID for update
+                            submitBtn.textContent = "Update Rank";
+                            showMessage(`Editing rank for ${rankToEdit.name}.`, false);
+                        }
+                    });
                 });
-            });
 
-            document.querySelectorAll('.delete-btn').forEach(button => {
-                button.addEventListener('click', (e) => {
-                    const id = e.currentTarget.dataset.id;
-                    const ownerId = e.currentTarget.dataset.ownerId;
-                    deleteRanking({ id, ownerId });
+                document.querySelectorAll('.delete-btn').forEach(button => {
+                    button.addEventListener('click', (e) => {
+                        const id = e.currentTarget.dataset.id;
+                        // ownerId is not needed here as we use the admin check in deleteRanking
+                        deleteRanking({ id }); 
+                    });
                 });
-            });
+            }
         };
 
         /** Applies filter (search) and sort, then calls renderRankings */
@@ -351,11 +370,22 @@
         // --- FIREBASE INITIALIZATION AND REAL-TIME LISTENER ---
 
         const initializeFirebase = async () => {
+            
+            // CRITICAL CHECK: Ensure we have config data before trying to initialize Firebase
+            if (!firebaseConfig || Object.keys(firebaseConfig).length === 0) {
+                authStatusEl.textContent = 'ERROR: Firebase configuration is missing. Cannot connect to database.';
+                userIdDisplayEl.textContent = 'User ID: N/A';
+                submitBtn.disabled = true;
+                rankingsContainerEl.innerHTML = '<p class="p-4 text-center text-red-400">Database connection failed. Configuration missing.</p>';
+                console.error('Firebase Error: Configuration object is empty or missing required fields.');
+                return;
+            }
+
             try {
                 const app = initializeApp(firebaseConfig);
                 db = getFirestore(app);
                 auth = getAuth(app);
-                authStatusEl.textContent = 'Awaiting authentication...';
+                submitBtn.disabled = true;
 
                 // Sign in with custom token or anonymously
                 if (initialAuthToken) {
@@ -368,9 +398,15 @@
                 onAuthStateChanged(auth, (user) => {
                     if (user) {
                         userId = user.uid;
-                        userIdDisplayEl.textContent = `User ID: ${userId}`;
+                        // NEW: Set the admin ID to the first authenticated user (the user running this app)
+                        if (!adminUserId) {
+                            adminUserId = user.uid;
+                        }
+                        
+                        userIdDisplayEl.textContent = `User ID: ${userId} ${userId === adminUserId ? '(ADMIN)' : ''}`;
                         authStatusEl.textContent = 'Authenticated (Ready to Submit)';
                         isAuthReady = true;
+                        submitBtn.disabled = false;
                         
                         // Setup the real-time listener ONLY after auth is ready
                         setupRealtimeListener();
@@ -380,6 +416,7 @@
                         userIdDisplayEl.textContent = 'User ID: N/A';
                         authStatusEl.textContent = 'Unauthenticated (Limited features)';
                         isAuthReady = true; // Still ready, but anonymous
+                        submitBtn.disabled = false;
                         
                         // Setup the real-time listener for anonymous users too
                         setupRealtimeListener();
@@ -387,6 +424,7 @@
                 });
 
             } catch (error) {
+                // Catch any other Firebase initialization errors
                 console.error("Firebase initialization failed:", error);
                 authStatusEl.textContent = `Error: ${error.message}`;
                 showMessage(`Firebase init failed: ${error.message}`, true);
@@ -430,26 +468,35 @@
             submitBtn.textContent = "Submitting...";
 
             const name = nameInputEl.value.trim();
-            // Convert power/kills from Millions (string) to absolute number (int)
             const powerMillions = parseFloat(powerInputEl.value);
-            const killsMillions = parseFloat(killsInputEl.value);
+            const meritsMillions = parseFloat(meritsInputEl.value);
 
-            if (isNaN(powerMillions) || isNaN(killsMillions) || powerMillions <= 0 || killsMillions < 0) {
-                 showMessage("Please enter valid, positive numbers for Power and Kills.", true);
+            if (isNaN(powerMillions) || isNaN(meritsMillions) || powerMillions <= 0 || meritsMillions < 0) {
+                 showMessage("Please enter valid, positive numbers for Power and Merits.", true);
                  submitBtn.textContent = "Submit Rank";
                  submitBtn.disabled = false;
                  return;
             }
 
             const power = Math.round(powerMillions * 1000000); // Store as absolute number (integer)
-            const kills = Math.round(killsMillions * 1000000); // Store as absolute number (integer)
+            const merits = Math.round(meritsMillions * 1000000); // Store merits
             const editId = formEl.dataset.editId;
+
+            // Check if this is an update attempt and restrict it to admin
+            if (editId && userId !== adminUserId) {
+                showMessage("ERROR: Only the administrator can update existing rankings.", true);
+                submitBtn.textContent = "Submit Rank";
+                submitBtn.disabled = false;
+                return;
+            }
+
 
             const newRanking = {
                 name,
                 power,
-                kills,
-                ownerId: userId,
+                merits,
+                // If this is a new submission, assign ownerId. If it's an admin update, we keep the original ownerId, but for this specific application, we'll set it to the current user's ID.
+                ownerId: userId, 
                 updatedAt: new Date().toISOString(),
             };
 
@@ -491,7 +538,7 @@
         };
 
         sortPowerEl.addEventListener('click', handleSortClick);
-        sortKillsEl.addEventListener('click', handleSortClick);
+        sortMeritsEl.addEventListener('click', handleSortClick);
 
 
         // Start the application
