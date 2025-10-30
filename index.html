@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Server 256 Power Rankings</title>
+    <title>S256 Command Center</title>
     <!-- Load Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Use Inter font family -->
@@ -39,32 +39,55 @@
         .sortable-header:hover {
             color: #4f46e5;
         }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
     </style>
 </head>
 <body class="min-h-screen">
-    <div id="app" class="max-w-4xl mx-auto p-4 md:p-8">
+    <div id="app" class="max-w-6xl mx-auto p-4 md:p-8">
         <!-- Header -->
-        <header class="text-center mb-10">
-            <h1 class="text-4xl font-extrabold text-white mb-2">Server 256 Power Rankings</h1>
-            <p class="text-lg text-gray-400">The definitive leaderboard based on total power and kill count.</p>
+        <header class="text-center mb-6">
+            <h1 class="text-5xl font-extrabold text-white mb-2 tracking-wider">S256 Command Center</h1>
+            <p class="text-lg text-gray-400">The central hub for Server 256 metrics and information.</p>
             <p id="auth-status" class="text-sm text-gray-500 mt-2"></p>
         </header>
 
-        <!-- Loading Indicator -->
-        <div id="loading" class="text-center text-white p-10 hidden">
-            <div class="animate-spin inline-block w-8 h-8 border-4 border-t-4 border-blue-500 border-gray-800 rounded-full"></div>
-            <p class="mt-2">Loading server rankings...</p>
-        </div>
+        <!-- Tab Navigation -->
+        <nav class="flex justify-center border-b border-gray-700 mb-8">
+            <button class="tab-button py-3 px-6 text-sm font-medium text-gray-400 hover:text-white hover:bg-[#1e232b] border-b-2 border-transparent transition duration-150 active-tab" 
+                    data-tab="leaderboard">256 Rankings</button>
+            <button class="tab-button py-3 px-6 text-sm font-medium text-gray-400 hover:text-white hover:bg-[#1e232b] border-b-2 border-transparent transition duration-150" 
+                    data-tab="submit">Submit Rank</button>
+            <button class="tab-button py-3 px-6 text-sm font-medium text-gray-400 hover:text-white hover:bg-[#1e232b] border-b-2 border-transparent transition duration-150" 
+                    data-tab="info">Server Info</button>
+            <button class="tab-button py-3 px-6 text-sm font-medium text-gray-400 hover:text-white hover:bg-[#1e232b] border-b-2 border-transparent transition duration-150" 
+                    data-tab="guides">Guides</button>
+            <button class="tab-button py-3 px-6 text-sm font-medium text-gray-400 hover:text-white hover:bg-[#1e232b] border-b-2 border-transparent transition duration-150" 
+                    data-tab="resources">Resources</button>
+        </nav>
 
-        <!-- Main Content Grid -->
-        <div id="main-content" class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <!-- Ranking List Section -->
-            <div class="lg:col-span-2">
-                <h2 class="text-2xl font-bold text-white mb-4 border-b border-gray-700 pb-2">Top Players</h2>
+
+        <!-- Tab Content Containers -->
+
+        <!-- 1. 256 Rankings Tab (Leaderboard) -->
+        <div id="leaderboard" class="tab-content active">
+            <!-- Loading Indicator -->
+            <div id="loading" class="text-center text-white p-10 hidden">
+                <div class="animate-spin inline-block w-8 h-8 border-4 border-t-4 border-blue-500 border-gray-800 rounded-full"></div>
+                <p class="mt-2">Loading server rankings...</p>
+            </div>
+
+            <!-- Leaderboard Content -->
+            <div id="main-content" class="max-w-4xl mx-auto">
+                <h2 class="text-3xl font-bold text-white mb-4 border-b border-gray-700 pb-2">256 Player Rankings</h2>
                 
                 <!-- Search/Filter Bar -->
                 <div class="mb-4">
-                    <input type="text" id="search-input" placeholder="Filter by Player Name..."
+                    <input type="text" id="search-input" placeholder="Filter by Player Name or Alliance..."
                            class="w-full px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:ring-blue-500 focus:border-blue-500">
                 </div>
 
@@ -85,18 +108,20 @@
 
                 <div id="ranking-list" class="space-y-1">
                     <!-- Rankings will be injected here -->
-                    <p class="text-gray-500 text-center py-10" id="empty-state">No rankings yet. Use the form to add some!</p>
+                    <p class="text-gray-500 text-center py-10" id="empty-state">No rankings yet. Use the Submit Rank tab to add some!</p>
                 </div>
             </div>
+        </div>
 
-            <!-- Management/Add Ranking Section -->
-            <div class="lg:col-span-1 bg-[#161b22] p-6 rounded-xl shadow-lg border border-gray-700 sticky top-8 h-fit">
-                <h2 class="text-xl font-bold text-white mb-4">Add/Update Ranking</h2>
+        <!-- 2. Submit Rank Tab (Form) -->
+        <div id="submit" class="tab-content">
+            <div class="max-w-lg mx-auto bg-[#161b22] p-6 rounded-xl shadow-lg border border-gray-700">
+                <h2 class="text-3xl font-bold text-white mb-4">Submit / Update Your Rank</h2>
 
                 <form id="ranking-form" class="space-y-4">
                     <div>
                         <label for="playerName" class="block text-sm font-medium text-gray-300">Player Name</label>
-                        <input type="text" id="playerName" required placeholder="GamerTag"
+                        <input type="text" id="playerName" required placeholder="GamerTag (Case-sensitive for display)"
                                class="mt-1 block w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md text-white focus:ring-blue-500 focus:border-blue-500">
                     </div>
                     <div>
@@ -123,6 +148,46 @@
                 <div id="message-box" class="mt-4 p-3 rounded-md text-sm text-center hidden"></div>
             </div>
         </div>
+
+        <!-- 3. Server Info Tab -->
+        <div id="info" class="tab-content">
+            <div class="max-w-4xl mx-auto bg-[#161b22] p-6 rounded-xl shadow-lg border border-gray-700 text-white">
+                <h2 class="text-3xl font-bold mb-4">Server 256 Information</h2>
+                <p class="text-gray-400 mb-6">This section is for key information, rules, and governance for Server 256.</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <h3 class="text-xl font-semibold text-yellow-400 mb-2">Key Policies</h3>
+                        <ul class="list-disc list-inside space-y-2 text-gray-300">
+                            <li>KOS Policy: Active during War Season (check in-game mail).</li>
+                            <li>Resource Sharing: Alliance members encouraged to share T4 resources.</li>
+                            <li>NAP Status: Current status is generally NAP, with exceptions during major events.</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-semibold text-yellow-400 mb-2">Event Schedule</h3>
+                        <p class="text-gray-300">Next Major Event: **Kingdom vs Kingdom (KvK)** starts soon.</p>
+                        <p class="text-gray-300">Check the 'Resources' tab for links to planning documents.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. Guides Tab (Placeholder) -->
+        <div id="guides" class="tab-content">
+            <div class="max-w-4xl mx-auto bg-[#161b22] p-6 rounded-xl shadow-lg border border-gray-700 text-white text-center">
+                <h2 class="text-3xl font-bold mb-4">Guides & Tutorials</h2>
+                <p class="text-gray-400">Content coming soon! This tab will host community-created guides for optimizing power, maximizing kills, and event strategies.</p>
+            </div>
+        </div>
+
+        <!-- 5. Resources Tab (Placeholder) -->
+        <div id="resources" class="tab-content">
+            <div class="max-w-4xl mx-auto bg-[#161b22] p-6 rounded-xl shadow-lg border border-gray-700 text-white text-center">
+                <h2 class="text-3xl font-bold mb-4">External Resources</h2>
+                <p class="text-gray-400">Content coming soon! This tab will link to important Discord channels, alliance planning documents, and external game tools.</p>
+            </div>
+        </div>
+
     </div>
 
     <!-- Firebase Configuration and Script -->
@@ -134,12 +199,32 @@
 
         setLogLevel('debug');
 
-        // Global variables provided by the environment
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
-        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+        // =========================================================================
+        // STEP 1: Firebase Configuration Setup
+        // =========================================================================
+        // WARNING: This configuration uses hardcoded keys. When deploying externally,
+        // ensure these are loaded securely via environment variables.
 
+        const firebaseConfig = {
+            apiKey: "AIzaSyDPBsLGnZSy9gl0J-Toy97sx04sbMliN1A",
+            authDomain: "aoem-s256.firebaseapp.com",
+            projectId: "aoem-s256",
+            storageBucket: "aoem-s256.firebasestorage.app",
+            messagingSenderId: "841512392095",
+            appId: "1:841512392095:web:84df8ffedacb97352859aa",
+            measurementId: "G-N6GB8LBHWJ"
+        };
+
+        // These variables MUST still rely on the environment globals (if available) 
+        // for correct authentication and data isolation within this environment.
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+        // The appId for Firestore paths defaults to the project ID, but is overridden by the environment's __app_id if present.
+        const appId = typeof __app_id !== 'undefined' ? __app_id : firebaseConfig.projectId; 
+        
+        // =========================================================================
+        
         // UI Elements
+        // Updated to reflect the new tabbed layout
         const loadingEl = document.getElementById('loading');
         const rankingListEl = document.getElementById('ranking-list');
         const emptyStateEl = document.getElementById('empty-state');
@@ -148,6 +233,9 @@
         const messageBoxEl = document.getElementById('message-box');
         const submitBtn = document.getElementById('submitBtn');
         const searchInputEl = document.getElementById('search-input');
+        
+        const tabButtons = document.querySelectorAll('.tab-button');
+        const tabContents = document.querySelectorAll('.tab-content');
 
         // Sorting elements
         const sortPowerEl = document.getElementById('sort-power');
@@ -167,6 +255,48 @@
             key: 'power', // Default sort key
             direction: 'desc' // Default direction
         };
+        
+        /**
+         * Switches the active tab content.
+         * @param {string} tabId The ID of the tab content to show (e.g., 'leaderboard').
+         */
+        function switchTab(tabId) {
+            // Hide all content tabs
+            tabContents.forEach(content => {
+                content.classList.remove('active');
+            });
+
+            // Deactivate all buttons
+            tabButtons.forEach(button => {
+                button.classList.remove('text-white', 'bg-[#1e232b]');
+                button.classList.add('text-gray-400', 'hover:text-white');
+                button.style.borderBottomColor = 'transparent';
+            });
+
+            // Show the selected tab
+            const activeContent = document.getElementById(tabId);
+            if (activeContent) {
+                activeContent.classList.add('active');
+            }
+
+            // Activate the corresponding button style
+            const activeButton = document.querySelector(`.tab-button[data-tab="${tabId}"]`);
+            if (activeButton) {
+                activeButton.classList.add('text-white', 'bg-[#1e232b]');
+                activeButton.classList.remove('text-gray-400', 'hover:text-white');
+                activeButton.style.borderBottomColor = '#4f46e5'; // Blue underline
+            }
+        }
+        
+        // Initialize default tab to Leaderboard
+        switchTab('leaderboard'); 
+        
+        // Add listeners for tab buttons
+        tabButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                switchTab(button.dataset.tab);
+            });
+        });
 
         /**
          * Shows a temporary message in the message box.
@@ -223,6 +353,8 @@
          */
         function renderRankings(rankings) {
             // Update sort indicators
+            const filterTerm = searchInputEl.value.toLowerCase().trim();
+            
             powerSortIconEl.textContent = sortState.key === 'power' ? (sortState.direction === 'desc' ? '▼' : '▲') : '';
             killsSortIconEl.textContent = sortState.key === 'kill_count' ? (sortState.direction === 'desc' ? '▼' : '▲') : '';
             
@@ -233,7 +365,7 @@
 
 
             if (rankings.length === 0) {
-                emptyStateEl.textContent = filterTerm ? "No players match the search criteria." : "No rankings yet. Use the form to add some!";
+                emptyStateEl.textContent = filterTerm ? "No players match the search criteria." : "No rankings yet. Use the Submit Rank tab to add some!";
                 emptyStateEl.classList.remove('hidden');
                 rankingListEl.innerHTML = '';
                 return;
@@ -245,7 +377,16 @@
                 const formattedPower = player.power.toLocaleString();
                 const formattedKills = player.kill_count.toLocaleString();
                 const allianceTag = player.alliance || '[N/A]';
-                const lastUpdated = player.last_updated instanceof Timestamp ? player.last_updated.toDate().toLocaleDateString() : 'N/A';
+                // Check if last_updated is a Timestamp object, then convert to Date
+                const lastUpdated = player.last_updated && typeof player.last_updated.toDate === 'function' ? player.last_updated.toDate().toLocaleDateString() : 'N/A';
+
+                // Apply gold/silver/bronze border only if no filter is active
+                let borderClass = '';
+                if (!filterTerm) {
+                    if (rank === 1) borderClass = 'border-l-gold'; 
+                    else if (rank === 2) borderClass = 'border-l-silver';
+                    else if (rank === 3) borderClass = 'border-l-bronze';
+                }
 
                 return `
                     <div class="ranking-card flex items-center p-4 bg-[#1e232b] rounded-lg shadow-xl hover:bg-[#252a32] transition duration-200 ease-in-out">
@@ -287,9 +428,7 @@
             loadingEl.classList.remove('hidden');
 
             try {
-                if (Object.keys(firebaseConfig).length === 0) {
-                     throw new Error("Firebase configuration is missing.");
-                }
+                // We no longer check for empty config since it is hardcoded above.
 
                 app = initializeApp(firebaseConfig);
                 db = getFirestore(app);
@@ -299,23 +438,23 @@
                 onAuthStateChanged(auth, async (user) => {
                     if (user) {
                         userId = user.uid;
-                        authStatusEl.textContent = `Authenticated user: ${userId}`;
+                        authStatusEl.textContent = `User ID: ${userId} (Authenticated)`;
                         isAuthReady = true;
                         // Start listening to rankings once authenticated
                         loadRankings();
                     } else {
-                        // Sign in using the custom token or anonymously if token is missing
+                        // Sign in using the custom token if provided, otherwise sign in anonymously
                         if (initialAuthToken) {
-                            await signInWithCustomToken(auth, initialAuthToken);
+                             await signInWithCustomToken(auth, initialAuthToken);
                         } else {
-                            await signInAnonymously(auth);
+                             await signInAnonymously(auth);
                         }
                     }
                 });
 
             } catch (error) {
                 console.error("Firebase initialization or authentication failed:", error);
-                authStatusEl.textContent = `Error: Cannot connect to Firebase. ${error.message}`;
+                authStatusEl.textContent = `ERROR: Cannot connect to Firebase. ${error.message}`;
                 loadingEl.classList.add('hidden');
                 showMessage(`Failed to initialize application. Check console for details.`, true);
             }
@@ -328,12 +467,10 @@
         function loadRankings() {
             if (!isAuthReady || !db) return;
 
+            // Note: We are using the "public" collection path here
             const rankingsRef = collection(db, `artifacts/${appId}/public/data/${COLLECTION_NAME}`);
-            // Note: We use an onSnapshot without orderBy here to fetch all data quickly for client-side sorting/filtering.
-            // If the dataset were truly huge, we'd adjust the Firestore query.
             
-            // However, to ensure a sensible initial order if client-side logic fails, let's keep the basic Firestore sort.
-            const q = query(rankingsRef); // Fetch all documents
+            const q = query(rankingsRef);
 
             // Real-time listener
             onSnapshot(q, (snapshot) => {
