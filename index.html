@@ -232,7 +232,7 @@
                 <form id="ranking-form" class="grid grid-cols-1 md:grid-cols-4 gap-4">
                     <input type="text" id="name" placeholder="Commander Name" required class="p-3 rounded-lg input-game md:col-span-1">
                     <input type="number" id="power" placeholder="Total Power (M)" required class="p-3 rounded-lg input-game md:col-span-1">
-                    <input type="number" id="kills" placeholder="Total Kills (M)" required class="p-3 rounded-lg input-game md:col-span-1">
+                    <input type="number" id="merits" placeholder="Total merits (M)" required class="p-3 rounded-lg input-game md:col-span-1">
                     <button type="submit" id="submit-btn" class="md:col-span-1 p-3 rounded-lg btn-submit-game" disabled>
                         SUBMIT RANK
                     </button>
@@ -255,8 +255,8 @@
                     <span class="sort-icon-asc ml-1 text-xs opacity-30">▲</span>
                     <span class="sort-icon-desc text-xs opacity-30">▼</span>
                 </div>
-                <div class="col-span-2 cursor-pointer sort-header flex items-center hover:text-green-400 transition" id="sort-kills" data-sort-key="kills">
-                    Kills (M)
+                <div class="col-span-2 cursor-pointer sort-header flex items-center hover:text-green-400 transition" id="sort-merits" data-sort-key="merits">
+                    merits (M)
                     <span class="sort-icon-asc ml-1 text-xs opacity-30">▲</span>
                     <span class="sort-icon-desc text-xs opacity-30">▼</span>
                 </div>
@@ -332,7 +332,7 @@
         const formEl = document.getElementById('ranking-form');
         const nameInputEl = document.getElementById('name');
         const powerInputEl = document.getElementById('power');
-        const killsInputEl = document.getElementById('kills'); 
+        const meritsInputEl = document.getElementById('merits'); 
         const submitBtn = document.getElementById('submit-btn');
         const rankingsContainerEl = document.getElementById('rankings-container');
         const searchInputEl = document.getElementById('search-input');
@@ -353,7 +353,7 @@
         const authStatusEl = document.getElementById('auth-status');
         const authStatusLightEl = document.getElementById('auth-status-light');
         const sortPowerEl = document.getElementById('sort-power');
-        const sortKillsEl = document.getElementById('sort-kills'); 
+        const sortmeritsEl = document.getElementById('sort-merits'); 
         
         let allRankings = []; 
         let sortState = { key: 'power', direction: 'desc' }; 
@@ -476,7 +476,7 @@
             }
 
             // 2. Update header arrows to show current sort state
-            [sortPowerEl, sortKillsEl].forEach(el => {
+            [sortPowerEl, sortmeritsEl].forEach(el => {
                 el.querySelectorAll('span').forEach(span => span.classList.remove('opacity-100', 'text-green-400'));
                 el.querySelectorAll('span').forEach(span => span.classList.add('opacity-30'));
 
@@ -497,7 +497,7 @@
                 
                 // Format numbers to display in millions (M)
                 const formattedPower = ((rank.power || 0) / 1000000).toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
-                const formattedKills = ((rank.kills || 0) / 1000000).toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+                const formattedmerits = ((rank.merits || 0) / 1000000).toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 
                 let content = `
                     <div class="col-span-1 flex items-center justify-center">
@@ -508,7 +508,7 @@
                         <span class="text-xs text-gray-500 ml-1 font-inter" title="Owner ID: ${rank.ownerId || 'N/A'}">(ID:${rank.ownerId ? rank.ownerId.substring(0, 4) : 'N/A'})</span>
                     </div>
                     <div class="col-span-3 text-yellow-300 font-inter">${formattedPower}M</div>
-                    <div class="col-span-2 text-red-400 font-inter">${formattedKills}M</div>
+                    <div class="col-span-2 text-red-400 font-inter">${formattedmerits}M</div>
                     <div class="col-span-2 flex justify-end space-x-2">
                         ${isAdmin ? `
                             <button data-id="${rank.id}" data-name="${rank.name}" class="edit-btn text-yellow-400 hover:text-yellow-300 transition duration-150 p-1 rounded-full hover:bg-gray-700/50" title="Edit Entry">
@@ -539,7 +539,7 @@
                             nameInputEl.value = rankToEdit.name;
                             // Convert back to millions for input display
                             powerInputEl.value = (rankToEdit.power || 0) / 1000000; 
-                            killsInputEl.value = (rankToEdit.kills || 0) / 1000000; // Use killsInputEl
+                            meritsInputEl.value = (rankToEdit.merits || 0) / 1000000; // Use meritsInputEl
                             
                             formEl.dataset.editId = id; // Store ID for update
                             submitBtn.textContent = "UPDATE DATA LOG";
@@ -800,10 +800,10 @@
             const name = nameInputEl.value.trim();
             // All values entered are expected to be in Millions, convert to absolute integer
             const powerMillions = parseFloat(powerInputEl.value);
-            const killsMillions = parseFloat(killsInputEl.value); 
+            const meritsMillions = parseFloat(meritsInputEl.value); 
 
-            if (isNaN(powerMillions) || isNaN(killsMillions) || powerMillions <= 0 || killsMillions < 0) {
-                 showMessage("INPUT ERROR: Please enter valid numbers (in Millions) for Power and Kills.", true);
+            if (isNaN(powerMillions) || isNaN(meritsMillions) || powerMillions <= 0 || meritsMillions < 0) {
+                 showMessage("INPUT ERROR: Please enter valid numbers (in Millions) for Power and merits.", true);
                  submitBtn.textContent = formEl.dataset.editId ? "UPDATE DATA LOG" : "SUBMIT RANK";
                  submitBtn.disabled = false;
                  return;
@@ -811,7 +811,7 @@
 
             // Convert millions to absolute numbers
             const power = Math.round(powerMillions * 1000000); 
-            const kills = Math.round(killsMillions * 1000000); 
+            const merits = Math.round(meritsMillions * 1000000); 
             const editId = formEl.dataset.editId;
 
             // Check for update restriction (Admin only)
@@ -826,7 +826,7 @@
             const newRanking = {
                 name,
                 power,
-                kills, 
+                merits, 
                 ownerId: editId ? allRankings.find(r => r.id === editId)?.ownerId || userId : userId,
                 updatedAt: new Date().toISOString(),
             };
@@ -871,7 +871,7 @@
                 // Toggle direction if same key is clicked
                 sortState.direction = sortState.direction === 'desc' ? 'asc' : 'desc';
             } else {
-                // New key, set Power/Kills to descending (standard for rankings)
+                // New key, set Power/merits to descending (standard for rankings)
                 sortState.key = newKey;
                 sortState.direction = 'desc';
             }
@@ -880,7 +880,7 @@
         };
 
         sortPowerEl.addEventListener('click', handleSortClick);
-        sortKillsEl.addEventListener('click', handleSortClick);
+        sortmeritsEl.addEventListener('click', handleSortClick);
 
 
         // Start the application
