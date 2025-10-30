@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>S256 Command Center</title>
+    <title>APEX RANKINGS | Server 256 Dominance</title>
     <!-- Load Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Use Inter font family -->
@@ -11,541 +11,478 @@
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #0d1117; /* Dark background */
+            background-color: #0c0d12; /* Deep space dark */
+            color: #e5e7eb; /* Light text */
         }
-        /* Color classes for ranks (kept for leaderboard tab) */
-        .ranking-card:nth-child(2) { border-left: 5px solid #ffcc00; transform: scale(1.01); }
-        .ranking-card:nth-child(3) { border-left: 5px solid #cccccc; }
-        .ranking-card:nth-child(4) { border-left: 5px solid #cd7f32; }
-        .rank-number { font-size: 1.5rem; font-weight: 700; }
-        .ranking-card:nth-child(2) .rank-number { color: #ffcc00; }
+        .ranking-card {
+            transition: all 0.2s;
+            border-left: 5px solid transparent;
+        }
+        
+        /* Gold/Apex for 1st place */
+        .ranking-card:nth-child(2) { 
+            border-left-color: #ffd700; 
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
+            transform: scale(1.02);
+            background-color: #1a1e28;
+        }
+        /* Silver for 2nd place */
+        .ranking-card:nth-child(3) {
+            border-left-color: #cccccc; 
+            background-color: #1a1e28;
+        }
+        /* Bronze for 3rd place */
+        .ranking-card:nth-child(4) {
+            border-left-color: #cd7f32; 
+            background-color: #1a1e28;
+        }
+        
+        /* Style for the rank number */
+        .rank-number {
+            font-size: 1.5rem;
+            font-weight: 800;
+        }
+        .ranking-card:nth-child(2) .rank-number { color: #ffd700; }
         .ranking-card:nth-child(3) .rank-number { color: #cccccc; }
         .ranking-card:nth-child(4) .rank-number { color: #cd7f32; }
 
-        .sortable-header { cursor: pointer; transition: color 0.15s; }
-        .sortable-header:hover { color: #4f46e5; }
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
-        
-        /* Custom styles for migration status badges */
-        .status-ready { background-color: #10b981; } /* Emerald-500 */
-        .status-waiting { background-color: #f59e0b; } /* Amber-500 */
-        .status-migrated { background-color: #3b82f6; } /* Blue-500 */
-        .status-needed { background-color: #ef4444; } /* Red-500 */
+        .btn-primary {
+            background-image: linear-gradient(to right, #ef4444, #dc2626);
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+        }
+
+        /* Sorting arrows */
+        .sort-icon {
+            opacity: 0.3;
+        }
+        .sorted-asc .sort-icon-asc {
+            opacity: 1;
+            color: #3b82f6; /* Blue for active sort */
+        }
+        .sorted-desc .sort-icon-desc {
+            opacity: 1;
+            color: #3b82f6;
+        }
+        .sort-header:hover .sort-icon {
+            opacity: 0.7;
+        }
     </style>
 </head>
 <body class="min-h-screen">
-    <div id="app" class="max-w-6xl mx-auto p-4 md:p-8">
-        <!-- Header -->
-        <header class="text-center mb-6">
-            <h1 class="text-5xl font-extrabold text-white mb-2 tracking-wider">S256 Command Center</h1>
-            <p class="text-lg text-gray-400">The central hub for Server 256 metrics and information.</p>
-            <p id="auth-status" class="text-sm text-gray-500 mt-2"></p>
+    <div class="max-w-4xl mx-auto p-4 md:p-8">
+
+        <!-- Header Section: Aggressive and Exclusive -->
+        <header class="text-center mb-10">
+            <h1 class="text-5xl md:text-6xl font-extrabold mb-2 uppercase text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-red-600 tracking-wider">
+                SERVER 256
+            </h1>
+            <p class="text-xl md:text-2xl font-semibold text-gray-300 mb-6">
+                The APEX of Power. The Elite of Warfare.
+            </p>
+
+            <!-- Call to Action for Krakens & Whales -->
+            <div class="bg-gray-900 border border-red-700/50 p-6 rounded-xl shadow-2xl">
+                <h2 class="text-2xl font-bold text-red-400 mb-3">Krakens & Whales: Your New Home Awaits.</h2>
+                <p class="text-gray-400 mb-6 max-w-2xl mx-auto">
+                    If you seek true **Dominance** and the highest level of warfare, Server 256 is the only battlefield. Join the elite.
+                </p>
+                <!-- NOTE: Replace '#' with your actual Discord/Contact link -->
+                <a href="#" target="_blank" class="inline-block px-12 py-3 text-lg font-bold text-white uppercase rounded-lg btn-primary hover:scale-[1.03] transition duration-300 transform">
+                    Contact the 256 Command
+                </a>
+            </div>
         </header>
 
-        <!-- Tab Navigation -->
-        <nav class="flex justify-center border-b border-gray-700 mb-8">
-            <button class="tab-button py-3 px-6 text-sm font-medium text-gray-400 hover:text-white hover:bg-[#1e232b] border-b-2 border-transparent transition duration-150 active-tab" 
-                    data-tab="leaderboard">256 Rankings</button>
-            <button class="tab-button py-3 px-6 text-sm font-medium text-gray-400 hover:text-white hover:bg-[#1e232b] border-b-2 border-transparent transition duration-150" 
-                    data-tab="submit">Submit Rank</button>
-            <!-- UPDATED TAB NAME -->
-            <button class="tab-button py-3 px-6 text-sm font-medium text-gray-400 hover:text-white hover:bg-[#1e232b] border-b-2 border-transparent transition duration-150" 
-                    data-tab="info">Migration Status</button>
-            <button class="tab-button py-3 px-6 text-sm font-medium text-gray-400 hover:text-white hover:bg-[#1e232b] border-b-2 border-transparent transition duration-150" 
-                    data-tab="guides">Guides</button>
-            <button class="tab-button py-3 px-6 text-sm font-medium text-gray-400 hover:text-white hover:bg-[#1e232b] border-b-2 border-transparent transition duration-150" 
-                    data-tab="resources">Resources</button>
-        </nav>
-
-
-        <!-- Tab Content Containers -->
-
-        <!-- 1. 256 Rankings Tab (Leaderboard) -->
-        <div id="leaderboard" class="tab-content active">
-            <!-- Loading Indicator -->
-            <div id="loading" class="text-center text-white p-10 hidden">
-                <div class="animate-spin inline-block w-8 h-8 border-4 border-t-4 border-blue-500 border-gray-800 rounded-full"></div>
-                <p class="mt-2">Loading server rankings...</p>
-            </div>
-
-            <!-- Leaderboard Content -->
-            <div id="main-content" class="max-w-4xl mx-auto">
-                <h2 class="text-3xl font-bold text-white mb-4 border-b border-gray-700 pb-2">256 Player Rankings</h2>
-                
-                <!-- Search/Filter Bar -->
-                <div class="mb-4">
-                    <input type="text" id="search-input" placeholder="Filter by Player Name or Alliance..."
-                           class="w-full px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:ring-blue-500 focus:border-blue-500">
-                </div>
-
-                <!-- Ranking List Header (Sortable) -->
-                <div id="ranking-header" class="flex items-center p-3 bg-[#1e232b] rounded-t-lg text-gray-400 font-semibold text-sm border-b border-gray-700">
-                    <div class="w-10 text-center mr-4">#</div>
-                    <div class="flex-grow">Player / Alliance</div>
-                    <div id="sort-power" data-sort-key="power" class="sortable-header flex-shrink-0 text-right ml-4 w-24 hidden md:block">
-                        Power
-                        <span id="power-sort-icon" class="text-blue-500 text-xs ml-1">▲</span>
-                    </div>
-                    <div id="sort-kills" data-sort-key="kill_count" class="sortable-header flex-shrink-0 text-right ml-6 w-24">
-                        Kills
-                        <span id="kills-sort-icon" class="text-gray-500 text-xs ml-1"></span>
-                    </div>
-                    <div id="sort-merits" data-sort-key="merit_count" class="sortable-header flex-shrink-0 text-right ml-6 w-24">
-                        Merits
-                        <span id="merits-sort-icon" class="text-gray-500 text-xs ml-1"></span>
-                    </div>
-                    <div class="flex-shrink-0 text-right ml-6 hidden md:block w-24">Updated</div>
-                </div>
-
-                <div id="ranking-list" class="space-y-1">
-                    <!-- Rankings will be injected here -->
-                    <p class="text-gray-500 text-center py-10" id="empty-state">No rankings yet. Use the Submit Rank tab to add some!</p>
-                </div>
-            </div>
+        <!-- Current User Info (for tracking/reference) -->
+        <div class="text-center text-sm mb-6 p-3 bg-gray-800/50 rounded-lg">
+            <p id="auth-status" class="text-gray-400">Authenticating...</p>
+            <p id="user-id-display" class="text-xs text-gray-500 mt-1 truncate">User ID: </p>
         </div>
 
-        <!-- 2. Submit Rank Tab (Form) -->
-        <div id="submit" class="tab-content">
-            <div class="max-w-lg mx-auto bg-[#161b22] p-6 rounded-xl shadow-lg border border-gray-700">
-                <h2 class="text-3xl font-bold text-white mb-4">Submit / Update Your Rank</h2>
 
-                <form id="ranking-form" class="space-y-4">
-                    <div>
-                        <label for="playerName" class="block text-sm font-medium text-gray-300">Player Name</label>
-                        <input type="text" id="playerName" required placeholder="GamerTag (Case-sensitive for display)"
-                               class="mt-1 block w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md text-white focus:ring-blue-500 focus:border-blue-500">
-                    </div>
-                    <div>
-                        <label for="allianceTag" class="block text-sm font-medium text-gray-300">Alliance Tag (e.g., [XYZ])</label>
-                        <input type="text" id="allianceTag" placeholder="e.g., [S256]"
-                               class="mt-1 block w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md text-white focus:ring-blue-500 focus:border-blue-500">
-                    </div>
-                    <div>
-                        <label for="powerLevel" class="block text-sm font-medium text-gray-300">Power Level</label>
-                        <input type="number" id="powerLevel" required placeholder="e.g., 1,500,000"
-                               class="mt-1 block w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md text-white focus:ring-blue-500 focus:border-blue-500">
-                    </div>
-                    <div>
-                        <label for="killCount" class="block text-sm font-medium text-gray-300">Kill Count</label>
-                        <input type="number" id="killCount" required placeholder="e.g., 10,500"
-                               class="mt-1 block w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md text-white focus:ring-blue-500 focus:border-blue-500">
-                    </div>
-                    <!-- NEW MERIT COUNT FIELD -->
-                    <div>
-                        <label for="meritCount" class="block text-sm font-medium text-gray-300">Total Merits</label>
-                        <input type="number" id="meritCount" required placeholder="e.g., 50,000"
-                               class="mt-1 block w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md text-white focus:ring-blue-500 focus:border-blue-500">
-                    </div>
-                    <button type="submit" id="submitBtn"
-                            class="w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out">
-                        Submit Rank
-                    </button>
-                </form>
+        <!-- RANK Submission Form -->
+        <section class="mb-10 p-6 bg-gray-800 rounded-xl shadow-lg border border-gray-700">
+            <h2 class="text-2xl font-bold mb-4 text-red-300">Submit Your Dominance Profile</h2>
+            <form id="ranking-form" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <input type="text" id="name" placeholder="Commander Name" required class="p-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-red-500 focus:border-red-500">
+                <input type="number" id="power" placeholder="Total Power (in Millions)" required class="p-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-red-500 focus:border-red-500">
+                <input type="number" id="kills" placeholder="Total Kills (in Millions)" required class="p-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-red-500 focus:border-red-500">
+                <button type="submit" id="submit-btn" class="md:col-span-3 p-3 font-bold text-white rounded-lg transition duration-200 btn-primary" disabled>
+                    Submit Rank
+                </button>
+            </form>
+            <div id="message-box" class="mt-4 hidden p-3 rounded-lg text-center" role="alert"></div>
+        </section>
 
-                <div id="message-box" class="mt-4 p-3 rounded-md text-sm text-center hidden"></div>
+        <!-- RANKINGS LIST SECTION -->
+        <section class="bg-gray-900 rounded-xl shadow-2xl overflow-hidden border border-gray-700">
+            <h2 class="text-3xl font-bold p-6 border-b border-gray-700 text-yellow-400/90">
+                Current Server 256 Apex Rankings
+            </h2>
+            
+            <!-- Filter -->
+            <div class="p-4 border-b border-gray-700">
+                <input type="text" id="search-input" placeholder="Filter by Commander Name..." class="w-full p-3 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-red-500 focus:border-red-500">
             </div>
-        </div>
 
-        <!-- 3. Migration Status Tab (New Content) -->
-        <div id="info" class="tab-content">
-            <div class="max-w-4xl mx-auto">
-                <h2 class="text-3xl font-bold text-white mb-4 border-b border-gray-700 pb-2">Migration Status Tracking</h2>
-
-                <!-- ADD/EDIT FORM -->
-                <div class="bg-[#161b22] p-6 rounded-xl shadow-lg border border-gray-700 mb-6">
-                    <h3 class="text-xl font-semibold text-white mb-4" id="migration-form-title">Add New Migration Entry</h3>
-                    <form id="migration-form" class="space-y-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                        <input type="hidden" id="migrationId">
-                        <div>
-                            <label for="migratorName" class="block text-sm font-medium text-gray-300">Player Name</label>
-                            <input type="text" id="migratorName" required placeholder="Player Name"
-                                class="mt-1 block w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md text-white focus:ring-blue-500 focus:border-blue-500">
-                        </div>
-                        <div>
-                            <label for="targetKingdom" class="block text-sm font-medium text-gray-300">Target Kingdom (e.g., S206)</label>
-                            <input type="text" id="targetKingdom" required placeholder="e.g., S206"
-                                class="mt-1 block w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md text-white focus:ring-blue-500 focus:border-blue-500">
-                        </div>
-                        <div>
-                            <label for="ticketsUsed" class="block text-sm font-medium text-gray-300">Tickets Used</label>
-                            <input type="number" id="ticketsUsed" required value="0"
-                                class="mt-1 block w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md text-white focus:ring-blue-500 focus:border-blue-500">
-                        </div>
-                        <div>
-                            <label for="migrationStatus" class="block text-sm font-medium text-gray-300">Status</label>
-                            <select id="migrationStatus" required 
-                                class="mt-1 block w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md text-white focus:ring-blue-500 focus:border-blue-500">
-                                <option value="Ready" class="status-ready text-white">Ready to Migrate (Tickets)</option>
-                                <option value="Waiting" class="status-waiting text-white">Waiting for Ticket</option>
-                                <option value="Migrated" class="status-migrated text-white">Migrated</option>
-                                <option value="Needed" class="status-needed text-white">Needs More Tickets</option>
-                            </select>
-                        </div>
-                        <button type="submit" id="migrationSubmitBtn"
-                                class="md:col-span-2 lg:col-span-4 w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition duration-150 ease-in-out">
-                            Save Migration Entry
-                        </button>
-                    </form>
-                    <button id="migrationClearBtn" class="mt-2 w-full py-1 text-sm text-gray-400 hover:text-white" style="display:none;">
-                        Clear Form / Cancel Edit
-                    </button>
-                    <div id="migration-message-box" class="mt-4 p-3 rounded-md text-sm text-center hidden"></div>
+            <!-- Ranking Header Row (Sortable) -->
+            <div class="grid grid-cols-12 text-xs font-semibold uppercase tracking-wider text-gray-400 p-4 border-b border-gray-700">
+                <div class="col-span-1">#</div>
+                <div class="col-span-4">Commander Name</div>
+                <div class="col-span-3 cursor-pointer sort-header" id="sort-power" data-sort-key="power">
+                    Power (M)
+                    <span class="sort-icon-asc sort-icon">▲</span>
+                    <span class="sort-icon-desc sort-icon">▼</span>
                 </div>
-
-                <!-- MIGRATION LIST -->
-                <div class="bg-[#161b22] p-6 rounded-xl shadow-lg border border-gray-700">
-                    <h3 class="text-xl font-semibold text-white mb-4">Current Migration Tracking</h3>
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-700">
-                            <thead class="bg-gray-800">
-                                <tr>
-                                    <th class="px-3 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider w-1/4">Player</th>
-                                    <th class="px-3 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Target</th>
-                                    <th class="px-3 py-3 text-right text-xs font-medium text-gray-300 uppercase tracking-wider">Tickets</th>
-                                    <th class="px-3 py-3 text-center text-xs font-medium text-gray-300 uppercase tracking-wider">Status</th>
-                                    <th class="px-3 py-3 text-right text-xs font-medium text-gray-300 uppercase tracking-wider">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="migration-list" class="bg-[#161b22] divide-y divide-gray-700">
-                                <!-- Migration entries will be injected here -->
-                                <tr><td colspan="5" class="text-center py-4 text-gray-500" id="migration-empty-state">No migration entries tracked.</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
+                <div class="col-span-3 cursor-pointer sort-header" id="sort-kills" data-sort-key="kills">
+                    Kills (M)
+                    <span class="sort-icon-asc sort-icon">▲</span>
+                    <span class="sort-icon-desc sort-icon">▼</span>
                 </div>
+                <div class="col-span-1 text-right">Edit</div>
             </div>
-        </div>
 
-        <!-- 4. Guides Tab (Placeholder) -->
-        <div id="guides" class="tab-content">
-            <div class="max-w-4xl mx-auto bg-[#161b22] p-6 rounded-xl shadow-lg border border-gray-700 text-white text-center">
-                <h2 class="text-3xl font-bold mb-4">Guides & Tutorials</h2>
-                <p class="text-gray-400">Content coming soon! This tab will host community-created guides for optimizing power, maximizing kills, and event strategies.</p>
+            <!-- Ranking Data Container -->
+            <div id="rankings-container" class="divide-y divide-gray-800">
+                <!-- Rankings will be injected here -->
+                <p class="p-4 text-center text-gray-500" id="loading-message">Loading the Apex Rankings...</p>
             </div>
-        </div>
-
-        <!-- 5. Resources Tab (Placeholder) -->
-        <div id="resources" class="tab-content">
-            <div class="max-w-4xl mx-auto bg-[#161b22] p-6 rounded-xl shadow-lg border border-gray-700 text-white text-center">
-                <h2 class="text-3xl font-bold mb-4">External Resources</h2>
-                <p class="text-gray-400">Content coming soon! This tab will link to important Discord channels, alliance planning documents, and external game tools.</p>
-            </div>
-        </div>
-
+        </section>
     </div>
 
-    <!-- Firebase Configuration and Script -->
+    <!-- Firebase SDK Imports -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, onSnapshot, query, setDoc, doc, Timestamp, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, onSnapshot, collection, query, orderBy, where, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        setLogLevel('debug');
 
-        // =========================================================================
-        // STEP 1: Firebase Configuration Setup
-        // =========================================================================
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyDPBsLGnZSy9gl0J-Toy97sx04sbMliN1A",
-            authDomain: "aoem-s256.firebaseapp.com",
-            projectId: "aoem-s256",
-            storageBucket: "aoem-s256.firebasestorage.app",
-            messagingSenderId: "841512392095",
-            appId: "1:841512392095:web:84df8ffedacb97352859aa",
-            measurementId: "G-N6GB8LBHWJ"
-        };
-
+        // --- FIREBASE SETUP ---
+        setLogLevel('Debug');
+        let db;
+        let auth;
+        let userId = null;
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
         const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
-        const appId = typeof __app_id !== 'undefined' ? __app_id : firebaseConfig.projectId; 
         
-        // =========================================================================
-        
+        // Firestore Collection Path
+        const COLLECTION_PATH = `artifacts/${appId}/public/data/server256_rankings`;
+
         // UI Elements
-        const loadingEl = document.getElementById('loading');
-        const rankingListEl = document.getElementById('ranking-list');
-        const emptyStateEl = document.getElementById('empty-state');
-        const authStatusEl = document.getElementById('auth-status');
         const formEl = document.getElementById('ranking-form');
-        const messageBoxEl = document.getElementById('message-box');
-        const submitBtn = document.getElementById('submitBtn');
+        const nameInputEl = document.getElementById('name');
+        const powerInputEl = document.getElementById('power');
+        const killsInputEl = document.getElementById('kills');
+        const submitBtn = document.getElementById('submit-btn');
+        const rankingsContainerEl = document.getElementById('rankings-container');
         const searchInputEl = document.getElementById('search-input');
-        
-        const tabButtons = document.querySelectorAll('.tab-button');
-        const tabContents = document.querySelectorAll('.tab-content');
-
-        // Migration UI Elements
-        const migrationFormEl = document.getElementById('migration-form');
-        const migrationListEl = document.getElementById('migration-list');
-        const migrationMessageBoxEl = document.getElementById('migration-message-box');
-        const migrationEmptyStateEl = document.getElementById('migration-empty-state');
-        const migrationSubmitBtn = document.getElementById('migrationSubmitBtn');
-        const migrationClearBtn = document.getElementById('migrationClearBtn');
-        const migrationFormTitleEl = document.getElementById('migration-form-title');
-
-        // Sorting elements (Leaderboard)
+        const messageBoxEl = document.getElementById('message-box');
+        const userIdDisplayEl = document.getElementById('user-id-display');
+        const authStatusEl = document.getElementById('auth-status');
         const sortPowerEl = document.getElementById('sort-power');
         const sortKillsEl = document.getElementById('sort-kills');
-        const sortMeritsEl = document.getElementById('sort-merits');
-        const powerSortIconEl = document.getElementById('power-sort-icon');
-        const killsSortIconEl = document.getElementById('kills-sort-icon');
-        const meritsSortIconEl = document.getElementById('merits-sort-icon');
-
-        // Firebase instances
-        let app, db, auth;
-        let userId = null;
+        
+        let allRankings = []; // Master list of all rankings
+        let sortState = { key: 'power', direction: 'desc' }; // Default sort
         let isAuthReady = false;
-        
-        // Collection Names
-        const RANKING_COLLECTION_NAME = 'server256_rankings'; 
-        const MIGRATION_COLLECTION_NAME = 'migration_status';
 
-        // Global state for rankings and sorting
-        let allRankings = [];
-        let sortState = {
-            key: 'power', 
-            direction: 'desc'
-        };
-        
-        /**
-         * Switches the active tab content.
-         * @param {string} tabId The ID of the tab content to show (e.g., 'leaderboard').
-         */
-        function switchTab(tabId) {
-            tabContents.forEach(content => {
-                content.classList.remove('active');
-            });
+        // --- Utility Functions ---
 
-            tabButtons.forEach(button => {
-                button.classList.remove('text-white', 'bg-[#1e232b]');
-                button.classList.add('text-gray-400', 'hover:text-white');
-                button.style.borderBottomColor = 'transparent';
-            });
-
-            const activeContent = document.getElementById(tabId);
-            if (activeContent) {
-                activeContent.classList.add('active');
-                // Special case: Load migration data when tab is opened
-                if (tabId === 'info' && isAuthReady) {
-                    loadMigrationStatus();
-                }
-            }
-
-            const activeButton = document.querySelector(`.tab-button[data-tab="${tabId}"]`);
-            if (activeButton) {
-                activeButton.classList.add('text-white', 'bg-[#1e232b]');
-                activeButton.classList.remove('text-gray-400', 'hover:text-white');
-                activeButton.style.borderBottomColor = '#4f46e5';
-            }
-        }
-        
-        // Initialize default tab to Leaderboard
-        switchTab('leaderboard'); 
-        
-        // Add listeners for tab buttons
-        tabButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                switchTab(button.dataset.tab);
-            });
-        });
-
-        /**
-         * Shows a temporary message in the generic message box (used by Leaderboard form).
-         * @param {string} message The message to display.
-         * @param {boolean} isError True for error style, false for success/info style.
-         */
-        function showMessage(message, isError = false) {
+        /** Shows a temporary status message */
+        const showMessage = (message, isError) => {
             messageBoxEl.textContent = message;
-            messageBoxEl.classList.remove('hidden', 'bg-red-900', 'text-red-300', 'bg-green-900', 'text-green-300');
-            if (isError) {
-                messageBoxEl.classList.add('bg-red-900', 'text-red-300');
-            } else {
-                messageBoxEl.classList.add('bg-green-900', 'text-green-300');
-            }
+            messageBoxEl.classList.remove('hidden', 'bg-red-900', 'bg-green-900', 'text-red-300', 'text-green-300');
+            messageBoxEl.classList.add(isError ? 'bg-red-900' : 'bg-green-900', isError ? 'text-red-300' : 'text-green-300');
             setTimeout(() => {
                 messageBoxEl.classList.add('hidden');
             }, 5000);
-        }
+        };
 
-        /**
-         * Shows a temporary message in the migration message box.
-         * @param {string} message The message to display.
-         * @param {boolean} isError True for error style, false for success/info style.
-         */
-        function showMigrationMessage(message, isError = false) {
-            migrationMessageBoxEl.textContent = message;
-            migrationMessageBoxEl.classList.remove('hidden', 'bg-red-900', 'text-red-300', 'bg-green-900', 'text-green-300');
-            if (isError) {
-                migrationMessageBoxEl.classList.add('bg-red-900', 'text-red-300');
-            } else {
-                migrationMessageBoxEl.classList.add('bg-green-900', 'text-green-300');
-            }
-            setTimeout(() => {
-                migrationMessageBoxEl.classList.add('hidden');
-            }, 5000);
-        }
-
-        // =========================================================================
-        // LEADERBOARD LOGIC (Existing)
-        // =========================================================================
-
-        function applyFiltersAndSort() {
-            let filteredRankings = [...allRankings];
-            const filterTerm = searchInputEl.value.toLowerCase().trim();
-
-            if (filterTerm) {
-                filteredRankings = filteredRankings.filter(player =>
-                    player.name.toLowerCase().includes(filterTerm) ||
-                    (player.alliance && player.alliance.toLowerCase().includes(filterTerm))
-                );
-            }
-
-            filteredRankings.sort((a, b) => {
-                const aVal = a[sortState.key] || 0;
-                const bVal = b[sortState.key] || 0;
-
-                let comparison = 0;
-                if (aVal > bVal) comparison = 1;
-                else if (aVal < bVal) comparison = -1;
-
-                return sortState.direction === 'asc' ? comparison : comparison * -1;
-            });
-
-            renderRankings(filteredRankings);
-        }
-
-        function renderRankings(rankings) {
-            const filterTerm = searchInputEl.value.toLowerCase().trim();
-            
-            const updateSortIcon = (key, iconEl) => {
-                iconEl.textContent = sortState.key === key ? (sortState.direction === 'desc' ? '▼' : '▲') : '';
-                iconEl.classList.toggle('text-blue-500', sortState.key === key);
-                iconEl.classList.toggle('text-gray-500', sortState.key !== key);
-            };
-
-            updateSortIcon('power', powerSortIconEl);
-            updateSortIcon('kill_count', killsSortIconEl);
-            updateSortIcon('merit_count', meritsSortIconEl);
-
-            if (rankings.length === 0) {
-                emptyStateEl.textContent = filterTerm ? "No players match the search criteria." : "No rankings yet. Use the Submit Rank tab to add some!";
-                emptyStateEl.classList.remove('hidden');
-                rankingListEl.innerHTML = '';
+        /** Deletes a ranking document */
+        const deleteRanking = async (docId) => {
+            if (!db || docId.ownerId !== userId) {
+                showMessage("Authorization failed or database not ready.", true);
                 return;
             }
 
-            emptyStateEl.classList.add('hidden');
-            const html = rankings.map((player, index) => {
-                const rank = index + 1;
-                const formattedPower = (player.power || 0).toLocaleString();
-                const formattedKills = (player.kill_count || 0).toLocaleString();
-                const formattedMerits = (player.merit_count || 0).toLocaleString(); 
-                const allianceTag = player.alliance || '[N/A]';
-                const lastUpdated = player.last_updated && typeof player.last_updated.toDate === 'function' ? player.last_updated.toDate().toLocaleDateString() : 'N/A';
-
-                return `
-                    <div class="ranking-card flex items-center p-4 bg-[#1e232b] rounded-lg shadow-xl hover:bg-[#252a32] transition duration-200 ease-in-out">
-                        <!-- Rank Number -->
-                        <div class="rank-number w-10 text-center mr-4 text-white">#${rank}</div>
-
-                        <!-- Player Info -->
-                        <div class="flex-grow">
-                            <h3 class="text-xl font-semibold text-white truncate">${player.name}</h3>
-                            <p class="text-sm text-gray-400 font-mono">${allianceTag}</p>
-                        </div>
-
-                        <!-- Power Stats -->
-                        <div class="flex-shrink-0 text-right ml-4 w-24 hidden md:block">
-                            <p class="text-lg font-bold text-yellow-400">${formattedPower}</p>
-                            <p class="text-xs text-gray-500">Power</p>
-                        </div>
-                        
-                        <!-- Kills Stats -->
-                        <div class="flex-shrink-0 text-right ml-6 w-24">
-                            <p class="text-lg font-bold text-red-400">${formattedKills}</p>
-                            <p class="text-xs text-gray-500">Kills</p>
-                        </div>
-
-                        <!-- Merits Stats -->
-                        <div class="flex-shrink-0 text-right ml-6 w-24">
-                            <p class="text-lg font-bold text-green-400">${formattedMerits}</p>
-                            <p class="text-xs text-gray-500">Merits</p>
-                        </div>
-
-                        <!-- Last Updated -->
-                        <div class="flex-shrink-0 text-right ml-6 hidden md:block w-24">
-                            <p class="text-sm text-gray-300">${lastUpdated}</p>
-                            <p class="text-xs text-gray-500">Updated</p>
+            const confirmDelete = () => {
+                // Simple custom confirmation UI, since alert() is forbidden
+                const modal = document.createElement('div');
+                modal.className = 'fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50';
+                modal.innerHTML = `
+                    <div class="bg-gray-800 p-6 rounded-lg shadow-xl w-80">
+                        <p class="text-white mb-4">Are you sure you want to delete this ranking?</p>
+                        <div class="flex justify-end space-x-3">
+                            <button id="cancel-delete" class="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-500 transition">Cancel</button>
+                            <button id="confirm-delete" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition">Delete</button>
                         </div>
                     </div>
                 `;
-            }).join('');
+                document.body.appendChild(modal);
 
-            rankingListEl.innerHTML = html;
-        }
+                document.getElementById('confirm-delete').onclick = async () => {
+                    modal.remove();
+                    try {
+                        const rankDocRef = doc(db, COLLECTION_PATH, docId.id);
+                        await deleteDoc(rankDocRef);
+                        showMessage("Ranking deleted successfully.", false);
+                    } catch (error) {
+                        console.error("Error deleting ranking:", error);
+                        showMessage("Failed to delete ranking.", true);
+                    }
+                };
 
-        // Leaderboard Submission (already private)
+                document.getElementById('cancel-delete').onclick = () => {
+                    modal.remove();
+                };
+            };
+            
+            confirmDelete();
+        };
+
+        /** Renders the list of rankings */
+        const renderRankings = (rankings) => {
+            // Sort the filtered list (defaulting to power descending)
+            const sortedRankings = [...rankings].sort((a, b) => {
+                const aVal = a[sortState.key];
+                const bVal = b[sortState.key];
+
+                if (aVal < bVal) return sortState.direction === 'asc' ? -1 : 1;
+                if (aVal > bVal) return sortState.direction === 'asc' ? 1 : -1;
+                return 0; // Fallback to maintain original order if values are equal
+            });
+
+            rankingsContainerEl.innerHTML = '';
+            
+            if (sortedRankings.length === 0) {
+                rankingsContainerEl.innerHTML = '<p class="p-4 text-center text-gray-500">No elite commanders match the current filter.</p>';
+                return;
+            }
+
+            // Update header arrows to show current sort state
+            [sortPowerEl, sortKillsEl].forEach(el => {
+                el.classList.remove('sorted-asc', 'sorted-desc');
+                if (el.dataset.sortKey === sortState.key) {
+                    el.classList.add(sortState.direction === 'asc' ? 'sorted-asc' : 'sorted-desc');
+                }
+            });
+
+
+            sortedRankings.forEach((rank, index) => {
+                const rankNumber = index + 1;
+                const isOwner = userId && rank.ownerId === userId;
+                
+                const rankEl = document.createElement('div');
+                rankEl.className = 'ranking-card grid grid-cols-12 items-center p-4 hover:bg-gray-700/50 transition duration-150';
+                
+                // Content for the row
+                let content = `
+                    <div class="col-span-1">
+                        <span class="rank-number">${rankNumber}</span>
+                    </div>
+                    <div class="col-span-4 font-bold text-lg text-white truncate">
+                        ${rank.name}
+                    </div>
+                    <div class="col-span-3 text-red-400 font-semibold">
+                        ${(rank.power / 1000000).toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}M
+                    </div>
+                    <div class="col-span-3 text-red-400 font-semibold">
+                        ${(rank.kills / 1000000).toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}M
+                    </div>
+                    <div class="col-span-1 flex justify-end space-x-2">
+                        ${isOwner ? `
+                            <button data-id="${rank.id}" data-owner-id="${rank.ownerId}" class="edit-btn text-blue-400 hover:text-blue-300 transition duration-150" title="Edit Ranking">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                    <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zm-1.63 2.828l-7.388 7.388a1 1 0 00-.288.583v3.465a1 1 0 001 1h3.465a1 1 0 00.583-.288l7.388-7.388-2.828-2.828z" />
+                                </svg>
+                            </button>
+                            <button data-id="${rank.id}" data-owner-id="${rank.ownerId}" class="delete-btn text-red-400 hover:text-red-300 transition duration-150" title="Delete Ranking">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm4 0a1 1 0 100 2v6a1 1 0 100-2V8z" clip-rule="evenodd" />
+                                </svg>
+                            </button>
+                        ` : ''}
+                    </div>
+                `;
+
+                rankEl.innerHTML = content;
+                rankingsContainerEl.appendChild(rankEl);
+            });
+            
+            // Re-attach listeners for dynamically generated buttons
+            document.querySelectorAll('.edit-btn').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const id = e.currentTarget.dataset.id;
+                    const rankToEdit = allRankings.find(r => r.id === id);
+                    if (rankToEdit) {
+                        nameInputEl.value = rankToEdit.name;
+                        powerInputEl.value = rankToEdit.power / 1000000;
+                        killsInputEl.value = rankToEdit.kills / 1000000;
+                        formEl.dataset.editId = id; // Store ID for update
+                        submitBtn.textContent = "Update Rank";
+                        showMessage(`Editing rank for ${rankToEdit.name}.`, false);
+                    }
+                });
+            });
+
+            document.querySelectorAll('.delete-btn').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const id = e.currentTarget.dataset.id;
+                    const ownerId = e.currentTarget.dataset.ownerId;
+                    deleteRanking({ id, ownerId });
+                });
+            });
+        };
+
+        /** Applies filter (search) and sort, then calls renderRankings */
+        const applyFiltersAndSort = () => {
+            const searchTerm = searchInputEl.value.toLowerCase().trim();
+            
+            const filteredRankings = allRankings.filter(rank => 
+                rank.name.toLowerCase().includes(searchTerm)
+            );
+
+            renderRankings(filteredRankings);
+        };
+
+
+        // --- FIREBASE INITIALIZATION AND REAL-TIME LISTENER ---
+
+        const initializeFirebase = async () => {
+            try {
+                const app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+                authStatusEl.textContent = 'Awaiting authentication...';
+
+                // Sign in with custom token or anonymously
+                if (initialAuthToken) {
+                    await signInWithCustomToken(auth, initialAuthToken);
+                } else {
+                    await signInAnonymously(auth);
+                }
+
+                // Wait for auth state to resolve
+                onAuthStateChanged(auth, (user) => {
+                    if (user) {
+                        userId = user.uid;
+                        userIdDisplayEl.textContent = `User ID: ${userId}`;
+                        authStatusEl.textContent = 'Authenticated (Ready to Submit)';
+                        isAuthReady = true;
+                        
+                        // Setup the real-time listener ONLY after auth is ready
+                        setupRealtimeListener();
+
+                    } else {
+                        userId = null;
+                        userIdDisplayEl.textContent = 'User ID: N/A';
+                        authStatusEl.textContent = 'Unauthenticated (Limited features)';
+                        isAuthReady = true; // Still ready, but anonymous
+                        
+                        // Setup the real-time listener for anonymous users too
+                        setupRealtimeListener();
+                    }
+                });
+
+            } catch (error) {
+                console.error("Firebase initialization failed:", error);
+                authStatusEl.textContent = `Error: ${error.message}`;
+                showMessage(`Firebase init failed: ${error.message}`, true);
+            }
+        };
+
+
+        const setupRealtimeListener = () => {
+             if (!db || !isAuthReady) return;
+
+             const rankingsCollectionRef = collection(db, COLLECTION_PATH);
+             // Note: We avoid orderBy in the query and rely on client-side sorting (renderRankings)
+             const q = query(rankingsCollectionRef);
+
+             onSnapshot(q, (snapshot) => {
+                 allRankings = snapshot.docs.map(doc => ({
+                     id: doc.id,
+                     ...doc.data()
+                 }));
+                 
+                 // Apply filters and sort to the new data
+                 applyFiltersAndSort();
+                 document.getElementById('loading-message')?.remove();
+
+             }, (error) => {
+                 console.error("Error listening to collection:", error);
+                 rankingsContainerEl.innerHTML = '<p class="p-4 text-center text-red-400">Error fetching rankings.</p>';
+             });
+        };
+
+
+        // --- FORM SUBMISSION LOGIC ---
         formEl.addEventListener('submit', async (e) => {
             e.preventDefault();
-
-            if (!isAuthReady || !db || !userId) {
-                showMessage("Authentication not complete. Please wait.", true);
+            if (!db || !userId) {
+                showMessage("Authentication not ready. Please wait.", true);
                 return;
             }
 
-            submitBtn.textContent = "Saving...";
             submitBtn.disabled = true;
+            submitBtn.textContent = "Submitting...";
 
-            const name = document.getElementById('playerName').value.trim();
-            const alliance = document.getElementById('allianceTag').value.trim();
-            const power = parseInt(document.getElementById('powerLevel').value, 10);
-            const kill_count = parseInt(document.getElementById('killCount').value, 10);
-            const merit_count = parseInt(document.getElementById('meritCount').value, 10); 
+            const name = nameInputEl.value.trim();
+            // Convert power/kills from Millions (string) to absolute number (int)
+            const powerMillions = parseFloat(powerInputEl.value);
+            const killsMillions = parseFloat(killsInputEl.value);
 
-            if (!name || isNaN(power) || isNaN(kill_count) || isNaN(merit_count)) {
-                showMessage("Please ensure Player Name, Power Level, Kill Count, and Total Merits are correctly filled.", true);
-                submitBtn.textContent = "Submit Rank";
-                submitBtn.disabled = false;
-                return;
+            if (isNaN(powerMillions) || isNaN(killsMillions) || powerMillions <= 0 || killsMillions < 0) {
+                 showMessage("Please enter valid, positive numbers for Power and Kills.", true);
+                 submitBtn.textContent = "Submit Rank";
+                 submitBtn.disabled = false;
+                 return;
             }
 
-            const docId = name.toLowerCase().replace(/[^a-z0-9]/g, '_');
-            const rankDocRef = doc(db, `artifacts/${appId}/users/${userId}/${RANKING_COLLECTION_NAME}`, docId);
+            const power = Math.round(powerMillions * 1000000); // Store as absolute number (integer)
+            const kills = Math.round(killsMillions * 1000000); // Store as absolute number (integer)
+            const editId = formEl.dataset.editId;
 
             const newRanking = {
-                name: name,
-                alliance: alliance,
-                power: power,
-                kill_count: kill_count,
-                merit_count: merit_count, 
+                name,
+                power,
+                kills,
                 ownerId: userId,
-                last_updated: Timestamp.now()
+                updatedAt: new Date().toISOString(),
             };
 
+            const rankDocRef = editId ? doc(db, COLLECTION_PATH, editId) : doc(collection(db, COLLECTION_PATH));
+            
             try {
-                await setDoc(rankDocRef, newRanking);
-                showMessage(`Ranking for ${name} submitted/updated successfully!`, false);
+                await setDoc(rankDocRef, newRanking, { merge: true });
+                showMessage(`Ranking for ${name} ${editId ? 'updated' : 'submitted'} successfully!`, false);
                 formEl.reset();
+                delete formEl.dataset.editId; // Clear edit state
+                submitBtn.textContent = "Submit Rank";
             } catch (error) {
                 console.error("Error submitting ranking:", error);
                 showMessage(`Failed to submit ranking: ${error.message}`, true);
             } finally {
-                submitBtn.textContent = "Submit Rank";
                 submitBtn.disabled = false;
             }
         });
 
-        // Leaderboard Sorting/Filtering Listeners
+        // --- Event Listeners for Filtering and Sorting ---
+        
+        // Filter Listener
         searchInputEl.addEventListener('input', applyFiltersAndSort);
 
+        // Sort Listener Factory
         const handleSortClick = (event) => {
             const newKey = event.currentTarget.dataset.sortKey;
 
             if (sortState.key === newKey) {
+                // Toggle direction if same key is clicked
                 sortState.direction = sortState.direction === 'desc' ? 'asc' : 'desc';
             } else {
+                // New key, reset to descending (standard for rankings)
                 sortState.key = newKey;
                 sortState.direction = 'desc';
             }
@@ -555,236 +492,9 @@
 
         sortPowerEl.addEventListener('click', handleSortClick);
         sortKillsEl.addEventListener('click', handleSortClick);
-        sortMeritsEl.addEventListener('click', handleSortClick);
 
 
-        // =========================================================================
-        // MIGRATION STATUS LOGIC (NEW)
-        // =========================================================================
-
-        /**
-         * Renders the list of migration entries.
-         * @param {Array<Object>} entries Array of migration objects.
-         */
-        function renderMigrationStatus(entries) {
-            migrationListEl.innerHTML = ''; // Clear previous entries
-            
-            if (entries.length === 0) {
-                migrationListEl.innerHTML = `<tr><td colspan="5" class="text-center py-4 text-gray-500">No migration entries tracked.</td></tr>`;
-                return;
-            }
-
-            const html = entries.map(entry => {
-                let statusClass = '';
-                switch(entry.status) {
-                    case 'Ready': statusClass = 'status-ready'; break;
-                    case 'Waiting': statusClass = 'status-waiting'; break;
-                    case 'Migrated': statusClass = 'status-migrated'; break;
-                    case 'Needed': statusClass = 'status-needed'; break;
-                    default: statusClass = 'bg-gray-500'; // Default color
-                }
-
-                return `
-                    <tr class="hover:bg-gray-800 transition duration-100 ease-in-out">
-                        <td class="px-3 py-3 whitespace-nowrap text-sm font-medium text-white">${entry.name}</td>
-                        <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-300">${entry.target}</td>
-                        <td class="px-3 py-3 whitespace-nowrap text-sm text-right font-mono text-yellow-400">${entry.tickets}</td>
-                        <td class="px-3 py-3 whitespace-nowrap text-center">
-                            <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full text-white ${statusClass}">
-                                ${entry.status}
-                            </span>
-                        </td>
-                        <td class="px-3 py-3 whitespace-nowrap text-right text-sm font-medium space-x-2">
-                            <button data-id="${entry.id}" class="edit-btn text-blue-400 hover:text-blue-200">Edit</button>
-                            <button data-id="${entry.id}" class="delete-btn text-red-400 hover:text-red-200">Delete</button>
-                        </td>
-                    </tr>
-                `;
-            }).join('');
-
-            migrationListEl.innerHTML = html;
-
-            // Attach event listeners for edit and delete buttons
-            migrationListEl.querySelectorAll('.edit-btn').forEach(button => {
-                button.addEventListener('click', (e) => editMigrationEntry(e.currentTarget.dataset.id, entries));
-            });
-            migrationListEl.querySelectorAll('.delete-btn').forEach(button => {
-                button.addEventListener('click', (e) => deleteMigrationEntry(e.currentTarget.dataset.id));
-            });
-        }
-        
-        /**
-         * Sets up the real-time listener for migration status data (private collection).
-         */
-        function loadMigrationStatus() {
-            if (!isAuthReady || !db || !userId) {
-                console.log("Waiting for authentication to load migration status.");
-                return;
-            }
-
-            const migrationRef = collection(db, `artifacts/${appId}/users/${userId}/${MIGRATION_COLLECTION_NAME}`);
-            const q = query(migrationRef);
-
-            onSnapshot(q, (snapshot) => {
-                const migrationEntries = snapshot.docs.map(doc => ({
-                    id: doc.id,
-                    ...doc.data()
-                }));
-                // Sort by target kingdom for stable view
-                migrationEntries.sort((a, b) => a.target.localeCompare(b.target)); 
-                
-                renderMigrationStatus(migrationEntries);
-                console.log("Migration entries updated in real-time:", migrationEntries.length);
-            }, (error) => {
-                console.error("Error fetching migration status:", error);
-                showMigrationMessage(`Error fetching migration data: ${error.message}`, true);
-            });
-        }
-
-        /**
-         * Handles submission (add or update) of migration status form.
-         */
-        migrationFormEl.addEventListener('submit', async (e) => {
-            e.preventDefault();
-
-            if (!isAuthReady || !db || !userId) {
-                showMigrationMessage("Authentication not complete. Please wait.", true);
-                return;
-            }
-
-            migrationSubmitBtn.textContent = "Saving...";
-            migrationSubmitBtn.disabled = true;
-
-            const form = e.target;
-            const docId = form.elements.migrationId.value.trim() || form.elements.migratorName.value.toLowerCase().replace(/[^a-z0-9]/g, '_');
-            const name = form.elements.migratorName.value.trim();
-            const target = form.elements.targetKingdom.value.trim();
-            const tickets = parseInt(form.elements.ticketsUsed.value, 10);
-            const status = form.elements.migrationStatus.value;
-
-            if (!name || !target || isNaN(tickets) || !status) {
-                showMigrationMessage("Please fill out all migration fields correctly.", true);
-                migrationSubmitBtn.textContent = "Save Migration Entry";
-                migrationSubmitBtn.disabled = false;
-                return;
-            }
-            
-            const migrationDocRef = doc(db, `artifacts/${appId}/users/${userId}/${MIGRATION_COLLECTION_NAME}`, docId);
-
-            const entryData = {
-                name: name,
-                target: target,
-                tickets: tickets,
-                status: status,
-                last_updated: Timestamp.now()
-            };
-
-            try {
-                await setDoc(migrationDocRef, entryData);
-                showMigrationMessage(`${name}'s migration status saved successfully!`, false);
-                // Clear the form back to 'Add New' state
-                clearMigrationForm();
-            } catch (error) {
-                console.error("Error submitting migration status:", error);
-                showMigrationMessage(`Failed to save migration status: ${error.message}`, true);
-            } finally {
-                migrationSubmitBtn.textContent = "Save Migration Entry";
-                migrationSubmitBtn.disabled = false;
-            }
-        });
-        
-        /**
-         * Loads an existing entry into the form for editing.
-         */
-        function editMigrationEntry(id, entries) {
-            const entry = entries.find(e => e.id === id);
-            if (!entry) return;
-            
-            document.getElementById('migrationId').value = entry.id;
-            document.getElementById('migratorName').value = entry.name;
-            document.getElementById('targetKingdom').value = entry.target;
-            document.getElementById('ticketsUsed').value = entry.tickets;
-            document.getElementById('migrationStatus').value = entry.status;
-
-            // Change button/title to reflect editing
-            migrationFormTitleEl.textContent = `Editing: ${entry.name}`;
-            migrationSubmitBtn.textContent = 'Update Entry';
-            migrationClearBtn.style.display = 'block';
-        }
-
-        /**
-         * Deletes a migration entry.
-         * @param {string} id The document ID to delete.
-         */
-        async function deleteMigrationEntry(id) {
-            if (!confirm(`Are you sure you want to delete this migration entry?`)) return;
-
-            try {
-                const migrationDocRef = doc(db, `artifacts/${appId}/users/${userId}/${MIGRATION_COLLECTION_NAME}`, id);
-                await deleteDoc(migrationDocRef);
-                showMigrationMessage('Entry deleted successfully.', false);
-                clearMigrationForm(); // Ensure form resets if the deleted item was being edited
-            } catch (error) {
-                console.error("Error deleting migration entry:", error);
-                showMigrationMessage(`Failed to delete entry: ${error.message}`, true);
-            }
-        }
-        
-        /**
-         * Resets the migration form back to the 'Add New' state.
-         */
-        function clearMigrationForm() {
-            migrationFormEl.reset();
-            document.getElementById('migrationId').value = '';
-            migrationFormTitleEl.textContent = 'Add New Migration Entry';
-            migrationSubmitBtn.textContent = 'Save Migration Entry';
-            migrationClearBtn.style.display = 'none';
-        }
-
-        migrationClearBtn.addEventListener('click', clearMigrationForm);
-        
-        // =========================================================================
-        // INITIALIZATION
-        // =========================================================================
-
-        /**
-         * Initializes Firebase and sets up authentication.
-         */
-        async function initializeFirebase() {
-            loadingEl.classList.remove('hidden');
-
-            try {
-                app = initializeApp(firebaseConfig);
-                db = getFirestore(app);
-                auth = getAuth(app);
-
-                onAuthStateChanged(auth, async (user) => {
-                    if (user) {
-                        userId = user.uid;
-                        authStatusEl.textContent = `Admin ID: ${userId} (Authenticated)`;
-                        isAuthReady = true;
-                        
-                        // Load Leaderboard rankings for the default tab
-                        loadRankings(); 
-                        
-                        // Note: loadMigrationStatus is called when the 'info' tab is clicked
-                    } else {
-                        if (initialAuthToken) {
-                             await signInWithCustomToken(auth, initialAuthToken);
-                        } else {
-                             await signInAnonymously(auth);
-                        }
-                    }
-                });
-
-            } catch (error) {
-                console.error("Firebase initialization or authentication failed:", error);
-                authStatusEl.textContent = `ERROR: Cannot connect to Firebase. ${error.message}`;
-                loadingEl.classList.add('hidden');
-                showMessage(`Failed to initialize application. Check console for details.`, true);
-            }
-        }
-
+        // Start the application
         window.onload = initializeFirebase;
     </script>
 </body>
