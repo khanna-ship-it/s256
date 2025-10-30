@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Server 256 Power Rankings</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Use Inter font family -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0d1117; /* Dark background */
+        }
+        .ranking-card:nth-child(2) { /* First ranking item after header row */
+            border-left: 5px solid #ffcc00; /* Gold for 1st place */
+            transform: scale(1.01);
+        }
+        .ranking-card:nth-child(3) {
+            border-left: 5px solid #cccccc; /* Silver for 2nd place */
+        }
+        .ranking-card:nth-child(4) {
+            border-left: 5px solid #cd7f32; /* Bronze for 3rd place */
+        }
+        .rank-number {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        /* Style for the top 3 rank numbers */
+        .ranking-card:nth-child(2) .rank-number { color: #ffcc00; }
+        .ranking-card:nth-child(3) .rank-number { color: #cccccc; }
+        .ranking-card:nth-child(4) .rank-number { color: #cd7f32; }
+
+        .sortable-header {
+            cursor: pointer;
+            transition: color 0.15s;
+        }
+        .sortable-header:hover {
+            color: #4f46e5;
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <div id="app" class="max-w-4xl mx-auto p-4 md:p-8">
+        <!-- Header -->
+        <header class="text-center mb-10">
+            <h1 class="text-4xl font-extrabold text-white mb-2">Server 256 Power Rankings</h1>
+            <p class="text-lg text-gray-400">The definitive leaderboard based on total power and kill count.</p>
+            <p id="auth-status" class="text-sm text-gray-500 mt-2"></p>
+        </header>
+
+        <!-- Loading Indicator -->
+        <div id="loading" class="text-center text-white p-10 hidden">
+            <div class="animate-spin inline-block w-8 h-8 border-4 border-t-4 border-blue-500 border-gray-800 rounded-full"></div>
+            <p class="mt-2">Loading server rankings...</p>
+        </div>
+
+        <!-- Main Content Grid -->
+        <div id="main-content" class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Ranking List Section -->
+            <div class="lg:col-span-2">
+                <h2 class="text-2xl font-bold text-white mb-4 border-b border-gray-700 pb-2">Top Players</h2>
+                
+                <!-- Search/Filter Bar -->
+                <div class="mb-4">
+                    <input type="text" id="search-input" placeholder="Filter by Player Name..."
+                           class="w-full px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:ring-blue-500 focus:border-blue-500">
+                </div>
+
+                <!-- Ranking List Header (Sortable) -->
+                <div id="ranking-header" class="flex items-center p-3 bg-[#1e232b] rounded-t-lg text-gray-400 font-semibold text-sm border-b border-gray-700">
+                    <div class="w-10 text-center mr-4">#</div>
+                    <div class="flex-grow">Player / Alliance</div>
+                    <div id="sort-power" data-sort-key="power" class="sortable-header flex-shrink-0 text-right ml-4 w-24">
+                        Power
+                        <span id="power-sort-icon" class="text-blue-500 text-xs ml-1">▲</span>
+                    </div>
+                    <div id="sort-kills" data-sort-key="kill_count" class="sortable-header flex-shrink-0 text-right ml-6 hidden sm:block w-24">
+                        Kills
+                        <span id="kills-sort-icon" class="text-gray-500 text-xs ml-1"></span>
+                    </div>
+                    <div class="flex-shrink-0 text-right ml-6 hidden md:block w-24">Updated</div>
+                </div>
+
+                <div id="ranking-list" class="space-y-1">
+                    <!-- Rankings will be injected here -->
+                    <p class="text-gray-500 text-center py-10" id="empty-state">No rankings yet. Use the form to add some!</p>
+                </div>
+            </div>
+
+            <!-- Management/Add Ranking Section -->
+            <div class="lg:col-span-1 bg-[#161b22] p-6 rounded-xl shadow-lg border border-gray-700 sticky top-8 h-fit">
+                <h2 class="text-xl font-bold text-white mb-4">Add/Update Ranking</h2>
+
+                <form id="ranking-form" class="space-y-4">
+                    <div>
+                        <label for="playerName" class="block text-sm font-medium text-gray-300">Player Name</label>
+                        <input type="text" id="playerName" required placeholder="GamerTag"
+                               class="mt-1 block w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md text-white focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label for="allianceTag" class="block text-sm font-medium text-gray-300">Alliance Tag (e.g., [XYZ])</label>
+                        <input type="text" id="allianceTag" placeholder="e.g., [S256]"
+                               class="mt-1 block w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md text-white focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label for="powerLevel" class="block text-sm font-medium text-gray-300">Power Level</label>
+                        <input type="number" id="powerLevel" required placeholder="e.g., 1,500,000"
+                               class="mt-1 block w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md text-white focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label for="killCount" class="block text-sm font-medium text-gray-300">Kill Count</label>
+                        <input type="number" id="killCount" required placeholder="e.g., 10,500"
+                               class="mt-1 block w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md text-white focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <button type="submit" id="submitBtn"
+                            class="w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out">
+                        Submit Rank
+                    </button>
+                </form>
+
+                <div id="message-box" class="mt-4 p-3 rounded-md text-sm text-center hidden"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase Configuration and Script -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, onSnapshot, query, setDoc, doc, Timestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        setLogLevel('debug');
+
+        // Global variables provided by the environment
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        // UI Elements
+        const loadingEl = document.getElementById('loading');
+        const rankingListEl = document.getElementById('ranking-list');
+        const emptyStateEl = document.getElementById('empty-state');
+        const authStatusEl = document.getElementById('auth-status');
+        const formEl = document.getElementById('ranking-form');
+        const messageBoxEl = document.getElementById('message-box');
+        const submitBtn = document.getElementById('submitBtn');
+        const searchInputEl = document.getElementById('search-input');
+
+        // Sorting elements
+        const sortPowerEl = document.getElementById('sort-power');
+        const sortKillsEl = document.getElementById('sort-kills');
+        const powerSortIconEl = document.getElementById('power-sort-icon');
+        const killsSortIconEl = document.getElementById('kills-sort-icon');
+
+        // Firebase instances
+        let app, db, auth;
+        let userId = null;
+        let isAuthReady = false;
+        const COLLECTION_NAME = 'server256_rankings';
+
+        // Global state for rankings and sorting
+        let allRankings = [];
+        let sortState = {
+            key: 'power', // Default sort key
+            direction: 'desc' // Default direction
+        };
+
+        /**
+         * Shows a temporary message in the message box.
+         * @param {string} message The message to display.
+         * @param {boolean} isError True for error style, false for success/info style.
+         */
+        function showMessage(message, isError = false) {
+            messageBoxEl.textContent = message;
+            messageBoxEl.classList.remove('hidden', 'bg-red-900', 'text-red-300', 'bg-green-900', 'text-green-300');
+            if (isError) {
+                messageBoxEl.classList.add('bg-red-900', 'text-red-300');
+            } else {
+                messageBoxEl.classList.add('bg-green-900', 'text-green-300');
+            }
+            setTimeout(() => {
+                messageBoxEl.classList.add('hidden');
+            }, 5000);
+        }
+
+        /**
+         * Applies the current filter and sort state to the rankings and renders them.
+         */
+        function applyFiltersAndSort() {
+            let filteredRankings = [...allRankings];
+            const filterTerm = searchInputEl.value.toLowerCase().trim();
+
+            // 1. Filtering
+            if (filterTerm) {
+                filteredRankings = filteredRankings.filter(player =>
+                    player.name.toLowerCase().includes(filterTerm) ||
+                    (player.alliance && player.alliance.toLowerCase().includes(filterTerm))
+                );
+            }
+
+            // 2. Sorting
+            filteredRankings.sort((a, b) => {
+                const aVal = a[sortState.key];
+                const bVal = b[sortState.key];
+
+                let comparison = 0;
+                if (aVal > bVal) comparison = 1;
+                else if (aVal < bVal) comparison = -1;
+
+                return sortState.direction === 'asc' ? comparison : comparison * -1;
+            });
+
+            // 3. Render
+            renderRankings(filteredRankings);
+        }
+
+        /**
+         * Renders the list of player rankings to the UI.
+         * @param {Array<Object>} rankings Array of ranking objects.
+         */
+        function renderRankings(rankings) {
+            // Update sort indicators
+            powerSortIconEl.textContent = sortState.key === 'power' ? (sortState.direction === 'desc' ? '▼' : '▲') : '';
+            killsSortIconEl.textContent = sortState.key === 'kill_count' ? (sortState.direction === 'desc' ? '▼' : '▲') : '';
+            
+            powerSortIconEl.classList.toggle('text-blue-500', sortState.key === 'power');
+            killsSortIconEl.classList.toggle('text-blue-500', sortState.key === 'kill_count');
+            powerSortIconEl.classList.toggle('text-gray-500', sortState.key !== 'power');
+            killsSortIconEl.classList.toggle('text-gray-500', sortState.key !== 'kill_count');
+
+
+            if (rankings.length === 0) {
+                emptyStateEl.textContent = filterTerm ? "No players match the search criteria." : "No rankings yet. Use the form to add some!";
+                emptyStateEl.classList.remove('hidden');
+                rankingListEl.innerHTML = '';
+                return;
+            }
+
+            emptyStateEl.classList.add('hidden');
+            const html = rankings.map((player, index) => {
+                const rank = index + 1;
+                const formattedPower = player.power.toLocaleString();
+                const formattedKills = player.kill_count.toLocaleString();
+                const allianceTag = player.alliance || '[N/A]';
+                const lastUpdated = player.last_updated instanceof Timestamp ? player.last_updated.toDate().toLocaleDateString() : 'N/A';
+
+                return `
+                    <div class="ranking-card flex items-center p-4 bg-[#1e232b] rounded-lg shadow-xl hover:bg-[#252a32] transition duration-200 ease-in-out">
+                        <!-- Rank Number -->
+                        <div class="rank-number w-10 text-center mr-4 text-white">#${rank}</div>
+
+                        <!-- Player Info -->
+                        <div class="flex-grow">
+                            <h3 class="text-xl font-semibold text-white truncate">${player.name}</h3>
+                            <p class="text-sm text-gray-400 font-mono">${allianceTag}</p>
+                        </div>
+
+                        <!-- Stats -->
+                        <div class="flex-shrink-0 text-right ml-4 w-24">
+                            <p class="text-lg font-bold text-yellow-400">${formattedPower}</p>
+                            <p class="text-xs text-gray-500">Power</p>
+                        </div>
+                        <div class="flex-shrink-0 text-right ml-6 hidden sm:block w-24">
+                            <p class="text-lg font-bold text-red-400">${formattedKills}</p>
+                            <p class="text-xs text-gray-500">Kills</p>
+                        </div>
+
+                        <!-- Last Updated -->
+                        <div class="flex-shrink-0 text-right ml-6 hidden md:block w-24">
+                            <p class="text-sm text-gray-300">${lastUpdated}</p>
+                            <p class="text-xs text-gray-500">Updated</p>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            rankingListEl.innerHTML = html;
+        }
+
+        /**
+         * Initializes Firebase and sets up authentication.
+         */
+        async function initializeFirebase() {
+            loadingEl.classList.remove('hidden');
+
+            try {
+                if (Object.keys(firebaseConfig).length === 0) {
+                     throw new Error("Firebase configuration is missing.");
+                }
+
+                app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+
+                // Handle authentication state
+                onAuthStateChanged(auth, async (user) => {
+                    if (user) {
+                        userId = user.uid;
+                        authStatusEl.textContent = `Authenticated user: ${userId}`;
+                        isAuthReady = true;
+                        // Start listening to rankings once authenticated
+                        loadRankings();
+                    } else {
+                        // Sign in using the custom token or anonymously if token is missing
+                        if (initialAuthToken) {
+                            await signInWithCustomToken(auth, initialAuthToken);
+                        } else {
+                            await signInAnonymously(auth);
+                        }
+                    }
+                });
+
+            } catch (error) {
+                console.error("Firebase initialization or authentication failed:", error);
+                authStatusEl.textContent = `Error: Cannot connect to Firebase. ${error.message}`;
+                loadingEl.classList.add('hidden');
+                showMessage(`Failed to initialize application. Check console for details.`, true);
+            }
+        }
+
+        /**
+         * Sets up the real-time listener for rankings data.
+         * Fetches all data, stores it, and triggers rendering/sorting/filtering.
+         */
+        function loadRankings() {
+            if (!isAuthReady || !db) return;
+
+            const rankingsRef = collection(db, `artifacts/${appId}/public/data/${COLLECTION_NAME}`);
+            // Note: We use an onSnapshot without orderBy here to fetch all data quickly for client-side sorting/filtering.
+            // If the dataset were truly huge, we'd adjust the Firestore query.
+            
+            // However, to ensure a sensible initial order if client-side logic fails, let's keep the basic Firestore sort.
+            const q = query(rankingsRef); // Fetch all documents
+
+            // Real-time listener
+            onSnapshot(q, (snapshot) => {
+                loadingEl.classList.add('hidden');
+                allRankings = snapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+                // After fetching, apply the current sort and filters
+                applyFiltersAndSort();
+                console.log("Rankings updated in real-time:", allRankings.length);
+            }, (error) => {
+                console.error("Error fetching real-time rankings:", error);
+                loadingEl.classList.add('hidden');
+                showMessage(`Error fetching rankings: ${error.message}`, true);
+            });
+        }
+
+        /**
+         * Handles the submission of a new or updated ranking.
+         */
+        formEl.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            if (!isAuthReady || !db || !userId) {
+                showMessage("Authentication not complete. Please wait.", true);
+                return;
+            }
+
+            submitBtn.textContent = "Saving...";
+            submitBtn.disabled = true;
+
+            const name = document.getElementById('playerName').value.trim();
+            const alliance = document.getElementById('allianceTag').value.trim();
+            const power = parseInt(document.getElementById('powerLevel').value, 10);
+            const kill_count = parseInt(document.getElementById('killCount').value, 10);
+
+            if (!name || isNaN(power) || isNaN(kill_count)) {
+                showMessage("Please ensure Player Name, Power Level, and Kill Count are correctly filled.", true);
+                submitBtn.textContent = "Submit Rank";
+                submitBtn.disabled = false;
+                return;
+            }
+
+            // Create a document reference using the player's name as the ID
+            const docId = name.toLowerCase().replace(/[^a-z0-9]/g, '_');
+            const rankDocRef = doc(db, `artifacts/${appId}/public/data/${COLLECTION_NAME}`, docId);
+
+            const newRanking = {
+                name: name,
+                alliance: alliance, // New field added
+                power: power,
+                kill_count: kill_count,
+                ownerId: userId,
+                last_updated: Timestamp.now()
+            };
+
+            try {
+                await setDoc(rankDocRef, newRanking);
+                showMessage(`Ranking for ${name} submitted/updated successfully!`, false);
+                formEl.reset();
+            } catch (error) {
+                console.error("Error submitting ranking:", error);
+                showMessage(`Failed to submit ranking: ${error.message}`, true);
+            } finally {
+                submitBtn.textContent = "Submit Rank";
+                submitBtn.disabled = false;
+            }
+        });
+
+        // --- Event Listeners for Filtering and Sorting ---
+        
+        // Filter Listener
+        searchInputEl.addEventListener('input', applyFiltersAndSort);
+
+        // Sort Listener Factory
+        const handleSortClick = (event) => {
+            const newKey = event.currentTarget.dataset.sortKey;
+
+            if (sortState.key === newKey) {
+                // Toggle direction if same key is clicked
+                sortState.direction = sortState.direction === 'desc' ? 'asc' : 'desc';
+            } else {
+                // New key, reset to descending (standard for rankings)
+                sortState.key = newKey;
+                sortState.direction = 'desc';
+            }
+
+            applyFiltersAndSort();
+        };
+
+        sortPowerEl.addEventListener('click', handleSortClick);
+        sortKillsEl.addEventListener('click', handleSortClick);
+
+
+        // Start the application
+        window.onload = initializeFirebase;
+    </script>
+</body>
+</html>
