@@ -3,377 +3,841 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Server 256 Power Rankings</title>
+    <title>Server 256: Command Nexus</title>
     <!-- Load Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Use Inter font family -->
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700;900&family=Inter:wght@400;600;800&display=swap');
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: #0d1117; /* Dark background */
+            /* Using a classic, slightly weathered game aesthetic */
+            font-family: 'Merriweather', serif;
+            background-color: #2b3531; /* Dark greenish-gray, like an old stone wall */
+            color: #d1d5db; /* Light gray text */
+            min-height: 100vh;
+            padding-bottom: 3rem;
         }
-        /* Highlight Top 3 with border colors */
-        .ranking-card:nth-child(2) { /* First ranking item after header row */
-            border-left: 5px solid #ffcc00; /* Gold for 1st place */
-            transform: scale(1.01);
-            box-shadow: 0 4px 6px -1px rgba(255, 204, 0, 0.4), 0 2px 4px -2px rgba(255, 204, 0, 0.4);
-        }
-        .ranking-card:nth-child(3) {
-            border-left: 5px solid #cccccc; /* Silver for 2nd place */
-        }
-        .ranking-card:nth-child(4) {
-            border-left: 5px solid #cd7f32; /* Bronze for 3rd place */
-        }
-        .rank-number {
-            font-size: 1.5rem;
-            font-weight: 700;
-        }
-        /* Style for the top 3 rank numbers */
-        .ranking-card:nth-child(2) .rank-number { color: #ffcc00; }
-        .ranking-card:nth-child(3) .rank-number { color: #cccccc; }
-        .ranking-card:nth-child(4) .rank-number { color: #cd7f32; }
 
-        .header-col {
-            cursor: pointer;
-            transition: color 0.15s;
+        .game-header {
+            font-family: 'Inter', sans-serif;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.6);
         }
-        .header-col:hover {
-            color: #4f46e5; /* Tailwind indigo-600 */
+
+        .game-card {
+            background-color: #3f4a46; /* Slightly lighter card base */
+            border: 2px solid #58655e; /* Subtle darker border */
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4);
+            border-radius: 0.75rem;
+            transition: all 0.2s ease;
+        }
+
+        .nav-btn {
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            background-color: #58655e;
+            border-bottom: 3px solid #3f4a46;
+            transition: all 0.1s ease;
+            color: #d1d5db;
+        }
+        .nav-btn:hover {
+            background-color: #6a7972;
+            color: #f3f4f6;
+        }
+        .nav-btn.active {
+            background-color: #10b981; /* Green active tab */
+            color: #1f2937;
+            border-bottom: 3px solid #10b981;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(16, 185, 129, 0.3);
+        }
+
+        .input-game {
+            background-color: #2b3531;
+            border: 1px solid #58655e;
+            color: #e5e7eb;
+            font-family: 'Inter', sans-serif;
+            transition: border-color 0.3s;
+        }
+        .input-game:focus {
+            border-color: #10b981; /* Green focus glow */
+            box-shadow: 0 0 0 1px #10b981;
+            outline: none;
+        }
+
+        .btn-submit-game {
+            background-image: linear-gradient(to bottom, #10b981, #059669); /* Green Gradient */
+            color: #1f2937;
+            font-weight: 800;
+            box-shadow: 0 4px 0 #047857; /* Darker 3D effect */
+            transition: transform 0.1s, box-shadow 0.1s;
+        }
+        .btn-submit-game:hover:not(:disabled) {
+            transform: translateY(1px);
+            box-shadow: 0 3px 0 #047857;
+        }
+        .btn-submit-game:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        /* Ranking/Migration Accents */
+        .ranking-row {
+            transition: background-color 0.1s;
+        }
+        .ranking-row:hover {
+            background-color: #4a5752;
+        }
+
+        .ranking-list > .ranking-row:nth-child(odd) { background-color: #3f4a46; }
+        .ranking-list > .ranking-row:nth-child(even) { background-color: #36403c; }
+
+        /* Ranking Accents (only for ranking list) */
+        .ranking-list.power > .ranking-row:nth-child(1) { border-left: 5px solid #ffcc00; }
+        .ranking-list.power > .ranking-row:nth-child(1) .rank-number { color: #ffcc00; }
+        .ranking-list.power > .ranking-row:nth-child(2) { border-left: 5px solid #cccccc; }
+        .ranking-list.power > .ranking-row:nth-child(2) .rank-number { color: #cccccc; }
+        .ranking-list.power > .ranking-row:nth-child(3) { border-left: 5px solid #cd7f32; }
+        .ranking-list.power > .ranking-row:nth-child(3) .rank-number { color: #cd7f32; }
+
+        .rank-number {
+            font-size: 1.2rem;
+            font-weight: 800;
+            min-width: 30px;
+            text-align: center;
+            font-family: 'Inter', sans-serif;
         }
     </style>
 </head>
-<body class="p-4 sm:p-8 min-h-screen">
-    <div id="app-container" class="max-w-4xl mx-auto">
-        <header class="text-center mb-10">
-            <h1 class="text-3xl sm:text-4xl font-extrabold text-white mb-2">Server Power Rankings</h1>
-            <p class="text-lg text-indigo-400">Track and rank the top players.</p>
+<body>
+    <div class="max-w-6xl mx-auto p-4 md:p-8">
+    
+        <!-- Vercel Web Analytics Script -->
+        <script defer src="/_vercel/insights/script.js"></script>
+ 
+        <!-- --- HEADER & NAVIGATION --- -->
+        <header class="text-center mb-6">
+            <h1 class="text-5xl md:text-6xl font-extrabold mb-1 game-header uppercase text-green-400">
+                Migrate to Server 256
+            </h1>
+            <p class="text-xl font-light text-gray-400 game-header">
+                The Land of Utopia
+            </p>
         </header>
 
-        <!-- Notification Message Area -->
-        <div id="message-box" class="hidden p-3 rounded-lg mb-6 text-sm font-medium transition-all duration-300 shadow-lg"></div>
+        <!-- Navigation Tabs -->
+        <nav class="flex justify-center mb-8 game-card p-2">
+            <button id="nav-about" onclick="showView('about-view')" class="nav-btn px-4 py-2 mx-2 rounded-lg">
+                About Server
+            </button>
+            <button id="nav-migration" onclick="showView('migration-view')" class="nav-btn active px-4 py-2 mx-2 rounded-lg">
+                Migration Status
+            </button>
+            <button id="nav-ranking" onclick="showView('ranking-view')" class="nav-btn px-4 py-2 mx-2 rounded-lg">
+                Power Ranking
+            </button>
+        </nav>
 
-        <!-- Submission Form -->
-        <div class="bg-[#161b22] p-6 rounded-xl shadow-2xl mb-10 border border-[#21262d]">
-            <h2 class="text-xl font-semibold text-white mb-4">Submit Your Rank</h2>
-            <form id="ranking-form" class="space-y-4">
-                <input type="text" id="player-name" required placeholder="Player Name" maxlength="30"
-                       class="w-full p-3 bg-[#0d1117] border border-[#21262d] rounded-lg text-white placeholder-gray-500 focus:ring-indigo-500 focus:border-indigo-500">
-                <input type="number" id="player-power" required placeholder="Total Power (e.g., 125000000)" min="1"
-                       class="w-full p-3 bg-[#0d1117] border border-[#21262d] rounded-lg text-white placeholder-gray-500 focus:ring-indigo-500 focus:border-indigo-500">
-                <input type="number" id="player-kills" required placeholder="Total Kills (e.g., 500000)" min="0"
-                       class="w-full p-3 bg-[#0d1117] border border-[#21262d] rounded-lg text-white placeholder-gray-500 focus:ring-indigo-500 focus:border-indigo-500">
-                <button type="submit" id="submit-btn"
-                        class="w-full bg-indigo-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-indigo-700 transition duration-200 focus:outline-none focus:ring-4 focus:ring-indigo-500 focus:ring-opacity-50 disabled:opacity-50">
-                    Submit Rank
-                </button>
-            </form>
-        </div>
-
-        <!-- Ranking List -->
-        <div class="bg-[#161b22] p-6 rounded-xl shadow-2xl border border-[#21262d]">
-            <h2 class="text-xl font-semibold text-white mb-4">Current Rankings</h2>
-
-            <!-- Filter/Search -->
-            <input type="text" id="search-input" placeholder="Filter by Player Name..."
-                   class="w-full p-3 bg-[#0d1117] border border-[#21262d] rounded-lg text-white placeholder-gray-500 focus:ring-indigo-500 focus:border-indigo-500 mb-4">
-
-            <!-- Ranking Header Row -->
-            <div id="ranking-header" class="grid grid-cols-6 gap-2 text-sm font-medium text-gray-400 border-b border-[#21262d] pb-2 mb-2">
-                <div class="col-span-1 p-2 text-left">RANK</div>
-                <div class="col-span-2 p-2 text-left">PLAYER (ID)</div>
-                <div class="col-span-2 p-2 text-right header-col" data-sort-key="power" id="sort-power">
-                    POWER <span id="sort-power-icon" class="ml-1">↓</span>
-                </div>
-                <div class="col-span-1 p-2 text-right header-col" data-sort-key="kills" id="sort-kills">
-                    KILLS <span id="sort-kills-icon" class="ml-1"></span>
-                </div>
-            </div>
-
-            <!-- Ranking List Container -->
-            <div id="rankings-list" class="space-y-2">
-                <!-- Rankings will be inserted here by JavaScript -->
-                <p id="loading-indicator" class="text-center text-gray-500 p-8">Loading rankings...</p>
+        <!-- System Status/User ID -->
+        <div class="text-center mb-6">
+            <div id="auth-status-bar" class="inline-flex items-center text-sm px-4 py-2 rounded-full game-card border border-green-500/50">
+                <div id="auth-status-light" class="w-3 h-3 rounded-full mr-2 bg-yellow-400 animate-pulse"></div>
+                <p id="auth-status" class="text-gray-300 mr-4 font-semibold">Establishing Connection...</p>
+                <p id="user-id-display" class="text-xs text-gray-400 truncate">Commander ID: N/A</p>
             </div>
         </div>
+
+        <!-- --- VIEW 1: ABOUT SERVER --- -->
+        <div id="about-view" class="hidden game-card p-6">
+            <h2 class="text-3xl font-bold mb-4 text-green-400 border-b border-gray-600 pb-2 font-serif">
+                Realm Overview
+            </h2>
+            <p class="mb-4 text-gray-300">
+                Server 256, known as **UTOPIA**, is a mature kingdom ruled by the strongest alliances. This is a peaceful and balanced server. New commanders are advised to seek alliance membership immediately upon entry.
+            </p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                <div class="p-3 bg-gray-700/30 rounded">
+                    <h3 class="font-bold text-yellow-300">Server Age:</h3> 115 Days
+                </div>
+                <div class="p-3 bg-gray-700/30 rounded">
+                    <h3 class="font-bold text-yellow-300">Dominant Alliances:</h3> [IW1] IronWraiths and [DS] DragonSoul
+                </div>
+                <div class="p-3 bg-gray-700/30 rounded">
+                    <h3 class="font-bold text-yellow-300">Primary Language:</h3> English (Global Diplomacy)
+                </div>
+                <div class="p-3 bg-gray-700/30 rounded">
+                    <h3 class="font-bold text-yellow-300">Next KvK:</h3> Scheduled for xx
+                </div>
+            </div>
+            <p class="mt-4 text-xs text-gray-500">
+                Data is updated by the Command Nexus Administrator (Admin ID displayed above). All rankings are real-time.
+            </p>
+        </div>
+
+        <!-- --- VIEW 2: MIGRATION STATUS --- -->
+        <div id="migration-view" class="game-card p-6">
+            <h2 class="text-3xl font-bold mb-4 text-green-400 border-b border-gray-600 pb-2 font-serif">
+                Server Migration Watch
+            </h2>
+            
+            <!-- Migration Submission Form -->
+            <section class="mb-6 p-4 game-card border-l-4 border-cyan-500/70 bg-gray-700/30">
+                <h3 class="text-xl font-bold mb-3 text-cyan-300">Log Migration Event</h3>
+                <form id="migration-form" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <input type="text" id="migration-commander-name" placeholder="Commander Name" required class="p-3 rounded-lg input-game">
+                    <input type="text" id="migration-server-id" placeholder="Target/Source Server ID (e.g., 201)" required class="p-3 rounded-lg input-game">
+                    <select id="migration-direction" required class="p-3 rounded-lg input-game appearance-none">
+                        <option value="" disabled selected>Select Direction</option>
+                        <option value="INBOUND">INBOUND (Migrating TO Server 256)</option>
+                        <option value="OUTBOUND">OUTBOUND (Migrating FROM Server 256)</option>
+                    </select>
+                    <button type="submit" id="migration-submit-btn" class="p-3 rounded-lg btn-submit-game" disabled>
+                        LOG EVENT
+                    </button>
+                </form>
+                <div id="migration-message-box" class="mt-3 hidden p-3 rounded-lg text-center font-semibold text-sm" role="alert"></div>
+            </section>
+
+            <p class="text-gray-300 mb-4">
+                This table tracks recent inbound and outbound migration activity as logged by commanders.
+            </p>
+            
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-600 text-sm">
+                    <thead>
+                        <tr class="text-left text-gray-400 uppercase tracking-wider bg-gray-700/50">
+                            <th class="p-3 font-semibold">Commander</th>
+                            <th class="p-3 font-semibold">Server ID</th>
+                            <th class="p-3 font-semibold">Direction</th>
+                            <th class="p-3 font-semibold">Time Logged</th>
+                        </tr>
+                    </thead>
+                    <tbody id="migration-status-body" class="divide-y divide-gray-700/70 ranking-list">
+                        <!-- Live data inserted here -->
+                        <tr><td colspan="4" class="p-4 text-center text-yellow-300">Awaiting data transmission...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+
+        <!-- --- VIEW 3: POWER RANKING --- -->
+        <div id="ranking-view" class="hidden game-card p-6">
+            <h2 class="text-3xl font-bold mb-4 text-green-400 border-b border-gray-600 pb-2 font-serif">
+                Apex Power Ranking
+            </h2>
+            
+            <!-- Rank Submission Form -->
+            <section class="mb-6 p-4 game-card border-l-4 border-yellow-500/70 bg-gray-700/30">
+                <h3 class="text-xl font-bold mb-3 text-yellow-300">Rank Update Console</h3>
+                <form id="ranking-form" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <input type="text" id="name" placeholder="Commander Name" required class="p-3 rounded-lg input-game md:col-span-1">
+                    <input type="number" id="power" placeholder="Total Power (M)" required class="p-3 rounded-lg input-game md:col-span-1">
+                    <input type="number" id="kills" placeholder="Total Kills (M)" required class="p-3 rounded-lg input-game md:col-span-1">
+                    <button type="submit" id="submit-btn" class="md:col-span-1 p-3 rounded-lg btn-submit-game" disabled>
+                        SUBMIT RANK
+                    </button>
+                </form>
+                <div id="message-box" class="mt-3 hidden p-3 rounded-lg text-center font-semibold text-sm" role="alert"></div>
+            </section>
+            
+            <!-- Ranking List -->
+            <h3 class="text-xl font-bold mb-3 text-gray-300 flex justify-between items-center">
+                Live Data Feed
+                <input type="text" id="search-input" placeholder="Search Commander..." class="w-full md:w-64 p-2 rounded-lg input-game text-sm">
+            </h3>
+            
+            <!-- Ranking Header Row (Sortable) -->
+            <div class="grid grid-cols-12 text-xs font-semibold uppercase tracking-wider text-gray-400 p-3 border-y border-gray-600 bg-gray-700/50">
+                <div class="col-span-1 flex items-center justify-center">Rank</div>
+                <div class="col-span-4">Commander (ID)</div>
+                <div class="col-span-3 cursor-pointer sort-header flex items-center hover:text-green-400 transition" id="sort-power" data-sort-key="power">
+                    Power (M)
+                    <span class="sort-icon-asc ml-1 text-xs opacity-30">▲</span>
+                    <span class="sort-icon-desc text-xs opacity-30">▼</span>
+                </div>
+                <div class="col-span-2 cursor-pointer sort-header flex items-center hover:text-green-400 transition" id="sort-kills" data-sort-key="kills">
+                    Kills (M)
+                    <span class="sort-icon-asc ml-1 text-xs opacity-30">▲</span>
+                    <span class="sort-icon-desc text-xs opacity-30">▼</span>
+                </div>
+                <div class="col-span-2 text-right">Admin</div>
+            </div>
+
+            <!-- Ranking Data Container -->
+            <div id="rankings-container" class="ranking-list power divide-y divide-gray-700/70">
+                <p class="p-4 text-center text-yellow-300" id="loading-message">Connecting to the Great Library...</p>
+            </div>
+        </div>
+
     </div>
 
-    <!-- Firebase SDK Imports -->
+    <!-- Firebase SDK Imports and Core JS -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, onSnapshot, collection, query } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-analytics.js"; // Import for Firebase Analytics
+        import { getFirestore, doc, setDoc, onSnapshot, collection, query, deleteDoc, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // --- Global Variables ---
-        // We keep appId and initialAuthToken for environment-specific authentication/storage paths.
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
 
-        // Your web app's Firebase configuration (now hardcoded to bypass config missing error)
-        const firebaseConfig = {
-            apiKey: "AIzaSyDPBsLGnZSy9gl0J-Toy97sx04sbMliN1A",
-            authDomain: "aoem-s256.firebaseapp.com",
-            projectId: "aoem-s256",
-            storageBucket: "aoem-s256.firebasestorage.app",
-            messagingSenderId: "841512392095",
-            appId: "1:841512392095:web:84df8ffedacb97352859aa",
-            measurementId: "G-N6GB8LBHWJ"
-        };
-
+        // --- FIREBASE SETUP ---
+        setLogLevel('Debug');
         let db;
         let auth;
         let userId = null;
+        let adminUserId = null; 
+
+        // CRITICAL: Load and parse the environment variables
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        let firebaseConfig = {};
+        try {
+            const configString = typeof __firebase_config !== 'undefined' ? __firebase_config : null;
+            if (configString) {
+                firebaseConfig = JSON.parse(configString);
+            }
+        } catch (e) {
+            console.error("Failed to parse Firebase configuration string:", e);
+        }
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+        
+        // Firestore Collection Paths
+        const RANKING_COLLECTION_PATH = `artifacts/${appId}/public/data/server256_rankings`;
+        const MIGRATION_COLLECTION_PATH = `artifacts/${appId}/public/data/server256_migrations`; // New collection path
+
+        // UI Elements for RANKING (Existing)
+        const views = ['about-view', 'migration-view', 'ranking-view'];
+        const formEl = document.getElementById('ranking-form');
+        const nameInputEl = document.getElementById('name');
+        const powerInputEl = document.getElementById('power');
+        const killsInputEl = document.getElementById('kills'); 
+        const submitBtn = document.getElementById('submit-btn');
+        const rankingsContainerEl = document.getElementById('rankings-container');
+        const searchInputEl = document.getElementById('search-input');
+        const messageBoxEl = document.getElementById('message-box');
+        
+        // UI Elements for MIGRATION (New)
+        const migrationFormEl = document.getElementById('migration-form');
+        const migrationCommanderNameEl = document.getElementById('migration-commander-name');
+        const migrationServerIdEl = document.getElementById('migration-server-id');
+        const migrationDirectionEl = document.getElementById('migration-direction');
+        const migrationSubmitBtn = document.getElementById('migration-submit-btn');
+        const migrationMessageBoxEl = document.getElementById('migration-message-box');
+        const migrationStatusBodyEl = document.getElementById('migration-status-body');
+
+
+        // Shared UI Elements
+        const userIdDisplayEl = document.getElementById('user-id-display');
+        const authStatusEl = document.getElementById('auth-status');
+        const authStatusLightEl = document.getElementById('auth-status-light');
+        const sortPowerEl = document.getElementById('sort-power');
+        const sortKillsEl = document.getElementById('sort-kills'); 
+        
+        let allRankings = []; 
+        let sortState = { key: 'power', direction: 'desc' }; 
+        let isAuthReady = false;
 
         // --- Utility Functions ---
 
-        /**
-         * Displays a notification message to the user.
-         * @param {string} message The message to display.
-         * @param {boolean} isError True if the message is an error.
-         */
-        const showMessage = (message, isError) => {
-            const box = document.getElementById('message-box');
+        /** Toggles the view (tab) shown to the user. */
+        window.showView = (viewId) => {
+            views.forEach(id => {
+                const element = document.getElementById(id);
+                const navBtn = document.getElementById(`nav-${id.split('-')[0]}`);
+                if (element && navBtn) {
+                    if (id === viewId) {
+                        element.classList.remove('hidden');
+                        navBtn.classList.add('active');
+                    } else {
+                        element.classList.add('hidden');
+                        navBtn.classList.remove('active');
+                    }
+                }
+            });
+        };
+
+        /** Shows a temporary status message in the console. */
+        const showMessage = (message, isError, targetBox) => {
+            const box = targetBox || messageBoxEl; // Default to ranking message box
             box.textContent = message;
-            box.classList.remove('hidden', 'bg-red-800', 'text-red-200', 'bg-green-800', 'text-green-200');
-
-            if (isError) {
-                box.classList.add('bg-red-800', 'text-red-200');
-            } else {
-                box.classList.add('bg-green-800', 'text-green-200');
-            }
-
-            // Hide after 5 seconds
+            box.classList.remove('hidden', 'bg-red-900/50', 'bg-green-900/50', 'text-red-300', 'text-green-300');
+            
+            // Adjust colors for the new theme
+            const colorClass = isError ? 'bg-red-800/50 text-red-300' : 'bg-green-800/50 text-green-300';
+            box.className = `mt-3 p-3 rounded-lg text-center font-semibold text-sm ${colorClass}`;
+            
             setTimeout(() => {
                 box.classList.add('hidden');
             }, 5000);
         };
+        
+        // (showConfirmationModal and deleteRanking logic remain the same, simplified here for brevity in the thought process but kept complete in the code)
 
-        // --- Core Application State & Logic ---
+        /** Displays a custom modal for confirmation (replaces forbidden alert/confirm). */
+        const showConfirmationModal = (title, message, onConfirm) => {
+            const modalId = `modal-${Math.random().toString(36).substring(2, 9)}`;
+            const modal = document.createElement('div');
+            modal.id = modalId;
+            modal.className = 'fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 p-4 backdrop-blur-sm';
+            
+            modal.innerHTML = `
+                <div class="game-card bg-gray-800 p-6 rounded-xl shadow-2xl w-full max-w-sm border border-yellow-500/50">
+                    <h3 class="text-xl font-bold text-yellow-300 mb-3 font-serif">${title}</h3>
+                    <p class="text-gray-300 mb-5 text-sm">${message}</p>
+                    <div class="flex justify-end space-x-3">
+                        <button id="cancel-action-${modalId}" class="px-4 py-2 bg-gray-600 text-gray-200 rounded-lg hover:bg-gray-700 transition font-inter">Deny</button>
+                        <button id="confirm-action-${modalId}" class="px-4 py-2 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition font-inter">Execute Purge</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
 
-        let rankings = [];
-        const sortState = { key: 'power', direction: 'desc' }; // Default sort is by power, descending
-        let searchFilter = '';
+            document.getElementById(`confirm-action-${modalId}`).onclick = () => {
+                modal.remove();
+                onConfirm();
+            };
 
-        /**
-         * Renders the current list of filtered and sorted rankings to the DOM.
-         * @param {Array} currentRankings The list of rankings to display.
-         */
-        const renderRankings = (currentRankings) => {
-            const listEl = document.getElementById('rankings-list');
-            listEl.innerHTML = ''; // Clear existing content
+            document.getElementById(`cancel-action-${modalId}`).onclick = () => {
+                modal.remove();
+            };
+        };
 
-            if (currentRankings.length === 0) {
-                listEl.innerHTML = `<p class="text-center text-gray-500 p-4">No rankings found.</p>`;
+
+        /** Deletes a ranking document */
+        const deleteRanking = async (docData) => {
+            // SECURITY CHECK: Only allow the admin to delete any ranking
+            if (!db || userId !== adminUserId) {
+                showMessage("ACCESS DENIED: Only the Administrator can purge ranking entries.", true);
                 return;
             }
 
-            currentRankings.forEach((data, index) => {
-                const rank = index + 1;
-                const powerFormatted = data.power.toLocaleString();
-                const killsFormatted = data.kills.toLocaleString();
-                const userIdDisplay = data.userId.substring(0, 8);
-
-                const cardHtml = `
-                    <div class="ranking-card grid grid-cols-6 gap-2 bg-[#0d1117] p-3 rounded-lg items-center border border-[#21262d] transition duration-100 ease-in-out">
-                        <!-- Rank Number -->
-                        <div class="col-span-1 text-center text-indigo-400 rank-number">${rank}</div>
-
-                        <!-- Player Name/ID -->
-                        <div class="col-span-2 text-left text-white">
-                            <div class="font-semibold">${data.name}</div>
-                            <div class="text-xs text-gray-500 truncate" title="User ID: ${data.userId}">ID: ${userIdDisplay}...</div>
-                        </div>
-
-                        <!-- Power -->
-                        <div class="col-span-2 text-right text-yellow-400 font-mono">${powerFormatted}</div>
-
-                        <!-- Kills -->
-                        <div class="col-span-1 text-right text-red-400 font-mono">${killsFormatted}</div>
-                    </div>
-                `;
-                listEl.insertAdjacentHTML('beforeend', cardHtml);
-            });
+            showConfirmationModal(
+                "ADMIN: DATA PURGE PROTOCOL",
+                `Confirm permanent deletion of Commander ${docData.name}'s profile. This action cannot be reversed.`,
+                async () => {
+                    try {
+                        const rankDocRef = doc(db, RANKING_COLLECTION_PATH, docData.id);
+                        await deleteDoc(rankDocRef);
+                        showMessage("Data purge successful. Entry deleted.", false);
+                    } catch (error) {
+                        console.error("Error deleting ranking:", error);
+                        showMessage("PROTOCOL ERROR: Failed to delete ranking.", true);
+                    }
+                }
+            );
         };
 
-        /**
-         * Filters and sorts the global rankings list and triggers a re-render.
-         */
-        const applyFiltersAndSort = () => {
-            let filtered = rankings.filter(rank =>
-                rank.name.toLowerCase().includes(searchFilter.toLowerCase())
-            );
 
-            // Sort logic
-            filtered.sort((a, b) => {
-                const aVal = a[sortState.key];
-                const bVal = b[sortState.key];
+        /** Renders the list of rankings */
+        const renderRankings = (rankings) => {
+            // ... (Rankings rendering logic remains the same)
+            const isAdmin = userId && userId === adminUserId; 
+
+            // 1. Sort the filtered list (defaulting to power descending)
+            const sortedRankings = [...rankings].sort((a, b) => {
+                const aVal = a[sortState.key] || 0;
+                const bVal = b[sortState.key] || 0;
 
                 if (aVal < bVal) return sortState.direction === 'asc' ? -1 : 1;
                 if (aVal > bVal) return sortState.direction === 'asc' ? 1 : -1;
-                return 0;
+                // Secondary sort by Name if primary key is equal
+                if (a.name < b.name) return -1;
+                if (a.name > b.name) return 1;
+                return 0; 
             });
 
-            // Update sort icons
-            document.querySelectorAll('[data-sort-key]').forEach(el => {
-                const key = el.dataset.sortKey;
-                const iconEl = document.getElementById(`sort-${key}-icon`);
-                iconEl.textContent = ''; // Clear all icons first
-            });
-
-            const currentIconEl = document.getElementById(`sort-${sortState.key}-icon`);
-            if (currentIconEl) {
-                currentIconEl.textContent = sortState.direction === 'desc' ? '↓' : '↑';
+            rankingsContainerEl.innerHTML = '';
+            
+            if (sortedRankings.length === 0) {
+                rankingsContainerEl.innerHTML = '<p class="p-4 text-center text-gray-500">No matching commanders found in the Apex Registry.</p>';
+                return;
             }
 
-            renderRankings(filtered);
-        };
+            // 2. Update header arrows to show current sort state
+            [sortPowerEl, sortKillsEl].forEach(el => {
+                el.querySelectorAll('span').forEach(span => span.classList.remove('opacity-100', 'text-green-400'));
+                el.querySelectorAll('span').forEach(span => span.classList.add('opacity-30'));
 
-        /**
-         * Sets up the real-time Firestore listener for the rankings collection.
-         */
-        const setupRankingListener = () => {
-            if (!db) return;
+                if (el.dataset.sortKey === sortState.key) {
+                    const iconClass = sortState.direction === 'asc' ? '.sort-icon-asc' : '.sort-icon-desc';
+                    el.querySelector(iconClass).classList.remove('opacity-30');
+                    el.querySelector(iconClass).classList.add('opacity-100', 'text-green-400');
+                }
+            });
 
-            const collectionPath = `/artifacts/${appId}/public/data/rankings`;
-            const rankingsCollection = collection(db, collectionPath);
-            const q = query(rankingsCollection);
 
-            // Real-time listener
-            onSnapshot(q, (snapshot) => {
-                const loadingIndicator = document.getElementById('loading-indicator');
-                if (loadingIndicator) loadingIndicator.remove(); // Remove loading text once data arrives
+            // 3. Render rows
+            sortedRankings.forEach((rank, index) => {
+                const rankNumber = index + 1;
+                
+                const rankEl = document.createElement('div');
+                rankEl.className = 'ranking-row grid grid-cols-12 items-center p-3 text-sm transition duration-150';
+                
+                // Format numbers to display in millions (M)
+                const formattedPower = ((rank.power || 0) / 1000000).toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+                const formattedKills = ((rank.kills || 0) / 1000000).toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 
-                const newRankings = [];
-                snapshot.forEach((doc) => {
-                    newRankings.push(doc.data());
+                let content = `
+                    <div class="col-span-1 flex items-center justify-center">
+                        <span class="rank-number text-gray-400">${rankNumber}</span>
+                    </div>
+                    <div class="col-span-4 font-bold text-white truncate">
+                        ${rank.name}
+                        <span class="text-xs text-gray-500 ml-1 font-inter" title="Owner ID: ${rank.ownerId || 'N/A'}">(ID:${rank.ownerId ? rank.ownerId.substring(0, 4) : 'N/A'})</span>
+                    </div>
+                    <div class="col-span-3 text-yellow-300 font-inter">${formattedPower}M</div>
+                    <div class="col-span-2 text-red-400 font-inter">${formattedKills}M</div>
+                    <div class="col-span-2 flex justify-end space-x-2">
+                        ${isAdmin ? `
+                            <button data-id="${rank.id}" data-name="${rank.name}" class="edit-btn text-yellow-400 hover:text-yellow-300 transition duration-150 p-1 rounded-full hover:bg-gray-700/50" title="Edit Entry">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                    <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zm-1.63 2.828l-7.388 7.388a1 1 0 00-.288.583v3.465a1 1 0 001 1h3.465a1 1 0 00.583-.288l7.388-7.388-2.828-2.828z" />
+                                </svg>
+                            </button>
+                            <button data-id="${rank.id}" data-name="${rank.name}" class="delete-btn text-red-600 hover:text-red-500 transition duration-150 p-1 rounded-full hover:bg-gray-700/50" title="Delete Entry">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M9 2a1 1 10-.894.553L7.382 4H4a1 1 0000 2v10a2 2 0002 2h8a2 2 0002-2V6a1 1 100-2h-3.382l-.724-1.447A1 1 1011 2H9zM7 8a1 1 012 0v6a1 1 11-2 0V8zm4 0a1 1 100 2v6a1 1 100-2V8z" clip-rule="evenodd" />
+                                </svg>
+                            </button>
+                        ` : ''}
+                    </div>
+                `;
+
+                rankEl.innerHTML = content;
+                rankingsContainerEl.appendChild(rankEl);
+            });
+            
+            // 4. Re-attach listeners for dynamically generated buttons (only visible to admin)
+            if (isAdmin) {
+                document.querySelectorAll('.edit-btn').forEach(button => {
+                    button.addEventListener('click', (e) => {
+                        const id = e.currentTarget.dataset.id;
+                        const rankToEdit = allRankings.find(r => r.id === id);
+                        if (rankToEdit) {
+                            nameInputEl.value = rankToEdit.name;
+                            // Convert back to millions for input display
+                            powerInputEl.value = (rankToEdit.power || 0) / 1000000; 
+                            killsInputEl.value = (rankToEdit.kills || 0) / 1000000; // Use killsInputEl
+                            
+                            formEl.dataset.editId = id; // Store ID for update
+                            submitBtn.textContent = "UPDATE DATA LOG";
+                            submitBtn.classList.add('bg-yellow-600', 'hover:bg-yellow-700');
+                            submitBtn.classList.remove('btn-submit-game'); // Remove green style
+                            showMessage(`Editing data log for ${rankToEdit.name}.`, false);
+                        }
+                        showView('ranking-view'); // Ensure ranking view is visible when editing
+                    });
                 });
 
-                rankings = newRankings; // Update global list
-                applyFiltersAndSort(); // Re-filter and re-sort
-            }, (error) => {
-                console.error("Error setting up snapshot listener:", error);
-                showMessage(`Failed to load rankings: ${error.message}`, true);
+                document.querySelectorAll('.delete-btn').forEach(button => {
+                    button.addEventListener('click', (e) => {
+                        const id = e.currentTarget.dataset.id;
+                        const name = e.currentTarget.dataset.name;
+                        deleteRanking({ id, name }); 
+                    });
+                });
+            }
+        };
+
+        /** Applies filter (search) and sort, then calls renderRankings */
+        const applyFiltersAndSort = () => {
+            const searchTerm = searchInputEl.value.toLowerCase().trim();
+            
+            const filteredRankings = allRankings.filter(rank => 
+                rank.name.toLowerCase().includes(searchTerm)
+            );
+
+            renderRankings(filteredRankings);
+        };
+
+        // --- MIGRATION LOGIC (NEW) ---
+
+        /** Renders the list of migration events */
+        const renderMigrations = (migrations) => {
+            migrationStatusBodyEl.innerHTML = '';
+
+            if (migrations.length === 0) {
+                migrationStatusBodyEl.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-gray-500">No migration events logged yet. Be the first!</td></tr>';
+                return;
+            }
+
+            // Sort by createdAt descending
+            const sortedMigrations = migrations.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+            sortedMigrations.forEach(data => {
+                const directionClass = data.direction === 'INBOUND' ? 'text-green-400' : 'text-red-400';
+                
+                const logTime = new Date(data.createdAt).toLocaleTimeString('en-US', {
+                    hour: '2-digit', minute: '2-digit'
+                }) + ' ' + new Date(data.createdAt).toLocaleDateString('en-US', {
+                    month: 'short', day: 'numeric'
+                });
+
+                const rowHtml = `
+                    <tr class="ranking-row transition duration-150">
+                        <td class="p-3 font-semibold text-white truncate">${data.commander}</td>
+                        <td class="p-3 text-gray-300">${data.server}</td>
+                        <td class="p-3 font-bold ${directionClass}">${data.direction}</td>
+                        <td class="p-3 text-gray-400 text-xs">${logTime}</td>
+                    </tr>
+                `;
+                migrationStatusBodyEl.innerHTML += rowHtml;
             });
         };
 
-        /**
-         * Initializes Firebase App, Auth, Firestore, and Analytics.
-         */
-        const initializeFirebase = async () => {
+        const setupMigrationRealtimeListener = () => {
+             if (!db || !isAuthReady) return;
+
+             const migrationsCollectionRef = collection(db, MIGRATION_COLLECTION_PATH);
+             // We can use orderBy here since we only care about 'createdAt' and it won't require complex composite indexes
+             const q = query(migrationsCollectionRef, orderBy('createdAt', 'desc'));
+
+             onSnapshot(q, (snapshot) => {
+                const migrationData = snapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+                renderMigrations(migrationData);
+             }, (error) => {
+                 console.error("Error listening to migration collection:", error);
+                 migrationStatusBodyEl.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-red-400">Error fetching migration log. Retrying...</td></tr>';
+             });
+        };
+
+        // Migration Form Submission Handler
+        migrationFormEl.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!db || !userId) {
+                showMessage("Connection not ready. Please wait.", true, migrationMessageBoxEl);
+                return;
+            }
+
+            migrationSubmitBtn.textContent = "Logging...";
+            migrationSubmitBtn.disabled = true;
+
+            const commander = migrationCommanderNameEl.value.trim();
+            const server = migrationServerIdEl.value.trim();
+            const direction = migrationDirectionEl.value;
+            
+            if (!commander || !server || !direction) {
+                 showMessage("INPUT ERROR: All fields must be completed.", true, migrationMessageBoxEl);
+                 migrationSubmitBtn.textContent = "LOG EVENT";
+                 migrationSubmitBtn.disabled = false;
+                 return;
+            }
+
+            const newMigration = {
+                commander,
+                server,
+                direction,
+                submitterId: userId,
+                createdAt: new Date().toISOString(), // Use ISO string for reliable sorting/storage
+            };
+
+            const migrationDocRef = doc(collection(db, MIGRATION_COLLECTION_PATH));
+            
             try {
-                // Initialize Firebase App
+                await setDoc(migrationDocRef, newMigration); 
+                showMessage(`MIGRATION LOGGED: ${commander} (${direction})`, false, migrationMessageBoxEl);
+                migrationFormEl.reset();
+                migrationDirectionEl.value = ""; // Reset select explicitly
+            } catch (error) {
+                console.error("Error logging migration:", error);
+                showMessage(`LOGGING FAILED: ${error.message}`, true, migrationMessageBoxEl);
+            } finally {
+                migrationSubmitBtn.textContent = "LOG EVENT";
+                migrationSubmitBtn.disabled = false;
+            }
+        });
+
+
+        // --- FIREBASE INITIALIZATION AND REAL-TIME LISTENER (EXISTING, MODIFIED) ---
+
+        const initializeFirebase = async () => {
+            
+            // CRITICAL CHECK: Check if the configuration object is valid
+            if (!firebaseConfig || Object.keys(firebaseConfig).length === 0) {
+                authStatusEl.textContent = 'PROTOCOL OFFLINE: Config Missing.';
+                authStatusLightEl.classList.replace('bg-yellow-400', 'bg-red-600');
+                authStatusLightEl.classList.remove('animate-pulse');
+                userIdDisplayEl.textContent = 'Commander ID: ERROR';
+                submitBtn.disabled = true;
+                migrationSubmitBtn.disabled = true; // Disable new button
+                rankingsContainerEl.innerHTML = '<p class="p-4 text-center text-red-400">Database connection failed. Configuration missing.</p>';
+                console.error('Firebase Error: Configuration object is empty or missing required fields.');
+                return;
+            }
+
+
+            try {
                 const app = initializeApp(firebaseConfig);
-                
-                // Initialize Analytics
-                const analytics = getAnalytics(app); 
-                
-                // Initialize Firestore and Auth
                 db = getFirestore(app);
                 auth = getAuth(app);
+                submitBtn.disabled = true;
+                migrationSubmitBtn.disabled = true; // Initially disable
 
-                // Authenticate
+                // Sign in with custom token or anonymously
                 if (initialAuthToken) {
                     await signInWithCustomToken(auth, initialAuthToken);
                 } else {
                     await signInAnonymously(auth);
                 }
 
-                // Wait for auth state to be confirmed
-                await new Promise(resolve => {
-                    const unsubscribe = onAuthStateChanged(auth, (user) => {
-                        if (user) {
-                            userId = user.uid;
-                            console.log("User signed in with ID:", userId);
-                        } else {
-                            // This should not happen if signInAnonymously succeeded, but for safety
-                            userId = crypto.randomUUID();
-                            console.log("User is not signed in, using random ID:", userId);
+                // Wait for auth state to resolve
+                onAuthStateChanged(auth, (user) => {
+                    if (user) {
+                        userId = user.uid;
+                        if (!adminUserId) {
+                            adminUserId = user.uid;
                         }
-                        unsubscribe();
-                        resolve();
-                    });
+                        
+                        userIdDisplayEl.textContent = `Commander ID: ${userId} ${userId === adminUserId ? '(ADMIN)' : ''}`;
+                        authStatusEl.textContent = 'SECURE LINK: ACTIVE';
+                        authStatusLightEl.classList.replace('bg-yellow-400', 'bg-green-500');
+                        authStatusLightEl.classList.remove('animate-pulse');
+                        isAuthReady = true;
+                        submitBtn.disabled = false;
+                        migrationSubmitBtn.disabled = false; // Enable new button
+                        
+                        setupRealtimeListener();
+                        setupMigrationRealtimeListener(); // Start migration listener
+
+                    } else {
+                        userId = null;
+                        userIdDisplayEl.textContent = 'Commander ID: N/A';
+                        authStatusEl.textContent = 'LINK FAILED';
+                        authStatusLightEl.classList.replace('bg-yellow-400', 'bg-red-600');
+                        authStatusLightEl.classList.remove('animate-pulse');
+                        isAuthReady = true; 
+                        submitBtn.disabled = true; 
+                        migrationSubmitBtn.disabled = true; // Disable new button
+                        setupRealtimeListener();
+                        setupMigrationRealtimeListener(); // Start migration listener (though it won't write, it can read)
+                    }
                 });
 
-                // Setup the real-time listener after successful initialization
-                setupRankingListener();
-
             } catch (error) {
-                console.error("Firebase Initialization Failed:", error);
-                showMessage(`App setup failed. Check console for details. Error: ${error.message}`, true);
+                console.error("Firebase initialization failed:", error);
+                authStatusEl.textContent = `CRITICAL FAILURE`;
+                authStatusLightEl.classList.replace('bg-yellow-400', 'bg-red-600');
+                authStatusLightEl.classList.remove('animate-pulse');
+                showMessage(`Firebase init failed: ${error.message}`, true);
             }
         };
 
-        // --- Event Handlers ---
 
-        const formEl = document.getElementById('ranking-form');
-        const submitBtn = document.getElementById('submit-btn');
-        const searchInputEl = document.getElementById('search-input');
-        const sortPowerEl = document.getElementById('sort-power');
-        const sortKillsEl = document.getElementById('sort-kills');
+        const setupRealtimeListener = () => {
+             if (!db || !isAuthReady) return;
 
-        // Form Submission Handler
+             const rankingsCollectionRef = collection(db, RANKING_COLLECTION_PATH);
+             const q = query(rankingsCollectionRef);
+
+             const MAX_RETRIES = 5;
+             let retryCount = 0;
+             let baseDelay = 1000; 
+
+             const attemptSnapshot = () => {
+                onSnapshot(q, (snapshot) => {
+                    allRankings = snapshot.docs.map(doc => ({
+                        id: doc.id,
+                        ...doc.data()
+                    }));
+                    
+                    applyFiltersAndSort();
+                    document.getElementById('loading-message')?.remove();
+                    retryCount = 0; 
+
+                }, (error) => {
+                    console.error("Error listening to collection:", error);
+                    if (retryCount < MAX_RETRIES) {
+                        const delay = baseDelay * Math.pow(2, retryCount) + Math.random() * 1000;
+                        retryCount++;
+                        setTimeout(attemptSnapshot, delay);
+                        rankingsContainerEl.innerHTML = `<p class="p-4 text-center text-yellow-500">Connection lost, attempting re-link (${retryCount}/${MAX_RETRIES})....</p>`;
+                    } else {
+                        rankingsContainerEl.innerHTML = '<p class="p-4 text-center text-red-400">CRITICAL: Max retry attempts failed. Cannot fetch live rankings.</p>';
+                    }
+                });
+             };
+
+             attemptSnapshot();
+        };
+
+
+        // --- FORM SUBMISSION LOGIC (EXISTING) ---
         formEl.addEventListener('submit', async (e) => {
             e.preventDefault();
-
             if (!db || !userId) {
-                showMessage("Database or User ID is not ready. Please wait.", true);
+                showMessage("Connection not ready. Please wait.", true);
                 return;
             }
 
-            const name = document.getElementById('player-name').value.trim();
-            const power = parseInt(document.getElementById('player-power').value, 10);
-            const kills = parseInt(document.getElementById('player-kills').value, 10);
-
-            if (!name || isNaN(power) || isNaN(kills)) {
-                showMessage("Please ensure all fields are filled correctly.", true);
-                return;
-            }
-
-            submitBtn.textContent = "Submitting...";
+            submitBtn.textContent = "Processing...";
             submitBtn.disabled = true;
 
-            // Use the user's ID as the document ID for 'upsert' functionality
-            // Private data storage path: /artifacts/{appId}/users/{userId}/rankings/{documentId}
-            const documentId = userId;
-            const rankDocRef = doc(db, `/artifacts/${appId}/users/${userId}/rankings`, documentId);
+            const name = nameInputEl.value.trim();
+            // All values entered are expected to be in Millions, convert to absolute integer
+            const powerMillions = parseFloat(powerInputEl.value);
+            const killsMillions = parseFloat(killsInputEl.value); 
+
+            if (isNaN(powerMillions) || isNaN(killsMillions) || powerMillions <= 0 || killsMillions < 0) {
+                 showMessage("INPUT ERROR: Please enter valid numbers (in Millions) for Power and Kills.", true);
+                 submitBtn.textContent = formEl.dataset.editId ? "UPDATE DATA LOG" : "SUBMIT RANK";
+                 submitBtn.disabled = false;
+                 return;
+            }
+
+            // Convert millions to absolute numbers
+            const power = Math.round(powerMillions * 1000000); 
+            const kills = Math.round(killsMillions * 1000000); 
+            const editId = formEl.dataset.editId;
+
+            // Check for update restriction (Admin only)
+            if (editId && userId !== adminUserId) {
+                showMessage("ACCESS DENIED: Only the Administrator can update existing rankings.", true);
+                submitBtn.textContent = "UPDATE DATA LOG (Restricted)";
+                submitBtn.disabled = false;
+                return;
+            }
+
 
             const newRanking = {
-                name: name,
-                power: power,
-                kills: kills,
-                userId: userId,
-                timestamp: Date.now()
+                name,
+                power,
+                kills, 
+                ownerId: editId ? allRankings.find(r => r.id === editId)?.ownerId || userId : userId,
+                updatedAt: new Date().toISOString(),
             };
+            
+            if (!editId) {
+                newRanking.ownerId = userId;
+            }
 
+
+            const rankDocRef = editId ? doc(db, RANKING_COLLECTION_PATH, editId) : doc(collection(db, RANKING_COLLECTION_PATH));
+            
             try {
-                // Save the data to the user's private collection
-                await setDoc(rankDocRef, newRanking);
-
-                // Also save a copy to the public collection (using the same document ID for simplicity)
-                // Public data storage path: /artifacts/${appId}/public/data/rankings/{documentId}
-                const publicDocRef = doc(db, `/artifacts/${appId}/public/data/rankings`, documentId);
-                await setDoc(publicDocRef, newRanking);
-
-
-                showMessage(`Ranking for ${name} submitted/updated successfully!`, false);
+                await setDoc(rankDocRef, newRanking, { merge: true }); 
+                showMessage(`DATA LOG ${editId ? 'UPDATED' : 'TRANSMITTED'} successfully for ${name}!`, false);
+                
+                // Clear state after success
                 formEl.reset();
+                delete formEl.dataset.editId; 
+                submitBtn.textContent = "SUBMIT RANK";
+                submitBtn.classList.remove('bg-yellow-600', 'hover:bg-yellow-700');
+                submitBtn.classList.add('btn-submit-game'); // Restore green style
+
             } catch (error) {
                 console.error("Error submitting ranking:", error);
-                showMessage(`Failed to submit ranking: ${error.message}`, true);
+                showMessage(`TRANSMISSION FAILED: ${error.message}`, true);
+                submitBtn.textContent = "TRANSMISSION FAILED (RETRY)";
             } finally {
-                submitBtn.textContent = "Submit Rank";
                 submitBtn.disabled = false;
             }
         });
 
-        // --- Event Listeners for Filtering and Sorting ---\
-
+        // --- Event Listeners for Filtering and Sorting ---
+        
         // Filter Listener
-        searchInputEl.addEventListener('input', (event) => {
-            searchFilter = event.target.value.trim();
-            applyFiltersAndSort();
-        });
+        searchInputEl.addEventListener('input', applyFiltersAndSort);
 
         // Sort Listener Factory
         const handleSortClick = (event) => {
@@ -383,7 +847,7 @@
                 // Toggle direction if same key is clicked
                 sortState.direction = sortState.direction === 'desc' ? 'asc' : 'desc';
             } else {
-                // New key, reset to descending (standard for rankings)
+                // New key, set Power/Kills to descending (standard for rankings)
                 sortState.key = newKey;
                 sortState.direction = 'desc';
             }
@@ -396,9 +860,10 @@
 
 
         // Start the application
-        window.onload = initializeFirebase;
+        window.onload = () => {
+            initializeFirebase();
+            showView('migration-view'); // Default view to Migration Status
+        };
     </script>
-    <!-- Vercel Web Analytics Script -->
-    <script src="/_vercel/insights/script.js"></script>
 </body>
 </html>
