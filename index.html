@@ -13,38 +13,25 @@
             font-family: 'Inter', sans-serif;
             background-color: #0d1117; /* Dark background */
         }
-        .ranking-card:nth-child(2) { /* First ranking item after header row */
-            border-left: 5px solid #ffcc00; /* Gold for 1st place */
-            transform: scale(1.01);
-        }
-        .ranking-card:nth-child(3) {
-            border-left: 5px solid #cccccc; /* Silver for 2nd place */
-        }
-        .ranking-card:nth-child(4) {
-            border-left: 5px solid #cd7f32; /* Bronze for 3rd place */
-        }
-        .rank-number {
-            font-size: 1.5rem;
-            font-weight: 700;
-        }
-        /* Style for the top 3 rank numbers */
+        /* Color classes for ranks (kept for leaderboard tab) */
+        .ranking-card:nth-child(2) { border-left: 5px solid #ffcc00; transform: scale(1.01); }
+        .ranking-card:nth-child(3) { border-left: 5px solid #cccccc; }
+        .ranking-card:nth-child(4) { border-left: 5px solid #cd7f32; }
+        .rank-number { font-size: 1.5rem; font-weight: 700; }
         .ranking-card:nth-child(2) .rank-number { color: #ffcc00; }
         .ranking-card:nth-child(3) .rank-number { color: #cccccc; }
         .ranking-card:nth-child(4) .rank-number { color: #cd7f32; }
 
-        .sortable-header {
-            cursor: pointer;
-            transition: color 0.15s;
-        }
-        .sortable-header:hover {
-            color: #4f46e5;
-        }
-        .tab-content {
-            display: none;
-        }
-        .tab-content.active {
-            display: block;
-        }
+        .sortable-header { cursor: pointer; transition: color 0.15s; }
+        .sortable-header:hover { color: #4f46e5; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        
+        /* Custom styles for migration status badges */
+        .status-ready { background-color: #10b981; } /* Emerald-500 */
+        .status-waiting { background-color: #f59e0b; } /* Amber-500 */
+        .status-migrated { background-color: #3b82f6; } /* Blue-500 */
+        .status-needed { background-color: #ef4444; } /* Red-500 */
     </style>
 </head>
 <body class="min-h-screen">
@@ -62,8 +49,9 @@
                     data-tab="leaderboard">256 Rankings</button>
             <button class="tab-button py-3 px-6 text-sm font-medium text-gray-400 hover:text-white hover:bg-[#1e232b] border-b-2 border-transparent transition duration-150" 
                     data-tab="submit">Submit Rank</button>
+            <!-- UPDATED TAB NAME -->
             <button class="tab-button py-3 px-6 text-sm font-medium text-gray-400 hover:text-white hover:bg-[#1e232b] border-b-2 border-transparent transition duration-150" 
-                    data-tab="info">Server Info</button>
+                    data-tab="info">Migration Status</button>
             <button class="tab-button py-3 px-6 text-sm font-medium text-gray-400 hover:text-white hover:bg-[#1e232b] border-b-2 border-transparent transition duration-150" 
                     data-tab="guides">Guides</button>
             <button class="tab-button py-3 px-6 text-sm font-medium text-gray-400 hover:text-white hover:bg-[#1e232b] border-b-2 border-transparent transition duration-150" 
@@ -95,13 +83,17 @@
                 <div id="ranking-header" class="flex items-center p-3 bg-[#1e232b] rounded-t-lg text-gray-400 font-semibold text-sm border-b border-gray-700">
                     <div class="w-10 text-center mr-4">#</div>
                     <div class="flex-grow">Player / Alliance</div>
-                    <div id="sort-power" data-sort-key="power" class="sortable-header flex-shrink-0 text-right ml-4 w-24">
+                    <div id="sort-power" data-sort-key="power" class="sortable-header flex-shrink-0 text-right ml-4 w-24 hidden md:block">
                         Power
                         <span id="power-sort-icon" class="text-blue-500 text-xs ml-1">▲</span>
                     </div>
-                    <div id="sort-kills" data-sort-key="kill_count" class="sortable-header flex-shrink-0 text-right ml-6 hidden sm:block w-24">
+                    <div id="sort-kills" data-sort-key="kill_count" class="sortable-header flex-shrink-0 text-right ml-6 w-24">
                         Kills
                         <span id="kills-sort-icon" class="text-gray-500 text-xs ml-1"></span>
+                    </div>
+                    <div id="sort-merits" data-sort-key="merit_count" class="sortable-header flex-shrink-0 text-right ml-6 w-24">
+                        Merits
+                        <span id="merits-sort-icon" class="text-gray-500 text-xs ml-1"></span>
                     </div>
                     <div class="flex-shrink-0 text-right ml-6 hidden md:block w-24">Updated</div>
                 </div>
@@ -139,6 +131,12 @@
                         <input type="number" id="killCount" required placeholder="e.g., 10,500"
                                class="mt-1 block w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md text-white focus:ring-blue-500 focus:border-blue-500">
                     </div>
+                    <!-- NEW MERIT COUNT FIELD -->
+                    <div>
+                        <label for="meritCount" class="block text-sm font-medium text-gray-300">Total Merits</label>
+                        <input type="number" id="meritCount" required placeholder="e.g., 50,000"
+                               class="mt-1 block w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md text-white focus:ring-blue-500 focus:border-blue-500">
+                    </div>
                     <button type="submit" id="submitBtn"
                             class="w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out">
                         Submit Rank
@@ -149,24 +147,71 @@
             </div>
         </div>
 
-        <!-- 3. Server Info Tab -->
+        <!-- 3. Migration Status Tab (New Content) -->
         <div id="info" class="tab-content">
-            <div class="max-w-4xl mx-auto bg-[#161b22] p-6 rounded-xl shadow-lg border border-gray-700 text-white">
-                <h2 class="text-3xl font-bold mb-4">Server 256 Information</h2>
-                <p class="text-gray-400 mb-6">This section is for key information, rules, and governance for Server 256.</p>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                        <h3 class="text-xl font-semibold text-yellow-400 mb-2">Key Policies</h3>
-                        <ul class="list-disc list-inside space-y-2 text-gray-300">
-                            <li>KOS Policy: Active during War Season (check in-game mail).</li>
-                            <li>Resource Sharing: Alliance members encouraged to share T4 resources.</li>
-                            <li>NAP Status: Current status is generally NAP, with exceptions during major events.</li>
-                        </ul>
-                    </div>
-                    <div>
-                        <h3 class="text-xl font-semibold text-yellow-400 mb-2">Event Schedule</h3>
-                        <p class="text-gray-300">Next Major Event: **Kingdom vs Kingdom (KvK)** starts soon.</p>
-                        <p class="text-gray-300">Check the 'Resources' tab for links to planning documents.</p>
+            <div class="max-w-4xl mx-auto">
+                <h2 class="text-3xl font-bold text-white mb-4 border-b border-gray-700 pb-2">Migration Status Tracking</h2>
+
+                <!-- ADD/EDIT FORM -->
+                <div class="bg-[#161b22] p-6 rounded-xl shadow-lg border border-gray-700 mb-6">
+                    <h3 class="text-xl font-semibold text-white mb-4" id="migration-form-title">Add New Migration Entry</h3>
+                    <form id="migration-form" class="space-y-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <input type="hidden" id="migrationId">
+                        <div>
+                            <label for="migratorName" class="block text-sm font-medium text-gray-300">Player Name</label>
+                            <input type="text" id="migratorName" required placeholder="Player Name"
+                                class="mt-1 block w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md text-white focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label for="targetKingdom" class="block text-sm font-medium text-gray-300">Target Kingdom (e.g., S206)</label>
+                            <input type="text" id="targetKingdom" required placeholder="e.g., S206"
+                                class="mt-1 block w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md text-white focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label for="ticketsUsed" class="block text-sm font-medium text-gray-300">Tickets Used</label>
+                            <input type="number" id="ticketsUsed" required value="0"
+                                class="mt-1 block w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md text-white focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label for="migrationStatus" class="block text-sm font-medium text-gray-300">Status</label>
+                            <select id="migrationStatus" required 
+                                class="mt-1 block w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md text-white focus:ring-blue-500 focus:border-blue-500">
+                                <option value="Ready" class="status-ready text-white">Ready to Migrate (Tickets)</option>
+                                <option value="Waiting" class="status-waiting text-white">Waiting for Ticket</option>
+                                <option value="Migrated" class="status-migrated text-white">Migrated</option>
+                                <option value="Needed" class="status-needed text-white">Needs More Tickets</option>
+                            </select>
+                        </div>
+                        <button type="submit" id="migrationSubmitBtn"
+                                class="md:col-span-2 lg:col-span-4 w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition duration-150 ease-in-out">
+                            Save Migration Entry
+                        </button>
+                    </form>
+                    <button id="migrationClearBtn" class="mt-2 w-full py-1 text-sm text-gray-400 hover:text-white" style="display:none;">
+                        Clear Form / Cancel Edit
+                    </button>
+                    <div id="migration-message-box" class="mt-4 p-3 rounded-md text-sm text-center hidden"></div>
+                </div>
+
+                <!-- MIGRATION LIST -->
+                <div class="bg-[#161b22] p-6 rounded-xl shadow-lg border border-gray-700">
+                    <h3 class="text-xl font-semibold text-white mb-4">Current Migration Tracking</h3>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-700">
+                            <thead class="bg-gray-800">
+                                <tr>
+                                    <th class="px-3 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider w-1/4">Player</th>
+                                    <th class="px-3 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Target</th>
+                                    <th class="px-3 py-3 text-right text-xs font-medium text-gray-300 uppercase tracking-wider">Tickets</th>
+                                    <th class="px-3 py-3 text-center text-xs font-medium text-gray-300 uppercase tracking-wider">Status</th>
+                                    <th class="px-3 py-3 text-right text-xs font-medium text-gray-300 uppercase tracking-wider">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="migration-list" class="bg-[#161b22] divide-y divide-gray-700">
+                                <!-- Migration entries will be injected here -->
+                                <tr><td colspan="5" class="text-center py-4 text-gray-500" id="migration-empty-state">No migration entries tracked.</td></tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
@@ -194,7 +239,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, onSnapshot, query, setDoc, doc, Timestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, onSnapshot, query, setDoc, doc, Timestamp, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         setLogLevel('debug');
@@ -202,8 +247,6 @@
         // =========================================================================
         // STEP 1: Firebase Configuration Setup
         // =========================================================================
-        // WARNING: This configuration uses hardcoded keys. When deploying externally,
-        // ensure these are loaded securely via environment variables.
 
         const firebaseConfig = {
             apiKey: "AIzaSyDPBsLGnZSy9gl0J-Toy97sx04sbMliN1A",
@@ -215,16 +258,12 @@
             measurementId: "G-N6GB8LBHWJ"
         };
 
-        // These variables MUST still rely on the environment globals (if available) 
-        // for correct authentication and data isolation within this environment.
         const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
-        // The appId for Firestore paths defaults to the project ID, but is overridden by the environment's __app_id if present.
         const appId = typeof __app_id !== 'undefined' ? __app_id : firebaseConfig.projectId; 
         
         // =========================================================================
         
         // UI Elements
-        // Updated to reflect the new tabbed layout
         const loadingEl = document.getElementById('loading');
         const rankingListEl = document.getElementById('ranking-list');
         const emptyStateEl = document.getElementById('empty-state');
@@ -237,23 +276,37 @@
         const tabButtons = document.querySelectorAll('.tab-button');
         const tabContents = document.querySelectorAll('.tab-content');
 
-        // Sorting elements
+        // Migration UI Elements
+        const migrationFormEl = document.getElementById('migration-form');
+        const migrationListEl = document.getElementById('migration-list');
+        const migrationMessageBoxEl = document.getElementById('migration-message-box');
+        const migrationEmptyStateEl = document.getElementById('migration-empty-state');
+        const migrationSubmitBtn = document.getElementById('migrationSubmitBtn');
+        const migrationClearBtn = document.getElementById('migrationClearBtn');
+        const migrationFormTitleEl = document.getElementById('migration-form-title');
+
+        // Sorting elements (Leaderboard)
         const sortPowerEl = document.getElementById('sort-power');
         const sortKillsEl = document.getElementById('sort-kills');
+        const sortMeritsEl = document.getElementById('sort-merits');
         const powerSortIconEl = document.getElementById('power-sort-icon');
         const killsSortIconEl = document.getElementById('kills-sort-icon');
+        const meritsSortIconEl = document.getElementById('merits-sort-icon');
 
         // Firebase instances
         let app, db, auth;
         let userId = null;
         let isAuthReady = false;
-        const COLLECTION_NAME = 'server256_rankings';
+        
+        // Collection Names
+        const RANKING_COLLECTION_NAME = 'server256_rankings'; 
+        const MIGRATION_COLLECTION_NAME = 'migration_status';
 
         // Global state for rankings and sorting
         let allRankings = [];
         let sortState = {
-            key: 'power', // Default sort key
-            direction: 'desc' // Default direction
+            key: 'power', 
+            direction: 'desc'
         };
         
         /**
@@ -261,30 +314,30 @@
          * @param {string} tabId The ID of the tab content to show (e.g., 'leaderboard').
          */
         function switchTab(tabId) {
-            // Hide all content tabs
             tabContents.forEach(content => {
                 content.classList.remove('active');
             });
 
-            // Deactivate all buttons
             tabButtons.forEach(button => {
                 button.classList.remove('text-white', 'bg-[#1e232b]');
                 button.classList.add('text-gray-400', 'hover:text-white');
                 button.style.borderBottomColor = 'transparent';
             });
 
-            // Show the selected tab
             const activeContent = document.getElementById(tabId);
             if (activeContent) {
                 activeContent.classList.add('active');
+                // Special case: Load migration data when tab is opened
+                if (tabId === 'info' && isAuthReady) {
+                    loadMigrationStatus();
+                }
             }
 
-            // Activate the corresponding button style
             const activeButton = document.querySelector(`.tab-button[data-tab="${tabId}"]`);
             if (activeButton) {
                 activeButton.classList.add('text-white', 'bg-[#1e232b]');
                 activeButton.classList.remove('text-gray-400', 'hover:text-white');
-                activeButton.style.borderBottomColor = '#4f46e5'; // Blue underline
+                activeButton.style.borderBottomColor = '#4f46e5';
             }
         }
         
@@ -299,7 +352,7 @@
         });
 
         /**
-         * Shows a temporary message in the message box.
+         * Shows a temporary message in the generic message box (used by Leaderboard form).
          * @param {string} message The message to display.
          * @param {boolean} isError True for error style, false for success/info style.
          */
@@ -317,13 +370,31 @@
         }
 
         /**
-         * Applies the current filter and sort state to the rankings and renders them.
+         * Shows a temporary message in the migration message box.
+         * @param {string} message The message to display.
+         * @param {boolean} isError True for error style, false for success/info style.
          */
+        function showMigrationMessage(message, isError = false) {
+            migrationMessageBoxEl.textContent = message;
+            migrationMessageBoxEl.classList.remove('hidden', 'bg-red-900', 'text-red-300', 'bg-green-900', 'text-green-300');
+            if (isError) {
+                migrationMessageBoxEl.classList.add('bg-red-900', 'text-red-300');
+            } else {
+                migrationMessageBoxEl.classList.add('bg-green-900', 'text-green-300');
+            }
+            setTimeout(() => {
+                migrationMessageBoxEl.classList.add('hidden');
+            }, 5000);
+        }
+
+        // =========================================================================
+        // LEADERBOARD LOGIC (Existing)
+        // =========================================================================
+
         function applyFiltersAndSort() {
             let filteredRankings = [...allRankings];
             const filterTerm = searchInputEl.value.toLowerCase().trim();
 
-            // 1. Filtering
             if (filterTerm) {
                 filteredRankings = filteredRankings.filter(player =>
                     player.name.toLowerCase().includes(filterTerm) ||
@@ -331,10 +402,9 @@
                 );
             }
 
-            // 2. Sorting
             filteredRankings.sort((a, b) => {
-                const aVal = a[sortState.key];
-                const bVal = b[sortState.key];
+                const aVal = a[sortState.key] || 0;
+                const bVal = b[sortState.key] || 0;
 
                 let comparison = 0;
                 if (aVal > bVal) comparison = 1;
@@ -343,26 +413,21 @@
                 return sortState.direction === 'asc' ? comparison : comparison * -1;
             });
 
-            // 3. Render
             renderRankings(filteredRankings);
         }
 
-        /**
-         * Renders the list of player rankings to the UI.
-         * @param {Array<Object>} rankings Array of ranking objects.
-         */
         function renderRankings(rankings) {
-            // Update sort indicators
             const filterTerm = searchInputEl.value.toLowerCase().trim();
             
-            powerSortIconEl.textContent = sortState.key === 'power' ? (sortState.direction === 'desc' ? '▼' : '▲') : '';
-            killsSortIconEl.textContent = sortState.key === 'kill_count' ? (sortState.direction === 'desc' ? '▼' : '▲') : '';
-            
-            powerSortIconEl.classList.toggle('text-blue-500', sortState.key === 'power');
-            killsSortIconEl.classList.toggle('text-blue-500', sortState.key === 'kill_count');
-            powerSortIconEl.classList.toggle('text-gray-500', sortState.key !== 'power');
-            killsSortIconEl.classList.toggle('text-gray-500', sortState.key !== 'kill_count');
+            const updateSortIcon = (key, iconEl) => {
+                iconEl.textContent = sortState.key === key ? (sortState.direction === 'desc' ? '▼' : '▲') : '';
+                iconEl.classList.toggle('text-blue-500', sortState.key === key);
+                iconEl.classList.toggle('text-gray-500', sortState.key !== key);
+            };
 
+            updateSortIcon('power', powerSortIconEl);
+            updateSortIcon('kill_count', killsSortIconEl);
+            updateSortIcon('merit_count', meritsSortIconEl);
 
             if (rankings.length === 0) {
                 emptyStateEl.textContent = filterTerm ? "No players match the search criteria." : "No rankings yet. Use the Submit Rank tab to add some!";
@@ -374,19 +439,11 @@
             emptyStateEl.classList.add('hidden');
             const html = rankings.map((player, index) => {
                 const rank = index + 1;
-                const formattedPower = player.power.toLocaleString();
-                const formattedKills = player.kill_count.toLocaleString();
+                const formattedPower = (player.power || 0).toLocaleString();
+                const formattedKills = (player.kill_count || 0).toLocaleString();
+                const formattedMerits = (player.merit_count || 0).toLocaleString(); 
                 const allianceTag = player.alliance || '[N/A]';
-                // Check if last_updated is a Timestamp object, then convert to Date
                 const lastUpdated = player.last_updated && typeof player.last_updated.toDate === 'function' ? player.last_updated.toDate().toLocaleDateString() : 'N/A';
-
-                // Apply gold/silver/bronze border only if no filter is active
-                let borderClass = '';
-                if (!filterTerm) {
-                    if (rank === 1) borderClass = 'border-l-gold'; 
-                    else if (rank === 2) borderClass = 'border-l-silver';
-                    else if (rank === 3) borderClass = 'border-l-bronze';
-                }
 
                 return `
                     <div class="ranking-card flex items-center p-4 bg-[#1e232b] rounded-lg shadow-xl hover:bg-[#252a32] transition duration-200 ease-in-out">
@@ -399,14 +456,22 @@
                             <p class="text-sm text-gray-400 font-mono">${allianceTag}</p>
                         </div>
 
-                        <!-- Stats -->
-                        <div class="flex-shrink-0 text-right ml-4 w-24">
+                        <!-- Power Stats -->
+                        <div class="flex-shrink-0 text-right ml-4 w-24 hidden md:block">
                             <p class="text-lg font-bold text-yellow-400">${formattedPower}</p>
                             <p class="text-xs text-gray-500">Power</p>
                         </div>
-                        <div class="flex-shrink-0 text-right ml-6 hidden sm:block w-24">
+                        
+                        <!-- Kills Stats -->
+                        <div class="flex-shrink-0 text-right ml-6 w-24">
                             <p class="text-lg font-bold text-red-400">${formattedKills}</p>
                             <p class="text-xs text-gray-500">Kills</p>
+                        </div>
+
+                        <!-- Merits Stats -->
+                        <div class="flex-shrink-0 text-right ml-6 w-24">
+                            <p class="text-lg font-bold text-green-400">${formattedMerits}</p>
+                            <p class="text-xs text-gray-500">Merits</p>
                         </div>
 
                         <!-- Last Updated -->
@@ -421,77 +486,7 @@
             rankingListEl.innerHTML = html;
         }
 
-        /**
-         * Initializes Firebase and sets up authentication.
-         */
-        async function initializeFirebase() {
-            loadingEl.classList.remove('hidden');
-
-            try {
-                // We no longer check for empty config since it is hardcoded above.
-
-                app = initializeApp(firebaseConfig);
-                db = getFirestore(app);
-                auth = getAuth(app);
-
-                // Handle authentication state
-                onAuthStateChanged(auth, async (user) => {
-                    if (user) {
-                        userId = user.uid;
-                        authStatusEl.textContent = `User ID: ${userId} (Authenticated)`;
-                        isAuthReady = true;
-                        // Start listening to rankings once authenticated
-                        loadRankings();
-                    } else {
-                        // Sign in using the custom token if provided, otherwise sign in anonymously
-                        if (initialAuthToken) {
-                             await signInWithCustomToken(auth, initialAuthToken);
-                        } else {
-                             await signInAnonymously(auth);
-                        }
-                    }
-                });
-
-            } catch (error) {
-                console.error("Firebase initialization or authentication failed:", error);
-                authStatusEl.textContent = `ERROR: Cannot connect to Firebase. ${error.message}`;
-                loadingEl.classList.add('hidden');
-                showMessage(`Failed to initialize application. Check console for details.`, true);
-            }
-        }
-
-        /**
-         * Sets up the real-time listener for rankings data.
-         * Fetches all data, stores it, and triggers rendering/sorting/filtering.
-         */
-        function loadRankings() {
-            if (!isAuthReady || !db) return;
-
-            // Note: We are using the "public" collection path here
-            const rankingsRef = collection(db, `artifacts/${appId}/public/data/${COLLECTION_NAME}`);
-            
-            const q = query(rankingsRef);
-
-            // Real-time listener
-            onSnapshot(q, (snapshot) => {
-                loadingEl.classList.add('hidden');
-                allRankings = snapshot.docs.map(doc => ({
-                    id: doc.id,
-                    ...doc.data()
-                }));
-                // After fetching, apply the current sort and filters
-                applyFiltersAndSort();
-                console.log("Rankings updated in real-time:", allRankings.length);
-            }, (error) => {
-                console.error("Error fetching real-time rankings:", error);
-                loadingEl.classList.add('hidden');
-                showMessage(`Error fetching rankings: ${error.message}`, true);
-            });
-        }
-
-        /**
-         * Handles the submission of a new or updated ranking.
-         */
+        // Leaderboard Submission (already private)
         formEl.addEventListener('submit', async (e) => {
             e.preventDefault();
 
@@ -507,23 +502,24 @@
             const alliance = document.getElementById('allianceTag').value.trim();
             const power = parseInt(document.getElementById('powerLevel').value, 10);
             const kill_count = parseInt(document.getElementById('killCount').value, 10);
+            const merit_count = parseInt(document.getElementById('meritCount').value, 10); 
 
-            if (!name || isNaN(power) || isNaN(kill_count)) {
-                showMessage("Please ensure Player Name, Power Level, and Kill Count are correctly filled.", true);
+            if (!name || isNaN(power) || isNaN(kill_count) || isNaN(merit_count)) {
+                showMessage("Please ensure Player Name, Power Level, Kill Count, and Total Merits are correctly filled.", true);
                 submitBtn.textContent = "Submit Rank";
                 submitBtn.disabled = false;
                 return;
             }
 
-            // Create a document reference using the player's name as the ID
             const docId = name.toLowerCase().replace(/[^a-z0-9]/g, '_');
-            const rankDocRef = doc(db, `artifacts/${appId}/public/data/${COLLECTION_NAME}`, docId);
+            const rankDocRef = doc(db, `artifacts/${appId}/users/${userId}/${RANKING_COLLECTION_NAME}`, docId);
 
             const newRanking = {
                 name: name,
-                alliance: alliance, // New field added
+                alliance: alliance,
                 power: power,
                 kill_count: kill_count,
+                merit_count: merit_count, 
                 ownerId: userId,
                 last_updated: Timestamp.now()
             };
@@ -541,20 +537,15 @@
             }
         });
 
-        // --- Event Listeners for Filtering and Sorting ---
-        
-        // Filter Listener
+        // Leaderboard Sorting/Filtering Listeners
         searchInputEl.addEventListener('input', applyFiltersAndSort);
 
-        // Sort Listener Factory
         const handleSortClick = (event) => {
             const newKey = event.currentTarget.dataset.sortKey;
 
             if (sortState.key === newKey) {
-                // Toggle direction if same key is clicked
                 sortState.direction = sortState.direction === 'desc' ? 'asc' : 'desc';
             } else {
-                // New key, reset to descending (standard for rankings)
                 sortState.key = newKey;
                 sortState.direction = 'desc';
             }
@@ -564,9 +555,236 @@
 
         sortPowerEl.addEventListener('click', handleSortClick);
         sortKillsEl.addEventListener('click', handleSortClick);
+        sortMeritsEl.addEventListener('click', handleSortClick);
 
 
-        // Start the application
+        // =========================================================================
+        // MIGRATION STATUS LOGIC (NEW)
+        // =========================================================================
+
+        /**
+         * Renders the list of migration entries.
+         * @param {Array<Object>} entries Array of migration objects.
+         */
+        function renderMigrationStatus(entries) {
+            migrationListEl.innerHTML = ''; // Clear previous entries
+            
+            if (entries.length === 0) {
+                migrationListEl.innerHTML = `<tr><td colspan="5" class="text-center py-4 text-gray-500">No migration entries tracked.</td></tr>`;
+                return;
+            }
+
+            const html = entries.map(entry => {
+                let statusClass = '';
+                switch(entry.status) {
+                    case 'Ready': statusClass = 'status-ready'; break;
+                    case 'Waiting': statusClass = 'status-waiting'; break;
+                    case 'Migrated': statusClass = 'status-migrated'; break;
+                    case 'Needed': statusClass = 'status-needed'; break;
+                    default: statusClass = 'bg-gray-500'; // Default color
+                }
+
+                return `
+                    <tr class="hover:bg-gray-800 transition duration-100 ease-in-out">
+                        <td class="px-3 py-3 whitespace-nowrap text-sm font-medium text-white">${entry.name}</td>
+                        <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-300">${entry.target}</td>
+                        <td class="px-3 py-3 whitespace-nowrap text-sm text-right font-mono text-yellow-400">${entry.tickets}</td>
+                        <td class="px-3 py-3 whitespace-nowrap text-center">
+                            <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full text-white ${statusClass}">
+                                ${entry.status}
+                            </span>
+                        </td>
+                        <td class="px-3 py-3 whitespace-nowrap text-right text-sm font-medium space-x-2">
+                            <button data-id="${entry.id}" class="edit-btn text-blue-400 hover:text-blue-200">Edit</button>
+                            <button data-id="${entry.id}" class="delete-btn text-red-400 hover:text-red-200">Delete</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            migrationListEl.innerHTML = html;
+
+            // Attach event listeners for edit and delete buttons
+            migrationListEl.querySelectorAll('.edit-btn').forEach(button => {
+                button.addEventListener('click', (e) => editMigrationEntry(e.currentTarget.dataset.id, entries));
+            });
+            migrationListEl.querySelectorAll('.delete-btn').forEach(button => {
+                button.addEventListener('click', (e) => deleteMigrationEntry(e.currentTarget.dataset.id));
+            });
+        }
+        
+        /**
+         * Sets up the real-time listener for migration status data (private collection).
+         */
+        function loadMigrationStatus() {
+            if (!isAuthReady || !db || !userId) {
+                console.log("Waiting for authentication to load migration status.");
+                return;
+            }
+
+            const migrationRef = collection(db, `artifacts/${appId}/users/${userId}/${MIGRATION_COLLECTION_NAME}`);
+            const q = query(migrationRef);
+
+            onSnapshot(q, (snapshot) => {
+                const migrationEntries = snapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+                // Sort by target kingdom for stable view
+                migrationEntries.sort((a, b) => a.target.localeCompare(b.target)); 
+                
+                renderMigrationStatus(migrationEntries);
+                console.log("Migration entries updated in real-time:", migrationEntries.length);
+            }, (error) => {
+                console.error("Error fetching migration status:", error);
+                showMigrationMessage(`Error fetching migration data: ${error.message}`, true);
+            });
+        }
+
+        /**
+         * Handles submission (add or update) of migration status form.
+         */
+        migrationFormEl.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            if (!isAuthReady || !db || !userId) {
+                showMigrationMessage("Authentication not complete. Please wait.", true);
+                return;
+            }
+
+            migrationSubmitBtn.textContent = "Saving...";
+            migrationSubmitBtn.disabled = true;
+
+            const form = e.target;
+            const docId = form.elements.migrationId.value.trim() || form.elements.migratorName.value.toLowerCase().replace(/[^a-z0-9]/g, '_');
+            const name = form.elements.migratorName.value.trim();
+            const target = form.elements.targetKingdom.value.trim();
+            const tickets = parseInt(form.elements.ticketsUsed.value, 10);
+            const status = form.elements.migrationStatus.value;
+
+            if (!name || !target || isNaN(tickets) || !status) {
+                showMigrationMessage("Please fill out all migration fields correctly.", true);
+                migrationSubmitBtn.textContent = "Save Migration Entry";
+                migrationSubmitBtn.disabled = false;
+                return;
+            }
+            
+            const migrationDocRef = doc(db, `artifacts/${appId}/users/${userId}/${MIGRATION_COLLECTION_NAME}`, docId);
+
+            const entryData = {
+                name: name,
+                target: target,
+                tickets: tickets,
+                status: status,
+                last_updated: Timestamp.now()
+            };
+
+            try {
+                await setDoc(migrationDocRef, entryData);
+                showMigrationMessage(`${name}'s migration status saved successfully!`, false);
+                // Clear the form back to 'Add New' state
+                clearMigrationForm();
+            } catch (error) {
+                console.error("Error submitting migration status:", error);
+                showMigrationMessage(`Failed to save migration status: ${error.message}`, true);
+            } finally {
+                migrationSubmitBtn.textContent = "Save Migration Entry";
+                migrationSubmitBtn.disabled = false;
+            }
+        });
+        
+        /**
+         * Loads an existing entry into the form for editing.
+         */
+        function editMigrationEntry(id, entries) {
+            const entry = entries.find(e => e.id === id);
+            if (!entry) return;
+            
+            document.getElementById('migrationId').value = entry.id;
+            document.getElementById('migratorName').value = entry.name;
+            document.getElementById('targetKingdom').value = entry.target;
+            document.getElementById('ticketsUsed').value = entry.tickets;
+            document.getElementById('migrationStatus').value = entry.status;
+
+            // Change button/title to reflect editing
+            migrationFormTitleEl.textContent = `Editing: ${entry.name}`;
+            migrationSubmitBtn.textContent = 'Update Entry';
+            migrationClearBtn.style.display = 'block';
+        }
+
+        /**
+         * Deletes a migration entry.
+         * @param {string} id The document ID to delete.
+         */
+        async function deleteMigrationEntry(id) {
+            if (!confirm(`Are you sure you want to delete this migration entry?`)) return;
+
+            try {
+                const migrationDocRef = doc(db, `artifacts/${appId}/users/${userId}/${MIGRATION_COLLECTION_NAME}`, id);
+                await deleteDoc(migrationDocRef);
+                showMigrationMessage('Entry deleted successfully.', false);
+                clearMigrationForm(); // Ensure form resets if the deleted item was being edited
+            } catch (error) {
+                console.error("Error deleting migration entry:", error);
+                showMigrationMessage(`Failed to delete entry: ${error.message}`, true);
+            }
+        }
+        
+        /**
+         * Resets the migration form back to the 'Add New' state.
+         */
+        function clearMigrationForm() {
+            migrationFormEl.reset();
+            document.getElementById('migrationId').value = '';
+            migrationFormTitleEl.textContent = 'Add New Migration Entry';
+            migrationSubmitBtn.textContent = 'Save Migration Entry';
+            migrationClearBtn.style.display = 'none';
+        }
+
+        migrationClearBtn.addEventListener('click', clearMigrationForm);
+        
+        // =========================================================================
+        // INITIALIZATION
+        // =========================================================================
+
+        /**
+         * Initializes Firebase and sets up authentication.
+         */
+        async function initializeFirebase() {
+            loadingEl.classList.remove('hidden');
+
+            try {
+                app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+
+                onAuthStateChanged(auth, async (user) => {
+                    if (user) {
+                        userId = user.uid;
+                        authStatusEl.textContent = `Admin ID: ${userId} (Authenticated)`;
+                        isAuthReady = true;
+                        
+                        // Load Leaderboard rankings for the default tab
+                        loadRankings(); 
+                        
+                        // Note: loadMigrationStatus is called when the 'info' tab is clicked
+                    } else {
+                        if (initialAuthToken) {
+                             await signInWithCustomToken(auth, initialAuthToken);
+                        } else {
+                             await signInAnonymously(auth);
+                        }
+                    }
+                });
+
+            } catch (error) {
+                console.error("Firebase initialization or authentication failed:", error);
+                authStatusEl.textContent = `ERROR: Cannot connect to Firebase. ${error.message}`;
+                loadingEl.classList.add('hidden');
+                showMessage(`Failed to initialize application. Check console for details.`, true);
+            }
+        }
+
         window.onload = initializeFirebase;
     </script>
 </body>
