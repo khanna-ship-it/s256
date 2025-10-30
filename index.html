@@ -885,8 +885,52 @@
 
         // Start the application
         window.onload = () => {
-            initializeFirebase();
-            showView('migration-view'); // Default view to Migration Status
+// New, secure implementation of the initialization function
+async function initializeFirebase() {
+    console.log("Attempting secure Firebase configuration retrieval...");
+    
+    // 1. Fetch the configuration from the secure Vercel API Route
+    const response = await fetch('/api/firebase-config');
+
+    if (!response.ok) {
+        console.error("Failed to fetch Firebase config from Vercel API.");
+        return; // Stop initialization if config fetch fails
+    }
+
+    const firebaseConfig = await response.json();
+
+    // 2. Check if Firebase is already initialized
+    if (firebase.apps.length === 0) {
+        // 3. Initialize Firebase using the fetched configuration
+        firebase.initializeApp(firebaseConfig);
+        
+        // 4. Initialize Cloud Firestore and set the global variable
+        db = firebase.firestore();
+        console.log("Firebase initialized and Firestore service retrieved.");
+
+        // Optional: Check connection status and apply rules
+        // For example, this checks the connectivity by reading a simple document
+        db.collection('test').doc('status').get()
+          .then(() => console.log('Firestore connection successful.'))
+          .catch(error => console.warn('Firestore Rule Check Failed:', error.message));
+
+    } else {
+        console.log("Firebase already initialized.");
+    }
+}
+
+// ... The rest of your script remains the same ...
+
+window.onload = () => {
+    // You keep the call here, but the function is now asynchronous
+    initializeFirebase();
+    showView('migration-view'); // Default view to Migration Status
+};
+
+// You should also update your submit logic to wait for initialization 
+// if it's called immediately on button click before the fetch completes. 
+// A safer pattern is to rely on 'db' being defined before use, 
+// which this async function ensures.            showView('migration-view'); // Default view to Migration Status
         };
     </script>
 </body>
