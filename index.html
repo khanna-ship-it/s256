@@ -146,3 +146,167 @@
 
 
     <script type="module">
+
+        // --- SUPABASE SETUP ---
+        import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+        
+        const supabaseUrl = 'https://jkgtdjoqqsxzcnoioedm.supabase.co';
+        // 🔑 ANONYMOUS KEY UPDATED HERE
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImprZ3Rkam9xcXN4emNub2lvZWRtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE5MjU3NTIsImV4cCI6MjA3NzUwMTc1Mn0.a3ZtPetBm8s5GwBsB5vpZesDEt4ujhWZ6Kme0qyw_bE'; 
+        
+        const supabase = createClient(supabaseUrl, supabaseKey);
+
+        const RANKING_TABLE_NAME = 'power_rankings'; 
+        
+        // --- CORE DATA FETCHING FUNCTION ---
+        async function getRankings() {
+            const { data, error } = await supabase
+                .from(RANKING_TABLE_NAME) 
+                .select(`id, name, power, merits`);
+
+            if (error) {
+                console.error('SUPABASE FETCH ERROR:', error);
+                const el = document.getElementById('rankings-container');
+                if(el) el.innerHTML = `<p class="p-4 text-center text-red-400">CRITICAL: Supabase connection failed. ${error.message}. Check the key in the script block.</p>`;
+                return [];
+            }
+            return data;
+        }
+
+
+        // --- UTILITY VARIABLES & UI ELEMENTS ---
+        const rankingsContainerEl = document.getElementById('rankings-container');
+        const searchInputEl = document.getElementById('search-input');
+        
+        const userIdDisplayEl = document.getElementById('user-id-display');
+        const authStatusEl = document.getElementById('auth-status');
+        const authStatusLightEl = document.getElementById('auth-status-light');
+        const sortPowerEl = document.getElementById('sort-power');
+        const sortmeritsEl = document.getElementById('sort-merits'); 
+        
+        let allRankings = []; 
+        let sortState = { key: 'power', direction: 'desc' }; 
+
+
+        /** Renders the list of rankings */
+        const renderRankings = (rankings) => {
+            
+            // 1. Sort the filtered list
+            const sortedRankings = [...rankings].sort((a, b) => {
+                const aVal = a[sortState.key] || 0;
+                const bVal = b[sortState.key] || 0;
+
+                if (aVal < bVal) return sortState.direction === 'asc' ? -1 : 1;
+                if (aVal > bVal) return sortState.direction === 'asc' ? 1 : -1;
+                // Secondary sort by Name 
+                if (a.name < b.name) return -1;
+                if (a.name > b.name) return 1;
+                return 0; 
+            });
+
+            rankingsContainerEl.innerHTML = '';
+            
+            if (sortedRankings.length === 0) {
+                rankingsContainerEl.innerHTML = '<p class="p-4 text-center text-gray-500">No matching commanders found in the Apex Registry.</p>';
+                return;
+            }
+
+            // 2. Update header arrows
+            [sortPowerEl, sortmeritsEl].forEach(el => {
+                el.querySelectorAll('span').forEach(span => span.classList.remove('opacity-100', 'text-green-400'));
+                el.querySelectorAll('span').forEach(span => span.classList.add('opacity-30'));
+
+                if (el.dataset.sortKey === sortState.key) {
+                    const iconClass = sortState.direction === 'asc' ? '.sort-icon-asc' : '.sort-icon-desc';
+                    el.querySelector(iconClass).classList.remove('opacity-30');
+                    el.querySelector(iconClass).classList.add('opacity-100', 'text-green-400');
+                }
+            });
+
+
+            // 3. Render rows
+            sortedRankings.forEach((rank, index) => {
+                const rankNumber = index + 1;
+                
+                const rankEl = document.createElement('div');
+                rankEl.className = 'ranking-row grid grid-cols-10 items-center p-3 text-sm transition duration-150'; 
+                
+                // Format numbers to display in millions (M)
+                const formattedPower = ((rank.power || 0) / 1000000).toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+                const formattedmerits = ((rank.merits || 0) / 1000000).toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+
+                let content = `
+                    <div class="col-span-1 flex items-center justify-center">
+                        <span class="rank-number text-gray-400">${rankNumber}</span>
+                    </div>
+                    <div class="col-span-4 font-bold text-white truncate">
+                        ${rank.name}
+                    </div>
+                    <div class="col-span-3 text-yellow-300 font-inter">${formattedPower}M}</div>
+                    <div class="col-span-2 text-red-400 font-inter">${formattedmerits}M}</div>
+                `;
+
+                rankEl.innerHTML = content;
+                rankingsContainerEl.appendChild(rankEl);
+            });
+        };
+
+        /** Applies filter (search) and sort, then calls renderRankings */
+        const applyFiltersAndSort = () => {
+            const searchTerm = searchInputEl.value.toLowerCase().trim();
+            
+            const filteredRankings = allRankings.filter(rank => 
+                rank.name.toLowerCase().includes(searchTerm)
+            );
+
+            renderRankings(filteredRankings);
+        };
+
+        // --- Event Listeners for Filtering and Sorting ---
+        
+        // Filter Listener
+        searchInputEl.addEventListener('input', applyFiltersAndSort);
+
+        // Sort Listener Factory
+        const handleSortClick = (event) => {
+            const newKey = event.currentTarget.dataset.sortKey;
+
+            if (sortState.key === newKey) {
+                // Toggle direction if same key is clicked
+                sortState.direction = sortState.direction === 'desc' ? 'asc' : 'desc';
+            } else {
+                // New key, set to descending by default
+                sortState.key = newKey;
+                sortState.direction = 'desc';
+            }
+
+            applyFiltersAndSort();
+        };
+
+        sortPowerEl.addEventListener('click', handleSortClick);
+        sortmeritsEl.addEventListener('click', handleSortClick);
+
+
+        // --- APPLICATION START ---
+        window.onload = async () => {
+            // 1. Initial Status Update
+            authStatusEl.textContent = 'SECURE LINK: ACTIVE (READ-ONLY)';
+            authStatusLightEl.classList.replace('bg-yellow-400', 'bg-green-500');
+            authStatusLightEl.classList.remove('animate-pulse');
+            userIdDisplayEl.textContent = 'Commander ID: ANONYMOUS';
+
+            // 2. Fetch and Render the Ranking Data
+            try {
+                const data = await getRankings();
+                allRankings = data;
+                applyFiltersAndSort(); 
+                document.getElementById('loading-message')?.remove();
+            } catch (e) {
+                console.error("Initial load failed:", e);
+                // Error message handled in getRankings
+            }
+        };
+
+    </script>
+</body>
+</html>
