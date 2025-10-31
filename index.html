@@ -341,7 +341,8 @@
 
         // --- Utility Functions ---
 
-        /** Toggles the view (tab) shown to the user. */
+        /** Toggles the view (tab) shown to the user. 
+         * NOTE: Must be attached to window to be called from onclick in HTML. */
         window.showView = (viewId) => {
             views.forEach(id => {
                 const element = document.getElementById(id);
@@ -489,8 +490,8 @@
                         ${rank.name}
                         <span class="text-xs text-gray-500 ml-1 font-inter" title="Owner ID: ${rank.ownerId || 'N/A'}">(ID:${rank.ownerId ? rank.ownerId.substring(0, 4) : 'N/A'})</span>
                     </div>
-                    <div class="col-span-3 text-yellow-300 font-inter">${formattedPower}M}</div>
-                    <div class="col-span-2 text-red-400 font-inter">${formattedmerits}M}</div>
+                    <div class="col-span-3 text-yellow-300 font-inter">${formattedPower}M</div>
+                    <div class="col-span-2 text-red-400 font-inter">${formattedmerits}M</div>
                     <div class="col-span-2 flex justify-end space-x-2">
                         ${isAdmin ? `
                             <button data-id="${rank.id}" data-name="${rank.name}" class="edit-btn text-yellow-400 hover:text-yellow-300 transition duration-150 p-1 rounded-full hover:bg-gray-700/50" title="Edit Entry">
@@ -672,61 +673,4 @@
                 console.error("Error submitting ranking:", error);
                 showMessage(`TRANSMISSION FAILED: ${error.message}`, true);
                 submitBtn.textContent = "TRANSMISSION FAILED (RETRY)";
-            } finally {
-                submitBtn.disabled = false;
             }
-        });
-
-        // --- Event Listeners for Filtering and Sorting ---
-        
-        // Filter Listener
-        searchInputEl.addEventListener('input', applyFiltersAndSort);
-
-        // Sort Listener Factory
-        const handleSortClick = (event) => {
-            const newKey = event.currentTarget.dataset.sortKey;
-
-            if (sortState.key === newKey) {
-                // Toggle direction if same key is clicked
-                sortState.direction = sortState.direction === 'desc' ? 'asc' : 'desc';
-            } else {
-                // New key, set Power/merits to descending (standard for rankings)
-                sortState.key = newKey;
-                sortState.direction = 'desc';
-            }
-
-            applyFiltersAndSort();
-        };
-
-        sortPowerEl.addEventListener('click', handleSortClick);
-        sortmeritsEl.addEventListener('click', handleSortClick);
-
-
-        // --- APPLICATION START ---
-        window.onload = async () => {
-            // 1. Initial Status Update
-            authStatusEl.textContent = 'SECURE LINK: ACTIVE';
-            authStatusLightEl.classList.replace('bg-yellow-400', 'bg-green-500');
-            authStatusLightEl.classList.remove('animate-pulse');
-            userIdDisplayEl.textContent = 'Commander ID: SUPABASE_ANON (READY)';
-            submitBtn.disabled = false; 
-            migrationSubmitBtn.disabled = false; 
-
-            // 2. Fetch and Render the Ranking Data
-            try {
-                const data = await getRankings();
-                allRankings = data;
-                applyFiltersAndSort(); // This calls renderRankings with the fetched data
-                document.getElementById('loading-message')?.remove();
-            } catch (e) {
-                console.error("Initial load failed:", e);
-                rankingsContainerEl.innerHTML = '<p class="p-4 text-center text-red-400">CRITICAL: Initial data load failed.</p>';
-            }
-
-            // 3. Set the default view
-            window.showView('ranking-view');
-        };
-
-    </script>
-</body>
-</html>
