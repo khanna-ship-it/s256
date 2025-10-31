@@ -9,10 +9,9 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700;900&family=Inter:wght@400;600;800&display=swap');
         body {
-            /* Using a classic, slightly weathered game aesthetic */
             font-family: 'Merriweather', serif;
-            background-color: #2b3531; /* Dark greenish-gray, like an old stone wall */
-            color: #d1d5db; /* Light gray text */
+            background-color: #2b3531; 
+            color: #d1d5db; 
             min-height: 100vh;
             padding-bottom: 3rem;
         }
@@ -23,8 +22,8 @@
         }
 
         .game-card {
-            background-color: #3f4a46; /* Slightly lighter card base */
-            border: 2px solid #58655e; /* Subtle darker border */
+            background-color: #3f4a46; 
+            border: 2px solid #58655e; 
             box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4);
             border-radius: 0.75rem;
             transition: all 0.2s ease;
@@ -64,7 +63,7 @@
             transition: border-color 0.3s;
         }
         .input-game:focus {
-            border-color: #10b981; /* Green focus glow */
+            border-color: #10b981; 
             box-shadow: 0 0 0 1px #10b981;
             outline: none;
         }
@@ -122,19 +121,29 @@
             
             <h3 class="text-xl font-bold mb-3 text-gray-300 flex justify-between items-center">
                 Live Data Feed
-                <input type="text" id="search-input" placeholder="Search Commander..." class="w-full md:w-64 p-2 rounded-lg input-game text-sm">
+                <input type="text" id="search-input" placeholder="Search Commander or Alliance..." class="w-full md:w-64 p-2 rounded-lg input-game text-sm">
             </h3>
             
-            <div class="grid grid-cols-10 text-xs font-semibold uppercase tracking-wider text-gray-400 p-3 border-y border-gray-600 bg-gray-700/50">
+            <div class="grid grid-cols-12 text-xs font-semibold uppercase tracking-wider text-gray-400 p-3 border-y border-gray-600 bg-gray-700/50">
                 <div class="col-span-1 flex items-center justify-center">Rank</div>
-                <div class="col-span-4">Commander</div>
-                <div class="col-span-3 cursor-pointer sort-header flex items-center hover:text-green-400 transition" id="sort-power" data-sort-key="power">
-                    Power (M)
+                <div class="col-span-3">Commander</div>
+                <div class="col-span-2 cursor-pointer sort-header flex items-center hover:text-green-400 transition" id="sort-alliance" data-sort-key="alliance">
+                    Alliance
                     <span class="sort-icon-asc ml-1 text-xs opacity-30">▲</span>
                     <span class="sort-icon-desc text-xs opacity-30">▼</span>
                 </div>
-                <div class="col-span-2 cursor-pointer sort-header flex items-center hover:text-green-400 transition" id="sort-merits" data-sort-key="merits">
+                <div class="col-span-2 cursor-pointer sort-header flex items-center hover:text-green-400 transition" id="sort-ratio" data-sort-key="merits_power_ratio">
+                    Ratio
+                    <span class="sort-icon-asc ml-1 text-xs opacity-30">▲</span>
+                    <span class="sort-icon-desc text-xs opacity-30">▼</span>
+                </div>
+                <div class="col-span-2 cursor-pointer sort-header flex items-center hover:text-green-400 transition" id="sort-merits" data-sort-key="total_merits">
                     merits (M)
+                    <span class="sort-icon-asc ml-1 text-xs opacity-30">▲</span>
+                    <span class="sort-icon-desc text-xs opacity-30">▼</span>
+                </div>
+                <div class="col-span-2 cursor-pointer sort-header flex items-center hover:text-green-400 transition" id="sort-power" data-sort-key="total_power">
+                    Power (M)
                     <span class="sort-icon-asc ml-1 text-xs opacity-30">▲</span>
                     <span class="sort-icon-desc text-xs opacity-30">▼</span>
                 </div>
@@ -154,22 +163,23 @@
         import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
         
         const supabaseUrl = 'https://jkgtdjoqqsxzcnoioedm.supabase.co';
-        // 🔑 ANONYMOUS KEY 
+        // 🔑 ANONYMOUS KEY (Provided in previous user turn)
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImprZ3Rkam9xcXN4emNub2lvZWRtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE5MjU3NTIsImV4cCI6MjA3NzUwMTc1Mn0.a3ZtPetBm8s5GwBsB5vpZesDEt4ujhWZ6Kme0qyw_bE'; 
         
         const supabase = createClient(supabaseUrl, supabaseKey);
 
-        const RANKING_TABLE_NAME = '256-players'; 
+        // ⚠️ UPDATED TABLE NAME
+        const RANKING_TABLE_NAME = '256-rankings'; 
         
         // --- CORE DATA FETCHING FUNCTION ---
         async function getRankings() {
-            // Update status to loading
             const statusDisplay = document.querySelector('#supabase-status-display span');
             if(statusDisplay) statusDisplay.textContent = 'Loading...';
 
             const { data, error } = await supabase
                 .from(RANKING_TABLE_NAME) 
-                .select(`id, name, power, merits`);
+                // Select all columns based on the database schema image
+                .select(`rank_rank, commander_name, alliance, merits_power_ratio, total_merits, total_power`); 
 
             if (error) {
                 console.error('SUPABASE FETCH ERROR:', error);
@@ -188,14 +198,14 @@
         const rankingsContainerEl = document.getElementById('rankings-container');
         const searchInputEl = document.getElementById('search-input');
         
-        const userIdDisplayEl = document.getElementById('user-id-display');
-        const authStatusEl = document.getElementById('auth-status');
-        const authStatusLightEl = document.getElementById('auth-status-light');
-        const sortPowerEl = document.getElementById('sort-power');
-        const sortmeritsEl = document.getElementById('sort-merits'); 
+        const sortAllianceEl = document.getElementById('sort-alliance');
+        const sortRatioEl = document.getElementById('sort-ratio');
+        const sortMeritsEl = document.getElementById('sort-merits'); 
+        const sortPowerEl = document.getElementById('sort-power'); 
         
         let allRankings = []; 
-        let sortState = { key: 'power', direction: 'desc' }; 
+        // Default sort to the primary key from the database screenshot
+        let sortState = { key: 'rank_rank', direction: 'asc' }; 
 
 
         /** Renders the list of rankings */
@@ -206,11 +216,18 @@
                 const aVal = a[sortState.key] || 0;
                 const bVal = b[sortState.key] || 0;
 
-                if (aVal < bVal) return sortState.direction === 'asc' ? -1 : 1;
-                if (aVal > bVal) return sortState.direction === 'asc' ? 1 : -1;
-                // Secondary sort by Name 
-                if (a.name < b.name) return -1;
-                if (a.name > b.name) return 1;
+                // Handle numeric or string sorting
+                if (typeof aVal === 'string' || typeof bVal === 'string') {
+                    if (aVal < bVal) return sortState.direction === 'asc' ? -1 : 1;
+                    if (aVal > bVal) return sortState.direction === 'asc' ? 1 : -1;
+                } else {
+                    if (aVal < bVal) return sortState.direction === 'asc' ? -1 : 1;
+                    if (aVal > bVal) return sortState.direction === 'asc' ? 1 : -1;
+                }
+                
+                // Secondary sort by Commander Name
+                if (a.commander_name < b.commander_name) return -1;
+                if (a.commander_name > b.commander_name) return 1;
                 return 0; 
             });
 
@@ -222,7 +239,7 @@
             }
 
             // 2. Update header arrows
-            [sortPowerEl, sortmeritsEl].forEach(el => {
+            [sortPowerEl, sortMeritsEl, sortAllianceEl, sortRatioEl].forEach(el => {
                 el.querySelectorAll('span').forEach(span => span.classList.remove('opacity-100', 'text-green-400'));
                 el.querySelectorAll('span').forEach(span => span.classList.add('opacity-30'));
 
@@ -236,24 +253,34 @@
 
             // 3. Render rows
             sortedRankings.forEach((rank, index) => {
-                const rankNumber = index + 1;
+                const rankNumber = rank.rank_rank || index + 1;
                 
                 const rankEl = document.createElement('div');
-                rankEl.className = 'ranking-row grid grid-cols-10 items-center p-3 text-sm transition duration-150'; 
+                rankEl.className = 'ranking-row grid grid-cols-12 items-center p-3 text-sm transition duration-150'; 
                 
-                // Format numbers to display in millions (M)
-                const formattedPower = ((rank.power || 0) / 1000000).toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
-                const formattedmerits = ((rank.merits || 0) / 1000000).toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+                // Helper to format numbers in Millions (M)
+                const formatMillions = (value) => {
+                    const num = parseFloat(value) || 0;
+                    return (num / 1000000).toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + 'M';
+                };
+                
+                // Helper to format Ratio
+                const formatRatio = (value) => {
+                    const num = parseFloat(value) || 0;
+                    return num.toFixed(3);
+                };
 
                 let content = `
                     <div class="col-span-1 flex items-center justify-center">
                         <span class="rank-number text-gray-400">${rankNumber}</span>
                     </div>
-                    <div class="col-span-4 font-bold text-white truncate">
-                        ${rank.name}
+                    <div class="col-span-3 font-bold text-white truncate">
+                        ${rank.commander_name || 'N/A'}
                     </div>
-                    <div class="col-span-3 text-yellow-300 font-inter">${formattedPower}M</div>
-                    <div class="col-span-2 text-red-400 font-inter">${formattedmerits}M</div>
+                    <div class="col-span-2 text-cyan-400 font-inter truncate">${rank.alliance || 'N/A'}</div>
+                    <div class="col-span-2 text-gray-300 font-inter">${formatRatio(rank.merits_power_ratio)}</div>
+                    <div class="col-span-2 text-red-400 font-inter">${formatMillions(rank.total_merits)}</div>
+                    <div class="col-span-2 text-yellow-300 font-inter">${formatMillions(rank.total_power)}</div>
                 `;
 
                 rankEl.innerHTML = content;
@@ -263,60 +290,4 @@
 
         /** Applies filter (search) and sort, then calls renderRankings */
         const applyFiltersAndSort = () => {
-            const searchTerm = searchInputEl.value.toLowerCase().trim();
-            
-            const filteredRankings = allRankings.filter(rank => 
-                rank.name.toLowerCase().includes(searchTerm)
-            );
-
-            renderRankings(filteredRankings);
-        };
-
-        // --- Event Listeners for Filtering and Sorting ---
-        
-        // Filter Listener
-        searchInputEl.addEventListener('input', applyFiltersAndSort);
-
-        // Sort Listener Factory
-        const handleSortClick = (event) => {
-            const newKey = event.currentTarget.dataset.sortKey;
-
-            if (sortState.key === newKey) {
-                // Toggle direction if same key is clicked
-                sortState.direction = sortState.direction === 'desc' ? 'asc' : 'desc';
-            } else {
-                // New key, set to descending by default
-                sortState.key = newKey;
-                sortState.direction = 'desc';
-            }
-
-            applyFiltersAndSort();
-        };
-
-        sortPowerEl.addEventListener('click', handleSortClick);
-        sortmeritsEl.addEventListener('click', handleSortClick);
-
-
-        // --- APPLICATION START ---
-        window.onload = async () => {
-            // 1. Update system status
-            authStatusEl.textContent = 'SECURE LINK: ACTIVE (READ-ONLY)';
-            authStatusLightEl.classList.replace('bg-yellow-400', 'bg-green-500');
-            authStatusLightEl.classList.remove('animate-pulse');
-            userIdDisplayEl.textContent = 'Commander ID: ANONYMOUS';
-
-            // 2. Fetch and Render the Ranking Data
-            try {
-                const data = await getRankings();
-                allRankings = data;
-                applyFiltersAndSort(); 
-                document.getElementById('loading-message')?.remove();
-            } catch (e) {
-                console.error("Initial load failed:", e);
-                // Error message handled in getRankings
-            }
-        };
-
-    </script>
-</body>
-</html>
+            const searchTerm = searchInputEl.value.toLowerCase().trim
