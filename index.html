@@ -163,13 +163,7 @@
 
     // --- SUPABASE SETUP ---
     // Single import for the Supabase client
-    import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-
-    const supabaseUrl = 'https://jkgtdjoqqsxzcnoioedm.supabase.co';
-    // 🔑 ANONYMOUS PUBLIC KEY (The public key must be hardcoded for client-side use)
-    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImprZ3Rkam9xcXN4emNub2lvZWRtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE5MjU3NTIsImV4cCI6MjA3NzUwMTc1Mn0.a3ZtPetBm8s5GwBsB5vpZesDEt4ujhWZ6Kme0qyw_bE'; 
     
-    const supabase = createClient(supabaseUrl, supabaseKey);
 
     // ⚠️ Correct Table Name and Column Selection
     const RANKING_TABLE_NAME = '256-rankings'; 
