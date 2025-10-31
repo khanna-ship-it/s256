@@ -273,59 +273,12 @@
 
 
     <script type="module">
-  // Import the functions you need from the SDKs you need
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
-  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-analytics.js";
-  // TODO: Add SDKs for Firebase products that you want to use
-  // https://firebase.google.com/docs/web/setup#available-libraries
 
-  // Your web app's Firebase configuration
-  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-  const firebaseConfig = {
-    apiKey: "AIzaSyDPBsLGnZSy9gl0J-Toy97sx04sbMliN1A",
-    authDomain: "aoem-s256.firebaseapp.com",
-    projectId: "aoem-s256",
-    storageBucket: "aoem-s256.firebasestorage.app",
-    messagingSenderId: "841512392095",
-    appId: "1:841512392095:web:84df8ffedacb97352859aa",
-    measurementId: "G-N6GB8LBHWJ"
-  };
+        import { createClient } from '@supabase/supabase-js'
 
-  // Initialize Firebase
-  const app = initializeApp(firebaseConfig);
-  const analytics = getAnalytics(app);
-</script>
-    <!-- Firebase SDK Imports and Core JS -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, onSnapshot, collection, query, deleteDoc, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-
-        // --- FIREBASE SETUP ---
-        setLogLevel('Debug');
-        let db;
-        let auth;
-        let userId = null;
-        let adminUserId = null; 
-
-        // CRITICAL: Load and parse the environment variables
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        let firebaseConfig = {};
-        try {
-            const configString = typeof __firebase_config !== 'undefined' ? __firebase_config : null;
-            if (configString) {
-                firebaseConfig = JSON.parse(configString);
-            }
-        } catch (e) {
-            console.error("Failed to parse Firebase configuration string:", e);
-        }
-        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
-        
-        // Firestore Collection Paths
-        const RANKING_COLLECTION_PATH = `artifacts/${appId}/public/data/server256_rankings`;
-        const MIGRATION_COLLECTION_PATH = `artifacts/${appId}/public/data/server256_migrations`; // New collection path
+const supabaseUrl = 'https://jkgtdjoqqsxzcnoioedm.supabase.co'
+const supabaseKey = process.env.SUPABASE_KEY
+const supabase = createClient(supabaseUrl, supabaseKey)
 
         // UI Elements for RANKING (Existing)
         const views = ['about-view', 'migration-view', 'ranking-view'];
