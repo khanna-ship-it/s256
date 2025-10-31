@@ -264,16 +264,14 @@
     <script type="module">
 
         // --- SUPABASE SETUP ---
-        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
+        // FIX: Using esm.sh for stable Supabase client import
+        import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
-        // ⚠️ IMPORTANT: Replace 'NEXT_PUBLIC_SUPABASE_ANON_KEY' with the actual
-        // name of the PUBLIC environment variable you set on Vercel. 
-        // Note: For a simple HTML file, you might need to use a different mechanism 
-        // to access Vercel environment variables or hardcode the PUBLIC Anon Key.
-        // We will assume Vercel injects it via process.env for simplicity, but for a
-        // pure client-side HTML file, you would normally hardcode the ANON key.
+        // ⚠️ IMPORTANT: When deploying to Vercel, you must set an Environment Variable 
+        // named NEXT_PUBLIC_SUPABASE_ANON_KEY on the Vercel dashboard.
         
         const supabaseUrl = 'https://jkgtdjoqqsxzcnoioedm.supabase.co';
+        // We assume Vercel correctly injects the environment variable.
         const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY; 
         
         const supabase = createClient(supabaseUrl, supabaseKey);
@@ -491,8 +489,8 @@
                         ${rank.name}
                         <span class="text-xs text-gray-500 ml-1 font-inter" title="Owner ID: ${rank.ownerId || 'N/A'}">(ID:${rank.ownerId ? rank.ownerId.substring(0, 4) : 'N/A'})</span>
                     </div>
-                    <div class="col-span-3 text-yellow-300 font-inter">${formattedPower}M</div>
-                    <div class="col-span-2 text-red-400 font-inter">${formattedmerits}M</div>
+                    <div class="col-span-3 text-yellow-300 font-inter">${formattedPower}M}</div>
+                    <div class="col-span-2 text-red-400 font-inter">${formattedmerits}M}</div>
                     <div class="col-span-2 flex justify-end space-x-2">
                         ${isAdmin ? `
                             <button data-id="${rank.id}" data-name="${rank.name}" class="edit-btn text-yellow-400 hover:text-yellow-300 transition duration-150 p-1 rounded-full hover:bg-gray-700/50" title="Edit Entry">
@@ -531,7 +529,7 @@
                             submitBtn.classList.remove('btn-submit-game'); // Remove green style
                             showMessage(`Editing data log for ${rankToEdit.name}.`, false);
                         }
-                        showView('ranking-view'); // Ensure ranking view is visible when editing
+                        window.showView('ranking-view'); // Ensure ranking view is visible when editing
                     });
                 });
 
@@ -726,7 +724,7 @@
             }
 
             // 3. Set the default view
-            showView('ranking-view');
+            window.showView('ranking-view');
         };
 
     </script>
