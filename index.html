@@ -3,10 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Server 256: Command Nexus</title>
+    <title>Server 256: Command Nexus - Data View</title>
     <script src="https://cdn.tailwindcss.com"></script>
-
-  
     
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700;900&family=Inter:wght@400;600;800&display=swap');
@@ -65,24 +63,7 @@
             outline: none;
         }
 
-        .btn-submit-game {
-            background-image: linear-gradient(to bottom, #10b981, #059669); /* Green Gradient */
-            color: #1f2937;
-            font-weight: 800;
-            box-shadow: 0 4px 0 #047857; /* Darker 3D effect */
-            transition: transform 0.1s, box-shadow 0.1s;
-        }
-        .btn-submit-game:hover:not(:disabled) {
-            transform: translateY(1px);
-            box-shadow: 0 3px 0 #047857;
-        }
-        .btn-submit-game:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            box-shadow: none;
-        }
-
-        /* Ranking/Migration Accents */
+        /* Ranking Accents */
         .ranking-row {
             transition: background-color 0.1s;
         }
@@ -93,7 +74,6 @@
         .ranking-list > .ranking-row:nth-child(odd) { background-color: #3f4a46; }
         .ranking-list > .ranking-row:nth-child(even) { background-color: #36403c; }
 
-        /* Ranking Accents (only for ranking list) */
         .ranking-list.power > .ranking-row:nth-child(1) { border-left: 5px solid #ffcc00; }
         .ranking-list.power > .ranking-row:nth-child(1) .rank-number { color: #ffcc00; }
         .ranking-list.power > .ranking-row:nth-child(2) { border-left: 5px solid #cccccc; }
@@ -113,25 +93,20 @@
 <body>
     <div class="max-w-6xl mx-auto p-4 md:p-8">
     
-        <script defer src="/_vercel/insights/script.js"></script>
- 
         <header class="text-center mb-6">
             <h1 class="text-5xl md:text-6xl font-extrabold mb-1 game-header uppercase text-green-400">
-                Migrate to Server 256
+                Server 256 Command Nexus
             </h1>
             <p class="text-xl font-light text-gray-400 game-header">
-                The Land of Utopia
+                The Land of Utopia Data Feed
             </p>
         </header>
 
         <nav class="flex justify-center mb-8 game-card p-2">
-            <button id="nav-about" onclick="showView('about-view')" class="nav-btn px-4 py-2 mx-2 rounded-lg">
+            <button id="nav-about" onclick="window.showView('about-view')" class="nav-btn px-4 py-2 mx-2 rounded-lg">
                 About Server
             </button>
-            <button id="nav-migration" onclick="showView('migration-view')" class="nav-btn active px-4 py-2 mx-2 rounded-lg">
-                Migration Status
-            </button>
-            <button id="nav-ranking" onclick="showView('ranking-view')" class="nav-btn px-4 py-2 mx-2 rounded-lg">
+            <button id="nav-ranking" onclick="window.showView('ranking-view')" class="nav-btn px-4 py-2 mx-2 rounded-lg">
                 Power Ranking
             </button>
         </nav>
@@ -146,71 +121,23 @@
 
         <div id="about-view" class="hidden game-card p-6">
             <h2 class="text-3xl font-bold mb-4 text-green-400 border-b border-gray-600 pb-2 font-serif">
-                Realm Overview
+                Welcome to Server 256 Command Nexus
             </h2>
-            <p class="mb-4 text-gray-300">
-                Server 256, known as **UTOPIA**, is a mature kingdom ruled by the strongest alliances. This is a peaceful and balanced server. New commanders are advised to seek alliance membership immediately upon entry.
+            <p class="mb-4 text-gray-300 text-lg">
+                This dashboard provides a **read-only view** of the Apex Power Rankings for Server 256, **UTOPIA**. 
+                The data below is sourced directly from the Supabase database.
             </p>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                 <div class="p-3 bg-gray-700/30 rounded">
-                    <h3 class="font-bold text-yellow-300">Server Age:</h3> 115 Days
+                    <h3 class="font-bold text-yellow-300">Server Status:</h3> Stable, mature kingdom.
                 </div>
                 <div class="p-3 bg-gray-700/30 rounded">
-                    <h3 class="font-bold text-yellow-300">Dominant Alliances:</h3> [IW1] IronWraiths and [DS] DragonSoul
-                </div>
-                <div class="p-3 bg-gray-700/30 rounded">
-                    <h3 class="font-bold text-yellow-300">Primary Language:</h3> English (Global Diplomacy)
-                </div>
-                <div class="p-3 bg-gray-700/30 rounded">
-                    <h3 class="font-bold text-yellow-300">Next KvK:</h3> Scheduled for xx
+                    <h3 class="font-bold text-yellow-300">Data Source:</h3> Supabase (Real-Time Feed)
                 </div>
             </div>
             <p class="mt-4 text-xs text-gray-500">
-                Data is updated by the Command Nexus Administrator (Admin ID displayed above). All rankings are real-time.
+                The Power Ranking feed updates live from the database.
             </p>
-        </div>
-
-        <div id="migration-view" class="game-card p-6">
-            <h2 class="text-3xl font-bold mb-4 text-green-400 border-b border-gray-600 pb-2 font-serif">
-                Server Migration Watch
-            </h2>
-            
-            <section class="mb-6 p-4 game-card border-l-4 border-cyan-500/70 bg-gray-700/30">
-                <h3 class="text-xl font-bold mb-3 text-cyan-300">Log Migration Event</h3>
-                <form id="migration-form" class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <input type="text" id="migration-commander-name" placeholder="Commander Name" required class="p-3 rounded-lg input-game">
-                    <input type="text" id="migration-server-id" placeholder="Target/Source Server ID (e.g., 201)" required class="p-3 rounded-lg input-game">
-                    <select id="migration-direction" required class="p-3 rounded-lg input-game appearance-none">
-                        <option value="" disabled selected>Select Direction</option>
-                        <option value="INBOUND">INBOUND (Migrating TO Server 256)</option>
-                        <option value="OUTBOUND">OUTBOUND (Migrating FROM Server 256)</option>
-                    </select>
-                    <button type="submit" id="migration-submit-btn" class="p-3 rounded-lg btn-submit-game" disabled>
-                        LOG EVENT
-                    </button>
-                </form>
-                <div id="migration-message-box" class="mt-3 hidden p-3 rounded-lg text-center font-semibold text-sm" role="alert"></div>
-            </section>
-
-            <p class="text-gray-300 mb-4">
-                This table tracks recent inbound and outbound migration activity as logged by commanders.
-            </p>
-            
-            <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-600 text-sm">
-                    <thead>
-                        <tr class="text-left text-gray-400 uppercase tracking-wider bg-gray-700/50">
-                            <th class="p-3 font-semibold">Commander</th>
-                            <th class="p-3 font-semibold">Server ID</th>
-                            <th class="p-3 font-semibold">Direction</th>
-                            <th class="p-3 font-semibold">Time Logged</th>
-                        </tr>
-                    </thead>
-                    <tbody id="migration-status-body" class="divide-y divide-gray-700/70 ranking-list">
-                        <tr><td colspan="4" class="p-4 text-center text-yellow-300">Awaiting data transmission...</td></tr>
-                    </tbody>
-                </table>
-            </div>
         </div>
 
 
@@ -219,27 +146,14 @@
                 Apex Power Ranking
             </h2>
             
-            <section class="mb-6 p-4 game-card border-l-4 border-yellow-500/70 bg-gray-700/30">
-                <h3 class="text-xl font-bold mb-3 text-yellow-300">Rank Update Console</h3>
-                <form id="ranking-form" class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <input type="text" id="name" placeholder="Commander Name" required class="p-3 rounded-lg input-game md:col-span-1">
-                    <input type="number" id="power" placeholder="Total Power (M)" required class="p-3 rounded-lg input-game md:col-span-1">
-                    <input type="number" id="merits" placeholder="Total merits (M)" required class="p-3 rounded-lg input-game md:col-span-1">
-                    <button type="submit" id="submit-btn" class="md:col-span-1 p-3 rounded-lg btn-submit-game" disabled>
-                        SUBMIT RANK
-                    </button>
-                </form>
-                <div id="message-box" class="mt-3 hidden p-3 rounded-lg text-center font-semibold text-sm" role="alert"></div>
-            </section>
-            
             <h3 class="text-xl font-bold mb-3 text-gray-300 flex justify-between items-center">
                 Live Data Feed
                 <input type="text" id="search-input" placeholder="Search Commander..." class="w-full md:w-64 p-2 rounded-lg input-game text-sm">
             </h3>
             
-            <div class="grid grid-cols-12 text-xs font-semibold uppercase tracking-wider text-gray-400 p-3 border-y border-gray-600 bg-gray-700/50">
+            <div class="grid grid-cols-10 text-xs font-semibold uppercase tracking-wider text-gray-400 p-3 border-y border-gray-600 bg-gray-700/50">
                 <div class="col-span-1 flex items-center justify-center">Rank</div>
-                <div class="col-span-4">Commander (ID)</div>
+                <div class="col-span-4">Commander</div>
                 <div class="col-span-3 cursor-pointer sort-header flex items-center hover:text-green-400 transition" id="sort-power" data-sort-key="power">
                     Power (M)
                     <span class="sort-icon-asc ml-1 text-xs opacity-30">▲</span>
@@ -250,7 +164,6 @@
                     <span class="sort-icon-asc ml-1 text-xs opacity-30">▲</span>
                     <span class="sort-icon-desc text-xs opacity-30">▼</span>
                 </div>
-                <div class="col-span-2 text-right">Admin</div>
             </div>
 
             <div id="rankings-container" class="ranking-list power divide-y divide-gray-700/70">
@@ -264,68 +177,40 @@
     <script type="module">
 
         // --- SUPABASE SETUP ---
-        // FIX: Using esm.sh for stable Supabase client import
         import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-
-        // ⚠️ IMPORTANT: When deploying to Vercel, you must set an Environment Variable 
-        // named NEXT_PUBLIC_SUPABASE_ANON_KEY on the Vercel dashboard.
         
         const supabaseUrl = 'https://jkgtdjoqqsxzcnoioedm.supabase.co';
-        // We assume Vercel correctly injects the environment variable.
-        const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY; 
+        // Note: In a secure deployment, this key would be sourced from environment variables.
+        const supabaseKey = 'YOUR_SUPABASE_ANON_KEY_HERE'; 
         
+        // This is a placeholder for the real key. Replace 'YOUR_SUPABASE_ANON_KEY_HERE' 
+        // with your actual public key for the data to load.
         const supabase = createClient(supabaseUrl, supabaseKey);
 
-        const RANKING_TABLE_NAME = 'power_rankings'; // ⚠️ RENAME THIS TO YOUR ACTUAL TABLE NAME
-        const MIGRATION_TABLE_NAME = 'migration_logs'; // ⚠️ RENAME THIS TO YOUR ACTUAL TABLE NAME
+        const RANKING_TABLE_NAME = 'power_rankings'; 
         
-        // --- CORE DATA FETCHING FUNCTION (SUPABASE) ---
-        /** Fetches all rankings from the Supabase table. */
+        // --- CORE DATA FETCHING FUNCTION ---
         async function getRankings() {
             const { data, error } = await supabase
                 .from(RANKING_TABLE_NAME) 
-                .select(`
-                    id, 
-                    name, 
-                    power, 
-                    merits, 
-                    ownerId:submitterId // Alias 'submitterId' to 'ownerId' for compatibility
-                `);
+                .select(`id, name, power, merits`);
 
             if (error) {
                 console.error('SUPABASE FETCH ERROR:', error);
-                rankingsContainerEl.innerHTML = `<p class="p-4 text-center text-red-400">CRITICAL: Supabase connection failed. ${error.message}</p>`;
+                const el = document.getElementById('rankings-container');
+                if(el) el.innerHTML = `<p class="p-4 text-center text-red-400">CRITICAL: Supabase connection failed. ${error.message}. Check the key in the script block.</p>`;
                 return [];
             }
-            
             return data;
         }
 
 
         // --- UTILITY VARIABLES & UI ELEMENTS ---
-
-        // UI Elements for RANKING (Existing)
-        const views = ['about-view', 'migration-view', 'ranking-view'];
-        const formEl = document.getElementById('ranking-form');
-        const nameInputEl = document.getElementById('name');
-        const powerInputEl = document.getElementById('power');
-        const meritsInputEl = document.getElementById('merits'); 
-        const submitBtn = document.getElementById('submit-btn');
+        const views = ['about-view', 'ranking-view'];
+        
         const rankingsContainerEl = document.getElementById('rankings-container');
         const searchInputEl = document.getElementById('search-input');
-        const messageBoxEl = document.getElementById('message-box');
         
-        // UI Elements for MIGRATION (New)
-        const migrationFormEl = document.getElementById('migration-form');
-        const migrationCommanderNameEl = document.getElementById('migration-commander-name');
-        const migrationServerIdEl = document.getElementById('migration-server-id');
-        const migrationDirectionEl = document.getElementById('migration-direction');
-        const migrationSubmitBtn = document.getElementById('migration-submit-btn');
-        const migrationMessageBoxEl = document.getElementById('migration-message-box');
-        const migrationStatusBodyEl = document.getElementById('migration-status-body');
-
-
-        // Shared UI Elements
         const userIdDisplayEl = document.getElementById('user-id-display');
         const authStatusEl = document.getElementById('auth-status');
         const authStatusLightEl = document.getElementById('auth-status-light');
@@ -334,18 +219,16 @@
         
         let allRankings = []; 
         let sortState = { key: 'power', direction: 'desc' }; 
-        let userId = 'SUPABASE_ANON_USER'; // Mock user ID for client-side ops
-        let adminUserId = 'SUPABASE_ADMIN_ID'; // Mock admin ID
-        let isAuthReady = true; // Assume ready since we rely on public key
 
 
         // --- Utility Functions ---
 
         /** Toggles the view (tab) shown to the user. 
-         * NOTE: Must be attached to window to be called from onclick in HTML. */
+         * NOTE: Attached to window for HTML onclick calls. */
         window.showView = (viewId) => {
             views.forEach(id => {
                 const element = document.getElementById(id);
+                // Nav button ID format is nav-viewName
                 const navBtn = document.getElementById(`nav-${id.split('-')[0]}`);
                 if (element && navBtn) {
                     if (id === viewId) {
@@ -359,93 +242,18 @@
             });
         };
 
-        /** Shows a temporary status message in the console. */
-        const showMessage = (message, isError, targetBox) => {
-            const box = targetBox || messageBoxEl; // Default to ranking message box
-            box.textContent = message;
-            box.classList.remove('hidden', 'bg-red-900/50', 'bg-green-900/50', 'text-red-300', 'text-green-300');
-            
-            // Adjust colors for the new theme
-            const colorClass = isError ? 'bg-red-800/50 text-red-300' : 'bg-green-800/50 text-green-300';
-            box.className = `mt-3 p-3 rounded-lg text-center font-semibold text-sm ${colorClass}`;
-            
-            setTimeout(() => {
-                box.classList.add('hidden');
-            }, 5000);
-        };
-        
-        /** Displays a custom modal for confirmation (replaces forbidden alert/confirm). */
-        const showConfirmationModal = (title, message, onConfirm) => {
-            const modalId = `modal-${Math.random().toString(36).substring(2, 9)}`;
-            const modal = document.createElement('div');
-            modal.id = modalId;
-            modal.className = 'fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 p-4 backdrop-blur-sm';
-            
-            modal.innerHTML = `
-                <div class="game-card bg-gray-800 p-6 rounded-xl shadow-2xl w-full max-w-sm border border-yellow-500/50">
-                    <h3 class="text-xl font-bold text-yellow-300 mb-3 font-serif">${title}</h3>
-                    <p class="text-gray-300 mb-5 text-sm">${message}</p>
-                    <div class="flex justify-end space-x-3">
-                        <button id="cancel-action-${modalId}" class="px-4 py-2 bg-gray-600 text-gray-200 rounded-lg hover:bg-gray-700 transition font-inter">Deny</button>
-                        <button id="confirm-action-${modalId}" class="px-4 py-2 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition font-inter">Execute Purge</button>
-                    </div>
-                </div>
-            `;
-            document.body.appendChild(modal);
-
-            document.getElementById(`confirm-action-${modalId}`).onclick = () => {
-                modal.remove();
-                onConfirm();
-            };
-
-            document.getElementById(`cancel-action-${modalId}`).onclick = () => {
-                modal.remove();
-            };
-        };
-
-
-        /** Deletes a ranking document */
-        // NOTE: This function assumes RLS is set up in Supabase to restrict who can delete.
-        const deleteRanking = async (docData) => {
-            // Check based on mock user ID
-            if (userId !== adminUserId) {
-                showMessage("ACCESS DENIED: Only the Administrator can purge ranking entries.", true);
-                return;
-            }
-
-            showConfirmationModal(
-                "ADMIN: DATA PURGE PROTOCOL",
-                `Confirm permanent deletion of Commander ${docData.name}'s profile (ID: ${docData.id}). This action cannot be reversed.`,
-                async () => {
-                    try {
-                        const { error } = await supabase
-                            .from(RANKING_TABLE_NAME)
-                            .delete()
-                            .eq('id', docData.id);
-
-                        if (error) throw error;
-                        showMessage("Data purge successful. Entry deleted.", false);
-                    } catch (error) {
-                        console.error("Error deleting ranking:", error);
-                        showMessage("PROTOCOL ERROR: Failed to delete ranking.", true);
-                    }
-                }
-            );
-        };
-
 
         /** Renders the list of rankings */
         const renderRankings = (rankings) => {
-            const isAdmin = userId === adminUserId; 
-
-            // 1. Sort the filtered list (defaulting to power descending)
+            
+            // 1. Sort the filtered list
             const sortedRankings = [...rankings].sort((a, b) => {
                 const aVal = a[sortState.key] || 0;
                 const bVal = b[sortState.key] || 0;
 
                 if (aVal < bVal) return sortState.direction === 'asc' ? -1 : 1;
                 if (aVal > bVal) return sortState.direction === 'asc' ? 1 : -1;
-                // Secondary sort by Name if primary key is equal
+                // Secondary sort by Name 
                 if (a.name < b.name) return -1;
                 if (a.name > b.name) return 1;
                 return 0; 
@@ -458,7 +266,7 @@
                 return;
             }
 
-            // 2. Update header arrows to show current sort state
+            // 2. Update header arrows
             [sortPowerEl, sortmeritsEl].forEach(el => {
                 el.querySelectorAll('span').forEach(span => span.classList.remove('opacity-100', 'text-green-400'));
                 el.querySelectorAll('span').forEach(span => span.classList.add('opacity-30'));
@@ -476,7 +284,8 @@
                 const rankNumber = index + 1;
                 
                 const rankEl = document.createElement('div');
-                rankEl.className = 'ranking-row grid grid-cols-12 items-center p-3 text-sm transition duration-150';
+                // Removed the two admin columns (col-span-12 -> col-span-10)
+                rankEl.className = 'ranking-row grid grid-cols-10 items-center p-3 text-sm transition duration-150'; 
                 
                 // Format numbers to display in millions (M)
                 const formattedPower = ((rank.power || 0) / 1000000).toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
@@ -488,60 +297,14 @@
                     </div>
                     <div class="col-span-4 font-bold text-white truncate">
                         ${rank.name}
-                        <span class="text-xs text-gray-500 ml-1 font-inter" title="Owner ID: ${rank.ownerId || 'N/A'}">(ID:${rank.ownerId ? rank.ownerId.substring(0, 4) : 'N/A'})</span>
                     </div>
                     <div class="col-span-3 text-yellow-300 font-inter">${formattedPower}M</div>
                     <div class="col-span-2 text-red-400 font-inter">${formattedmerits}M</div>
-                    <div class="col-span-2 flex justify-end space-x-2">
-                        ${isAdmin ? `
-                            <button data-id="${rank.id}" data-name="${rank.name}" class="edit-btn text-yellow-400 hover:text-yellow-300 transition duration-150 p-1 rounded-full hover:bg-gray-700/50" title="Edit Entry">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                    <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zm-1.63 2.828l-7.388 7.388a1 1 0 00-.288.583v3.465a1 1 0 001 1h3.465a1 1 0 00.583-.288l7.388-7.388-2.828-2.828z" />
-                                </svg>
-                            </button>
-                            <button data-id="${rank.id}" data-name="${rank.name}" class="delete-btn text-red-600 hover:text-red-500 transition duration-150 p-1 rounded-full hover:bg-gray-700/50" title="Delete Entry">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                    <path fill-rule="evenodd" d="M9 2a1 1 10-.894.553L7.382 4H4a1 1 0000 2v10a2 2 0002 2h8a2 2 0002-2V6a1 1 100-2h-3.382l-.724-1.447A1 1 1011 2H9zM7 8a1 1 012 0v6a1 1 11-2 0V8zm4 0a1 1 100 2v6a1 1 100-2V8z" clip-rule="evenodd" />
-                                </svg>
-                            </button>
-                        ` : ''}
-                    </div>
                 `;
 
                 rankEl.innerHTML = content;
                 rankingsContainerEl.appendChild(rankEl);
             });
-            
-            // 4. Re-attach listeners for dynamically generated buttons (only visible to admin)
-            if (isAdmin) {
-                document.querySelectorAll('.edit-btn').forEach(button => {
-                    button.addEventListener('click', (e) => {
-                        const id = e.currentTarget.dataset.id;
-                        const rankToEdit = allRankings.find(r => r.id === id);
-                        if (rankToEdit) {
-                            nameInputEl.value = rankToEdit.name;
-                            // Convert back to millions for input display
-                            powerInputEl.value = (rankToEdit.power || 0) / 1000000; 
-                            meritsInputEl.value = (rankToEdit.merits || 0) / 1000000; // Use meritsInputEl
-                            
-                            formEl.dataset.editId = id; // Store ID for update
-                            submitBtn.textContent = "UPDATE DATA LOG";
-                            submitBtn.classList.add('bg-yellow-600', 'hover:bg-yellow-700');
-                            submitBtn.classList.remove('btn-submit-game'); // Remove green style
-                            showMessage(`Editing data log for ${rankToEdit.name}.`, false);
-                        }
-                        window.showView('ranking-view'); // Ensure ranking view is visible when editing
-                    });
-                });
-
-                document.querySelectorAll('.delete-btn').forEach(button => {
-                    button.addEventListener('click', (e) => {
-                        const id = e.currentTarget.dataset.id;
-                        const name = e.currentTarget.dataset.name;
-                        deleteRanking({ id, name }); 
-                    });
-                });
-            }
         };
 
         /** Applies filter (search) and sort, then calls renderRankings */
@@ -555,122 +318,54 @@
             renderRankings(filteredRankings);
         };
 
-        // --- MIGRATION LOGIC (Placeholder for Supabase) ---
+        // --- Event Listeners for Filtering and Sorting ---
+        
+        // Filter Listener
+        searchInputEl.addEventListener('input', applyFiltersAndSort);
 
-        /** Renders the list of migration events (Mocked) */
-        const renderMigrations = (migrations) => {
-            migrationStatusBodyEl.innerHTML = '';
+        // Sort Listener Factory
+        const handleSortClick = (event) => {
+            const newKey = event.currentTarget.dataset.sortKey;
 
-            if (migrations.length === 0) {
-                migrationStatusBodyEl.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-gray-500">Migration data is pending Supabase configuration.</td></tr>';
-                return;
+            if (sortState.key === newKey) {
+                // Toggle direction if same key is clicked
+                sortState.direction = sortState.direction === 'desc' ? 'asc' : 'desc';
+            } else {
+                // New key, set to descending by default
+                sortState.key = newKey;
+                sortState.direction = 'desc';
             }
-            // ... (Actual rendering logic would go here if implemented)
+
+            applyFiltersAndSort();
         };
 
-        const setupMigrationRealtimeListener = () => {
-             // In a client-side Supabase implementation, you would use .on('*') here.
-             // For this simplified example, we'll keep the migration table static until implemented.
-             renderMigrations([]);
-        };
-
-        // Migration Form Submission Handler
-        migrationFormEl.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            if (!isAuthReady) {
-                showMessage("Connection not ready. Please wait.", true, migrationMessageBoxEl);
-                return;
-            }
-
-            migrationSubmitBtn.textContent = "Logging...";
-            migrationSubmitBtn.disabled = true;
-
-            const commander = migrationCommanderNameEl.value.trim();
-            const server = migrationServerIdEl.value.trim();
-            const direction = migrationDirectionEl.value;
-            
-            // NOTE: Submission requires Supabase implementation for the MIGRATION_TABLE_NAME
-            showMessage("LOGGING FAILED: Migration submission is not yet linked to Supabase.", true, migrationMessageBoxEl);
-            
-            migrationSubmitBtn.textContent = "LOG EVENT";
-            migrationSubmitBtn.disabled = false;
-        });
+        sortPowerEl.addEventListener('click', handleSortClick);
+        sortmeritsEl.addEventListener('click', handleSortClick);
 
 
-        // --- FORM SUBMISSION LOGIC (SUPABASE) ---
-        formEl.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            if (!isAuthReady) {
-                showMessage("Connection not ready. Please wait.", true);
-                return;
-            }
+        // --- APPLICATION START ---
+        window.onload = async () => {
+            // 1. Initial Status Update
+            authStatusEl.textContent = 'SECURE LINK: ACTIVE (READ-ONLY)';
+            authStatusLightEl.classList.replace('bg-yellow-400', 'bg-green-500');
+            authStatusLightEl.classList.remove('animate-pulse');
+            userIdDisplayEl.textContent = 'Commander ID: ANONYMOUS';
 
-            submitBtn.textContent = "Processing...";
-            submitBtn.disabled = true;
-
-            const name = nameInputEl.value.trim();
-            const powerMillions = parseFloat(powerInputEl.value);
-            const meritsMillions = parseFloat(meritsInputEl.value); 
-
-            if (isNaN(powerMillions) || isNaN(meritsMillions) || powerMillions <= 0 || meritsMillions < 0) {
-                 showMessage("INPUT ERROR: Please enter valid numbers (in Millions) for Power and merits.", true);
-                 submitBtn.textContent = formEl.dataset.editId ? "UPDATE DATA LOG" : "SUBMIT RANK";
-                 submitBtn.disabled = false;
-                 return;
-            }
-
-            // Convert millions to absolute numbers
-            const power = Math.round(powerMillions * 1000000); 
-            const merits = Math.round(meritsMillions * 1000000); 
-            const editId = formEl.dataset.editId;
-
-            // Check for update restriction (Admin only)
-            if (editId && userId !== adminUserId) {
-                showMessage("ACCESS DENIED: Only the Administrator can update existing rankings.", true);
-                submitBtn.textContent = "UPDATE DATA LOG (Restricted)";
-                submitBtn.disabled = false;
-                return;
-            }
-
-            const newRanking = {
-                name,
-                power,
-                merits, 
-                submitterId: userId, // Using submitterId for Supabase compatibility
-                updatedAt: new Date().toISOString(),
-            };
-            
-            const isUpdate = !!editId;
-
+            // 2. Fetch and Render the Ranking Data
             try {
-                if (isUpdate) {
-                    const { error } = await supabase
-                        .from(RANKING_TABLE_NAME)
-                        .update(newRanking)
-                        .eq('id', editId);
-                    if (error) throw error;
-                } else {
-                    const { error } = await supabase
-                        .from(RANKING_TABLE_NAME)
-                        .insert([newRanking]);
-                    if (error) throw error;
-                }
-                
-                showMessage(`DATA LOG ${isUpdate ? 'UPDATED' : 'TRANSMITTED'} successfully for ${name}!`, false);
-                
-                // Refresh data after submission
-                allRankings = await getRankings();
+                const data = await getRankings();
+                allRankings = data;
                 applyFiltersAndSort(); 
-                
-                // Clear state after success
-                formEl.reset();
-                delete formEl.dataset.editId; 
-                submitBtn.textContent = "SUBMIT RANK";
-                submitBtn.classList.remove('bg-yellow-600', 'hover:bg-yellow-700');
-                submitBtn.classList.add('btn-submit-game'); // Restore green style
-
-            } catch (error) {
-                console.error("Error submitting ranking:", error);
-                showMessage(`TRANSMISSION FAILED: ${error.message}`, true);
-                submitBtn.textContent = "TRANSMISSION FAILED (RETRY)";
+                document.getElementById('loading-message')?.remove();
+            } catch (e) {
+                console.error("Initial load failed:", e);
+                // Error message handled in getRankings
             }
+
+            // 3. Set the default view to the ranking table
+            window.showView('ranking-view');
+        };
+
+    </script>
+</body>
+</html>
