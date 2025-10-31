@@ -163,6 +163,13 @@
 
         // --- SUPABASE SETUP ---
         import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+
+const supabaseUrl = 'https://jkgtdjoqqsxzcnoioedm.supabase.co';
+// 🔑 ANONYMOUS PUBLIC KEY - REQUIRED FOR CLIENT-SIDE BROWSER ACCESS
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImprZ3Rkam9xcXN4emNub2lvZWRtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE5MjU3NTIsImV4cCI6MjA3NzUwMTc1Mn0.a3ZtPetBm8s5GwBsB5vpZesDEt4ujhWZ6Kme0qyw_bE'; 
+const supabase = createClient(supabaseUrl, supabaseKey);
+        
+        import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
         
         const supabaseUrl = 'https://jkgtdjoqqsxzcnoioedm.supabase.co';
         // 🔑 ANONYMOUS KEY (Provided in previous user turn)
