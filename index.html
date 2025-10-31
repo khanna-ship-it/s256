@@ -3,16 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Server 256: Command Nexus</title>
+    <title>Server 256: Command Nexus - Data Feed</title>
     <script src="https://cdn.tailwindcss.com"></script>
-
+    
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700;900&family=Inter:wght@400;600;800&display=swap');
         body {
-            /* Using a classic, slightly weathered game aesthetic */
             font-family: 'Merriweather', serif;
-            background-color: #2b3531; /* Dark greenish-gray, like an old stone wall */
-            color: #d1d5db; /* Light gray text */
+            background-color: #2b3531; 
+            color: #d1d5db; 
             min-height: 100vh;
             padding-bottom: 3rem;
         }
@@ -23,64 +22,14 @@
         }
 
         .game-card {
-            background-color: #3f4a46; /* Slightly lighter card base */
-            border: 2px solid #58655e; /* Subtle darker border */
+            background-color: #3f4a46; 
+            border: 2px solid #58655e; 
             box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4);
             border-radius: 0.75rem;
             transition: all 0.2s ease;
         }
 
-        .nav-btn {
-            font-family: 'Inter', sans-serif;
-            font-weight: 600;
-            background-color: #58655e;
-            border-bottom: 3px solid #3f4a46;
-            transition: all 0.1s ease;
-            color: #d1d5db;
-        }
-        .nav-btn:hover {
-            background-color: #6a7972;
-            color: #f3f4f6;
-        }
-        .nav-btn.active {
-            background-color: #10b981; /* Green active tab */
-            color: #1f2937;
-            border-bottom: 3px solid #10b981;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 6px rgba(16, 185, 129, 0.3);
-        }
-
-        .input-game {
-            background-color: #2b3531;
-            border: 1px solid #58655e;
-            color: #e5e7eb;
-            font-family: 'Inter', sans-serif;
-            transition: border-color 0.3s;
-        }
-        .input-game:focus {
-            border-color: #10b981; /* Green focus glow */
-            box-shadow: 0 0 0 1px #10b981;
-            outline: none;
-        }
-
-        .btn-submit-game {
-            background-image: linear-gradient(to bottom, #10b981, #059669); /* Green Gradient */
-            color: #1f2937;
-            font-weight: 800;
-            box-shadow: 0 4px 0 #047857; /* Darker 3D effect */
-            transition: transform 0.1s, box-shadow 0.1s;
-        }
-        .btn-submit-game:hover:not(:disabled) {
-            transform: translateY(1px);
-            box-shadow: 0 3px 0 #047857;
-        }
-        .btn-submit-game:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            box-shadow: none;
-        }
-
-        /* Ranking/Migration Accents */
+        /* Ranking Accents */
         .ranking-row {
             transition: background-color 0.1s;
         }
@@ -91,7 +40,6 @@
         .ranking-list > .ranking-row:nth-child(odd) { background-color: #3f4a46; }
         .ranking-list > .ranking-row:nth-child(even) { background-color: #36403c; }
 
-        /* Ranking Accents (only for ranking list) */
         .ranking-list.power > .ranking-row:nth-child(1) { border-left: 5px solid #ffcc00; }
         .ranking-list.power > .ranking-row:nth-child(1) .rank-number { color: #ffcc00; }
         .ranking-list.power > .ranking-row:nth-child(2) { border-left: 5px solid #cccccc; }
@@ -106,131 +54,74 @@
             text-align: center;
             font-family: 'Inter', sans-serif;
         }
+
+        .input-game {
+            background-color: #2b3531;
+            border: 1px solid #58655e;
+            color: #e5e7eb;
+            font-family: 'Inter', sans-serif;
+            transition: border-color 0.3s;
+        }
+        .input-game:focus {
+            border-color: #10b981; 
+            box-shadow: 0 0 0 1px #10b981;
+            outline: none;
+        }
     </style>
 </head>
 <body>
     <div class="max-w-6xl mx-auto p-4 md:p-8">
- 
+    
         <header class="text-center mb-6">
             <h1 class="text-5xl md:text-6xl font-extrabold mb-1 game-header uppercase text-green-400">
-                Migrate to Server 256
+                Server 256 Command Nexus
             </h1>
             <p class="text-xl font-light text-gray-400 game-header">
-                The Land of Utopia
+                The Land of Utopia Data Feed
             </p>
         </header>
-
-        <nav class="flex justify-center mb-8 game-card p-2">
-            <button id="nav-about" onclick="showView('about-view')" class="nav-btn px-4 py-2 mx-2 rounded-lg">
-                About Server
-            </button>
-            <button id="nav-migration" onclick="showView('migration-view')" class="nav-btn active px-4 py-2 mx-2 rounded-lg">
-                Migration Status
-            </button>
-            <button id="nav-ranking" onclick="showView('ranking-view')" class="nav-btn px-4 py-2 mx-2 rounded-lg">
-                Power Ranking
-            </button>
-        </nav>
-
-        <div class="text-center mb-6">
+        
+        <div class="text-center mb-8">
             <div id="auth-status-bar" class="inline-flex items-center text-sm px-4 py-2 rounded-full game-card border border-green-500/50">
                 <div id="auth-status-light" class="w-3 h-3 rounded-full mr-2 bg-yellow-400 animate-pulse"></div>
                 <p id="auth-status" class="text-gray-300 mr-4 font-semibold">Establishing Connection...</p>
-                <p id="user-id-display" class="text-xs text-gray-400 truncate">Commander ID: N/A</p>
+                <p id="user-id-display" class="text-xs text-gray-400 truncate">Commander ID: ANONYMOUS</p>
             </div>
         </div>
 
-        <div id="about-view" class="hidden game-card p-6">
+        <div id="about-section" class="game-card p-6 mb-10">
             <h2 class="text-3xl font-bold mb-4 text-green-400 border-b border-gray-600 pb-2 font-serif">
-                Realm Overview
+                Welcome to Server 256 Command Nexus
             </h2>
-            <p class="mb-4 text-gray-300">
-                Server 256, known as **UTOPIA**, is a mature kingdom ruled by the strongest alliances. This is a peaceful and balanced server. New commanders are advised to seek alliance membership immediately upon entry.
+            <p class="mb-4 text-gray-300 text-lg">
+                This dashboard provides a **read-only view** of the Power Rankings for Server 256, **UTOPIA**. 
+                The data below is sourced directly from the Supabase database.
             </p>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                 <div class="p-3 bg-gray-700/30 rounded">
-                    <h3 class="font-bold text-yellow-300">Server Age:</h3> 115 Days
+                    <h3 class="font-bold text-yellow-300">Server Status:</h3> Stable, mature kingdom.
                 </div>
                 <div class="p-3 bg-gray-700/30 rounded">
-                    <h3 class="font-bold text-yellow-300">Dominant Alliances:</h3> [IW1] IronWraiths and [DS] DragonSoul
-                </div>
-                <div class="p-3 bg-gray-700/30 rounded">
-                    <h3 class="font-bold text-yellow-300">Primary Language:</h3> English (Global Diplomacy)
+                    <h3 class="font-bold text-yellow-300">Data Source:</h3> Supabase (Real-Time Feed)
                 </div>
                 <div id="supabase-status-display" class="p-3 bg-gray-700/30 rounded">
                     <h3 class="font-bold text-yellow-300">Supabase Connection:</h3> <span class="text-gray-400">Checking...</span>
                 </div>
             </div>
             <p class="mt-4 text-xs text-gray-500">
-                Data is updated by the Command Nexus Administrator (Admin ID displayed above). All rankings are real-time.
+                The Power Ranking feed updates live from the database.
             </p>
         </div>
 
-        <div id="migration-view" class="game-card p-6">
-            <h2 class="text-3xl font-bold mb-4 text-green-400 border-b border-gray-600 pb-2 font-serif">
-                Server Migration Watch
-            </h2>
-            
-            <section class="mb-6 p-4 game-card border-l-4 border-cyan-500/70 bg-gray-700/30">
-                <h3 class="text-xl font-bold mb-3 text-cyan-300">Log Migration Event</h3>
-                <form id="migration-form" class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <input type="text" id="migration-commander-name" placeholder="Commander Name" required class="p-3 rounded-lg input-game">
-                    <input type="text" id="migration-server-id" placeholder="Target/Source Server ID (e.g., 201)" required class="p-3 rounded-lg input-game">
-                    <select id="migration-direction" required class="p-3 rounded-lg input-game appearance-none">
-                        <option value="" disabled selected>Select Direction</option>
-                        <option value="INBOUND">INBOUND (Migrating TO Server 256)</option>
-                        <option value="OUTBOUND">OUTBOUND (Migrating FROM Server 256)</option>
-                    </select>
-                    <button type="submit" id="migration-submit-btn" class="p-3 rounded-lg btn-submit-game" disabled>
-                        LOG EVENT
-                    </button>
-                </form>
-                <div id="migration-message-box" class="mt-3 hidden p-3 rounded-lg text-center font-semibold text-sm" role="alert"></div>
-            </section>
 
-            <p class="text-gray-300 mb-4">
-                This table tracks recent inbound and outbound migration activity as logged by commanders.
-            </p>
-            
-            <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-600 text-sm">
-                    <thead>
-                        <tr class="text-left text-gray-400 uppercase tracking-wider bg-gray-700/50">
-                            <th class="p-3 font-semibold">Commander</th>
-                            <th class="p-3 font-semibold">Server ID</th>
-                            <th class="p-3 font-semibold">Direction</th>
-                            <th class="p-3 font-semibold">Time Logged</th>
-                        </tr>
-                    </thead>
-                    <tbody id="migration-status-body" class="divide-y divide-gray-700/70 ranking-list">
-                        <tr><td colspan="4" class="p-4 text-center text-yellow-300">Awaiting data transmission...</td></tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-
-        <div id="ranking-view" class="hidden game-card p-6">
+        <div id="ranking-section" class="game-card p-6">
             <h2 class="text-3xl font-bold mb-4 text-green-400 border-b border-gray-600 pb-2 font-serif">
                 Power Ranking
             </h2>
             
-            <section class="mb-6 p-4 game-card border-l-4 border-yellow-500/70 bg-gray-700/30">
-                <h3 class="text-xl font-bold mb-3 text-yellow-300">Rank Update Console</h3>
-                <form id="ranking-form" class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <input type="text" id="name" placeholder="Commander Name" required class="p-3 rounded-lg input-game md:col-span-1">
-                    <input type="number" id="power" placeholder="Total Power (M)" required class="p-3 rounded-lg input-game md:col-span-1">
-                    <input type="number" id="merits" placeholder="Total merits (M)" required class="p-3 rounded-lg input-game md:col-span-1">
-                    <button type="submit" id="submit-btn" class="md:col-span-1 p-3 rounded-lg btn-submit-game" disabled>
-                        SUBMIT RANK
-                    </button>
-                </form>
-                <div id="message-box" class="mt-3 hidden p-3 rounded-lg text-center font-semibold text-sm" role="alert"></div>
-            </section>
-            
             <h3 class="text-xl font-bold mb-3 text-gray-300 flex justify-between items-center">
                 Live Data Feed
-                <input type="text" id="search-input" placeholder="Search Commander..." class="w-full md:w-64 p-2 rounded-lg input-game text-sm">
+                <input type="text" id="search-input" placeholder="Search Commander or Alliance..." class="w-full md:w-64 p-2 rounded-lg input-game text-sm">
             </h3>
             
             <div class="grid grid-cols-12 text-xs font-semibold uppercase tracking-wider text-gray-400 p-3 border-y border-gray-600 bg-gray-700/50">
@@ -268,101 +159,63 @@
 
     <script type="module">
 
-        // --- SUPABASE CONFIGURATION ---
+        // --- SUPABASE SETUP ---
         import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-
+        
         const supabaseUrl = 'https://jkgtdjoqqsxzcnoioedm.supabase.co';
-        // 🔑 ANONYMOUS KEY (Using the key provided in a previous turn)
+        // 🔑 ANONYMOUS KEY (Provided in previous user turn)
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImprZ3Rkam9xcXN4emNub2lvZWRtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE5MjU3NTIsImV4cCI6MjA3NzUwMTc1Mn0.a3ZtPetBm8s5GwBsB5vpZesDEt4ujhWZ6Kme0qyw_bE'; 
         
         const supabase = createClient(supabaseUrl, supabaseKey);
 
         // ⚠️ UPDATED TABLE NAME
         const RANKING_TABLE_NAME = '256-rankings'; 
-        const MIGRATION_TABLE_NAME = 'migration_logs'; // Assuming a separate table for migrations
+        
+        // --- CORE DATA FETCHING FUNCTION ---
+        async function getRankings() {
+            const statusDisplay = document.querySelector('#supabase-status-display span');
+            if(statusDisplay) statusDisplay.textContent = 'Loading...';
 
-        // --- UI Elements for RANKING (Existing) ---
-        const views = ['about-view', 'migration-view', 'ranking-view'];
-        // Note: Ranking form logic is still present but simplified for read-only if not fully implemented.
-        const formEl = document.getElementById('ranking-form');
-        const nameInputEl = document.getElementById('name');
-        const powerInputEl = document.getElementById('power');
-        const meritsInputEl = document.getElementById('merits'); 
-        const submitBtn = document.getElementById('submit-btn');
+            const { data, error } = await supabase
+                .from(RANKING_TABLE_NAME) 
+                // Select all columns based on the database schema image
+                .select(`rank_rank, commander_name, alliance, merits_power_ratio, total_merits, total_power`); 
+
+            if (error) {
+                console.error('SUPABASE FETCH ERROR:', error);
+                const el = document.getElementById('rankings-container');
+                if(el) el.innerHTML = `<p class="p-4 text-center text-red-400">CRITICAL: Supabase connection failed. ${error.message}.</p>`;
+                if(statusDisplay) statusDisplay.innerHTML = '<span class="text-red-400 font-bold">CRITICAL ERROR</span>';
+                return [];
+            }
+            
+            if(statusDisplay) statusDisplay.innerHTML = '<span class="text-green-400 font-bold">CONNECTED</span>';
+            return data;
+        }
+
+
+        // --- UTILITY VARIABLES & UI ELEMENTS ---
         const rankingsContainerEl = document.getElementById('rankings-container');
         const searchInputEl = document.getElementById('search-input');
-        const messageBoxEl = document.getElementById('message-box');
         
-        // UI Elements for MIGRATION (Simplified)
-        const migrationStatusBodyEl = document.getElementById('migration-status-body');
-        const migrationFormEl = document.getElementById('migration-form');
-        const migrationMessageBoxEl = document.getElementById('migration-message-box');
-        const migrationSubmitBtn = document.getElementById('migration-submit-btn');
-
-
-        // Shared UI Elements
-        const userIdDisplayEl = document.getElementById('user-id-display');
-        const authStatusEl = document.getElementById('auth-status');
-        const authStatusLightEl = document.getElementById('auth-status-light');
-        const sortPowerEl = document.getElementById('sort-power');
-        const sortMeritsEl = document.getElementById('sort-merits'); 
         const sortAllianceEl = document.getElementById('sort-alliance');
         const sortRatioEl = document.getElementById('sort-ratio');
-        const supabaseStatusDisplay = document.querySelector('#supabase-status-display span');
-
-
+        const sortMeritsEl = document.getElementById('sort-merits'); 
+        const sortPowerEl = document.getElementById('sort-power'); 
+        
         let allRankings = []; 
-        let sortState = { key: 'total_power', direction: 'desc' }; // Defaulting to the column in your schema
-        
-        // Simulating the user ID/Admin status for UI purposes
-        const userId = 'SUPA_USER_12345'; 
-        const adminUserId = 'SUPA_USER_12345'; 
-        const isAdmin = true;
+        // Default sort to the primary key from the database screenshot
+        let sortState = { key: 'rank_rank', direction: 'asc' }; 
 
-
-        // --- Utility Functions ---
-
-        /** Toggles the view (tab) shown to the user. */
-        window.showView = (viewId) => {
-            views.forEach(id => {
-                const element = document.getElementById(id);
-                const navBtn = document.getElementById(`nav-${id.split('-')[0]}`);
-                if (element && navBtn) {
-                    if (id === viewId) {
-                        element.classList.remove('hidden');
-                        navBtn.classList.add('active');
-                    } else {
-                        element.classList.add('hidden');
-                        navBtn.classList.remove('active');
-                    }
-                }
-            });
-        };
-
-        /** Shows a temporary status message in the console. */
-        const showMessage = (message, isError, targetBox) => {
-            const box = targetBox || messageBoxEl; // Default to ranking message box
-            box.textContent = message;
-            box.classList.remove('hidden');
-            
-            // Adjust colors for the new theme
-            const colorClass = isError ? 'bg-red-800/50 text-red-300' : 'bg-green-800/50 text-green-300';
-            box.className = `mt-3 p-3 rounded-lg text-center font-semibold text-sm ${colorClass}`;
-            
-            setTimeout(() => {
-                box.classList.add('hidden');
-            }, 5000);
-        };
-        
-        // --- CORE DATA FETCHING (SUPABASE) ---
 
         /** Renders the list of rankings */
         const renderRankings = (rankings) => {
-            // 1. Sort the filtered list 
+            
+            // 1. Sort the filtered list
             const sortedRankings = [...rankings].sort((a, b) => {
                 const aVal = a[sortState.key] || 0;
                 const bVal = b[sortState.key] || 0;
-                
+
                 // Handle numeric or string sorting
                 if (typeof aVal === 'string' || typeof bVal === 'string') {
                     if (aVal < bVal) return sortState.direction === 'asc' ? -1 : 1;
@@ -377,7 +230,6 @@
                 if (a.commander_name > b.commander_name) return 1;
                 return 0; 
             });
-
 
             rankingsContainerEl.innerHTML = '';
             
@@ -409,7 +261,7 @@
                 // Helper to format numbers in Millions (M)
                 const formatMillions = (value) => {
                     const num = parseFloat(value) || 0;
-                    return (num / 1000000).toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+                    return (num / 1000000).toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + 'M';
                 };
                 
                 // Helper to format Ratio
@@ -427,8 +279,8 @@
                     </div>
                     <div class="col-span-2 text-cyan-400 font-inter truncate">${rank.alliance || 'N/A'}</div>
                     <div class="col-span-2 text-gray-300 font-inter">${formatRatio(rank.merits_power_ratio)}</div>
-                    <div class="col-span-2 text-red-400 font-inter">${formatMillions(rank.total_merits)}M</div>
-                    <div class="col-span-2 text-yellow-300 font-inter">${formatMillions(rank.total_power)}M</div>
+                    <div class="col-span-2 text-red-400 font-inter">${formatMillions(rank.total_merits)}</div>
+                    <div class="col-span-2 text-yellow-300 font-inter">${formatMillions(rank.total_power)}</div>
                 `;
 
                 rankEl.innerHTML = content;
@@ -436,7 +288,6 @@
             });
         };
 
-        
         /** Applies filter (search) and sort, then calls renderRankings */
         const applyFiltersAndSort = () => {
             const searchTerm = searchInputEl.value.toLowerCase().trim();
@@ -449,60 +300,57 @@
             renderRankings(filteredRankings);
         };
 
+        // --- Event Listeners for Filtering and Sorting ---
+        
+        // Filter Listener
+        searchInputEl.addEventListener('input', applyFiltersAndSort);
 
-        /** Sets up the Supabase Real-time Listener for Rankings */
-        const setupRankingRealtimeListener = () => {
-            if (!supabase) return;
+        // Sort Listener Factory
+        const handleSortClick = (event) => {
+            const newKey = event.currentTarget.dataset.sortKey;
             
-            supabaseStatusDisplay.textContent = 'Awaiting subscription...';
+            // Set direction: descending for numbers (power/merits/ratio), ascending for alliance name
+            let newDirection = (newKey === 'total_power' || newKey === 'total_merits' || newKey === 'merits_power_ratio') ? 'desc' : 'asc';
 
-            // Subscribe to real-time changes on the ranking table
-            supabase
-                .channel('ranking_changes')
-                .on('postgres_changes', 
-                    { event: '*', schema: 'public', table: RANKING_TABLE_NAME },
-                    (payload) => {
-                        // This handles inserts, updates, and deletes
-                        console.log('Change received!', payload);
-                        fetchAndRenderAllRankings(); 
-                    }
-                )
-                .subscribe((status) => {
-                    if (status === 'SUBSCRIBED') {
-                        supabaseStatusDisplay.innerHTML = '<span class="text-green-400 font-bold">CONNECTED (Real-time)</span>';
-                        fetchAndRenderAllRankings();
-                    } else if (status === 'CHANNEL_ERROR') {
-                        supabaseStatusDisplay.innerHTML = '<span class="text-red-400 font-bold">CHANNEL ERROR</span>';
-                    }
-                });
+
+            if (sortState.key === newKey) {
+                // Toggle direction if same key is clicked
+                sortState.direction = sortState.direction === 'desc' ? 'asc' : 'desc';
+            } else {
+                // New key, set to default direction
+                sortState.key = newKey;
+                sortState.direction = newDirection;
+            }
+
+            applyFiltersAndSort();
         };
 
-        /** Fetches all rankings and updates the UI */
-        async function fetchAndRenderAllRankings() {
-            if(supabaseStatusDisplay.textContent !== 'CONNECTED (Real-time)') {
-                supabaseStatusDisplay.textContent = 'Fetching once...';
+        sortPowerEl.addEventListener('click', handleSortClick);
+        sortMeritsEl.addEventListener('click', handleSortClick);
+        sortAllianceEl.addEventListener('click', handleSortClick);
+        sortRatioEl.addEventListener('click', handleSortClick);
+
+
+        // --- APPLICATION START ---
+        window.onload = async () => {
+            // 1. Update system status
+            document.getElementById('auth-status').textContent = 'SECURE LINK: ACTIVE (READ-ONLY)';
+            document.getElementById('auth-status-light').classList.replace('bg-yellow-400', 'bg-green-500');
+            document.getElementById('auth-status-light').classList.remove('animate-pulse');
+            document.getElementById('user-id-display').textContent = 'Commander ID: ANONYMOUS';
+
+            // 2. Fetch and Render the Ranking Data
+            try {
+                const data = await getRankings();
+                allRankings = data;
+                applyFiltersAndSort(); 
+                document.getElementById('loading-message')?.remove();
+            } catch (e) {
+                console.error("Initial load failed:", e);
+                // Error message handled in getRankings
             }
+        };
 
-            const { data, error } = await supabase
-                .from(RANKING_TABLE_NAME) 
-                .select(`rank_rank, commander_name, alliance, merits_power_ratio, total_merits, total_power`); 
-
-            if (error) {
-                console.error('SUPABASE FETCH ERROR:', error);
-                rankingsContainerEl.innerHTML = `<p class="p-4 text-center text-red-400">CRITICAL: Supabase connection failed. ${error.message}.</p>`;
-                supabaseStatusDisplay.innerHTML = '<span class="text-red-400 font-bold">CRITICAL ERROR</span>';
-                return;
-            }
-            
-            allRankings = data;
-            applyFiltersAndSort(); 
-            document.getElementById('loading-message')?.remove();
-        }
-
-
-        // --- MIGRATION LOGIC (SIMPLIFIED FOR READ-ONLY) ---
-        
-        /** Fetches and Renders Migration Logs (One-time fetch for simplicity) */
-        const fetchAndRenderMigrations = async () => {
-            // Using a generic table name 'migration_logs' here as one wasn't provided
-            const { data, error } = await supabase
+    </script>
+</body>
+</html>
