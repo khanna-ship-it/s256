@@ -159,207 +159,202 @@
     </div>
 
 
-    <script type="module">
+<script type="module">
 
-        // --- SUPABASE SETUP ---
-        import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+    // --- SUPABASE SETUP ---
+    // Single import for the Supabase client
+    import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
-const supabaseUrl = 'https://jkgtdjoqqsxzcnoioedm.supabase.co';
-// 🔑 ANONYMOUS PUBLIC KEY - REQUIRED FOR CLIENT-SIDE BROWSER ACCESS
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImprZ3Rkam9xcXN4emNub2lvZWRtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE5MjU3NTIsImV4cCI6MjA3NzUwMTc1Mn0.a3ZtPetBm8s5GwBsB5vpZesDEt4ujhWZ6Kme0qyw_bE'; 
-const supabase = createClient(supabaseUrl, supabaseKey);
+    const supabaseUrl = 'https://jkgtdjoqqsxzcnoioedm.supabase.co';
+    // 🔑 ANONYMOUS PUBLIC KEY (The public key must be hardcoded for client-side use)
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImprZ3Rkam9xcXN4emNub2lvZWRtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE5MjU3NTIsImV4cCI6MjA3NzUwMTc1Mn0.a3ZtPetBm8s5GwBsB5vpZesDEt4ujhWZ6Kme0qyw_bE'; 
+    
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    // ⚠️ Correct Table Name and Column Selection
+    const RANKING_TABLE_NAME = '256-rankings'; 
+    
+    // --- CORE DATA FETCHING FUNCTION ---
+    async function getRankings() {
+        const statusDisplay = document.querySelector('#supabase-status-display span');
+        if(statusDisplay) statusDisplay.textContent = 'Loading...';
+
+        const { data, error } = await supabase
+            .from(RANKING_TABLE_NAME) 
+            // Querying all required columns based on your table schema (image_99871c.png)
+            .select(`rank_rank, commander_name, alliance, merits_power_ratio, total_merits, total_power`); 
+
+        if (error) {
+            console.error('SUPABASE FETCH ERROR:', error);
+            const el = document.getElementById('rankings-container');
+            if(el) el.innerHTML = `<p class="p-4 text-center text-red-400">CRITICAL: Supabase connection failed. ${error.message}.</p>`;
+            if(statusDisplay) statusDisplay.innerHTML = '<span class="text-red-400 font-bold">CRITICAL ERROR</span>';
+            return [];
+        }
         
-        import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-        
-        const supabaseUrl = 'https://jkgtdjoqqsxzcnoioedm.supabase.co';
-        // 🔑 ANONYMOUS KEY (Provided in previous user turn)
-        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImprZ3Rkam9xcXN4emNub2lvZWRtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE5MjU3NTIsImV4cCI6MjA3NzUwMTc1Mn0.a3ZtPetBm8s5GwBsB5vpZesDEt4ujhWZ6Kme0qyw_bE'; 
-        
-        const supabase = createClient(supabaseUrl, supabaseKey);
+        if(statusDisplay) statusDisplay.innerHTML = '<span class="text-green-400 font-bold">CONNECTED</span>';
+        return data;
+    }
 
-        // ⚠️ UPDATED TABLE NAME
-        const RANKING_TABLE_NAME = '256-rankings'; 
+
+    // --- UTILITY VARIABLES & UI ELEMENTS (REMAINDER OF SCRIPT) ---
+    const rankingsContainerEl = document.getElementById('rankings-container');
+    const searchInputEl = document.getElementById('search-input');
+    
+    const sortAllianceEl = document.getElementById('sort-alliance');
+    const sortRatioEl = document.getElementById('sort-ratio');
+    const sortMeritsEl = document.getElementById('sort-merits'); 
+    const sortPowerEl = document.getElementById('sort-power'); 
+    
+    let allRankings = []; 
+    // Default sort to the Rank Rank column
+    let sortState = { key: 'rank_rank', direction: 'asc' }; 
+
+
+    /** Renders the list of rankings */
+    const renderRankings = (rankings) => {
         
-        // --- CORE DATA FETCHING FUNCTION ---
-        async function getRankings() {
-            const statusDisplay = document.querySelector('#supabase-status-display span');
-            if(statusDisplay) statusDisplay.textContent = 'Loading...';
+        // 1. Sort the filtered list
+        const sortedRankings = [...rankings].sort((a, b) => {
+            // Priority 1: Sort by current sort key
+            const aVal = a[sortState.key] || 0;
+            const bVal = b[sortState.key] || 0;
 
-            const { data, error } = await supabase
-                .from(RANKING_TABLE_NAME) 
-                // Select all columns based on the database schema image
-                .select(`rank_rank, commander_name, alliance, merits_power_ratio, total_merits, total_power`); 
-
-            if (error) {
-                console.error('SUPABASE FETCH ERROR:', error);
-                const el = document.getElementById('rankings-container');
-                if(el) el.innerHTML = `<p class="p-4 text-center text-red-400">CRITICAL: Supabase connection failed. ${error.message}.</p>`;
-                if(statusDisplay) statusDisplay.innerHTML = '<span class="text-red-400 font-bold">CRITICAL ERROR</span>';
-                return [];
+            if (typeof aVal === 'string' || typeof bVal === 'string') {
+                if (aVal < bVal) return sortState.direction === 'asc' ? -1 : 1;
+                if (aVal > bVal) return sortState.direction === 'asc' ? 1 : -1;
+            } else {
+                if (aVal < bVal) return sortState.direction === 'asc' ? -1 : 1;
+                if (aVal > bVal) return sortState.direction === 'asc' ? 1 : -1;
             }
             
-            if(statusDisplay) statusDisplay.innerHTML = '<span class="text-green-400 font-bold">CONNECTED</span>';
-            return data;
+            // Secondary sort by Commander Name
+            if (a.commander_name < b.commander_name) return -1;
+            if (a.commander_name > b.commander_name) return 1;
+            return 0; 
+        });
+
+        rankingsContainerEl.innerHTML = '';
+        
+        if (sortedRankings.length === 0) {
+            rankingsContainerEl.innerHTML = '<p class="p-4 text-center text-gray-500">No matching commanders found in the Registry.</p>';
+            return;
         }
 
+        // 2. Update header arrows
+        [sortPowerEl, sortMeritsEl, sortAllianceEl, sortRatioEl].forEach(el => {
+            el.querySelectorAll('span').forEach(span => span.classList.remove('opacity-100', 'text-green-400'));
+            el.querySelectorAll('span').forEach(span => span.classList.add('opacity-30'));
 
-        // --- UTILITY VARIABLES & UI ELEMENTS ---
-        const rankingsContainerEl = document.getElementById('rankings-container');
-        const searchInputEl = document.getElementById('search-input');
-        
-        const sortAllianceEl = document.getElementById('sort-alliance');
-        const sortRatioEl = document.getElementById('sort-ratio');
-        const sortMeritsEl = document.getElementById('sort-merits'); 
-        const sortPowerEl = document.getElementById('sort-power'); 
-        
-        let allRankings = []; 
-        // Default sort to the primary key from the database screenshot
-        let sortState = { key: 'rank_rank', direction: 'asc' }; 
-
-
-        /** Renders the list of rankings */
-        const renderRankings = (rankings) => {
-            
-            // 1. Sort the filtered list
-            const sortedRankings = [...rankings].sort((a, b) => {
-                const aVal = a[sortState.key] || 0;
-                const bVal = b[sortState.key] || 0;
-
-                // Handle numeric or string sorting
-                if (typeof aVal === 'string' || typeof bVal === 'string') {
-                    if (aVal < bVal) return sortState.direction === 'asc' ? -1 : 1;
-                    if (aVal > bVal) return sortState.direction === 'asc' ? 1 : -1;
-                } else {
-                    if (aVal < bVal) return sortState.direction === 'asc' ? -1 : 1;
-                    if (aVal > bVal) return sortState.direction === 'asc' ? 1 : -1;
-                }
-                
-                // Secondary sort by Commander Name
-                if (a.commander_name < b.commander_name) return -1;
-                if (a.commander_name > b.commander_name) return 1;
-                return 0; 
-            });
-
-            rankingsContainerEl.innerHTML = '';
-            
-            if (sortedRankings.length === 0) {
-                rankingsContainerEl.innerHTML = '<p class="p-4 text-center text-gray-500">No matching commanders found in the Registry.</p>';
-                return;
+            if (el.dataset.sortKey === sortState.key) {
+                const iconClass = sortState.direction === 'asc' ? '.sort-icon-asc' : '.sort-icon-desc';
+                el.querySelector(iconClass).classList.remove('opacity-30');
+                el.querySelector(iconClass).classList.add('opacity-100', 'text-green-400');
             }
-
-            // 2. Update header arrows
-            [sortPowerEl, sortMeritsEl, sortAllianceEl, sortRatioEl].forEach(el => {
-                el.querySelectorAll('span').forEach(span => span.classList.remove('opacity-100', 'text-green-400'));
-                el.querySelectorAll('span').forEach(span => span.classList.add('opacity-30'));
-
-                if (el.dataset.sortKey === sortState.key) {
-                    const iconClass = sortState.direction === 'asc' ? '.sort-icon-asc' : '.sort-icon-desc';
-                    el.querySelector(iconClass).classList.remove('opacity-30');
-                    el.querySelector(iconClass).classList.add('opacity-100', 'text-green-400');
-                }
-            });
+        });
 
 
-            // 3. Render rows
-            sortedRankings.forEach((rank, index) => {
-                const rankNumber = rank.rank_rank || index + 1;
-                
-                const rankEl = document.createElement('div');
-                rankEl.className = 'ranking-row grid grid-cols-12 items-center p-3 text-sm transition duration-150'; 
-                
-                // Helper to format numbers in Millions (M)
-                const formatMillions = (value) => {
-                    const num = parseFloat(value) || 0;
-                    return (num / 1000000).toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + 'M';
-                };
-                
-                // Helper to format Ratio
-                const formatRatio = (value) => {
-                    const num = parseFloat(value) || 0;
-                    return num.toFixed(3);
-                };
-
-                let content = `
-                    <div class="col-span-1 flex items-center justify-center">
-                        <span class="rank-number text-gray-400">${rankNumber}</span>
-                    </div>
-                    <div class="col-span-3 font-bold text-white truncate">
-                        ${rank.commander_name || 'N/A'}
-                    </div>
-                    <div class="col-span-2 text-cyan-400 font-inter truncate">${rank.alliance || 'N/A'}</div>
-                    <div class="col-span-2 text-gray-300 font-inter">${formatRatio(rank.merits_power_ratio)}</div>
-                    <div class="col-span-2 text-red-400 font-inter">${formatMillions(rank.total_merits)}</div>
-                    <div class="col-span-2 text-yellow-300 font-inter">${formatMillions(rank.total_power)}</div>
-                `;
-
-                rankEl.innerHTML = content;
-                rankingsContainerEl.appendChild(rankEl);
-            });
-        };
-
-        /** Applies filter (search) and sort, then calls renderRankings */
-        const applyFiltersAndSort = () => {
-            const searchTerm = searchInputEl.value.toLowerCase().trim();
+        // 3. Render rows
+        sortedRankings.forEach((rank, index) => {
+            // Use rank_rank from DB if available, otherwise use array index
+            const rankNumber = rank.rank_rank || index + 1;
             
-            const filteredRankings = allRankings.filter(rank => 
-                (rank.commander_name?.toLowerCase().includes(searchTerm)) ||
-                (rank.alliance?.toLowerCase().includes(searchTerm))
-            );
+            const rankEl = document.createElement('div');
+            rankEl.className = 'ranking-row grid grid-cols-12 items-center p-3 text-sm transition duration-150'; 
+            
+            // Helper to format numbers in Millions (M)
+            const formatMillions = (value) => {
+                const num = parseFloat(value) || 0;
+                return (num / 1000000).toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + 'M';
+            };
+            
+            // Helper to format Ratio
+            const formatRatio = (value) => {
+                const num = parseFloat(value) || 0;
+                return num.toFixed(3);
+            };
 
-            renderRankings(filteredRankings);
-        };
+            let content = `
+                <div class="col-span-1 flex items-center justify-center">
+                    <span class="rank-number text-gray-400">${rankNumber}</span>
+                </div>
+                <div class="col-span-3 font-bold text-white truncate">
+                    ${rank.commander_name || 'N/A'}
+                </div>
+                <div class="col-span-2 text-cyan-400 font-inter truncate">${rank.alliance || 'N/A'}</div>
+                <div class="col-span-2 text-gray-300 font-inter">${formatRatio(rank.merits_power_ratio)}</div>
+                <div class="col-span-2 text-red-400 font-inter">${formatMillions(rank.total_merits)}</div>
+                <div class="col-span-2 text-yellow-300 font-inter">${formatMillions(rank.total_power)}</div>
+            `;
 
-        // --- Event Listeners for Filtering and Sorting ---
+            rankEl.innerHTML = content;
+            rankingsContainerEl.appendChild(rankEl);
+        });
+    };
+
+    /** Applies filter (search) and sort, then calls renderRankings */
+    const applyFiltersAndSort = () => {
+        const searchTerm = searchInputEl.value.toLowerCase().trim();
         
-        // Filter Listener
-        searchInputEl.addEventListener('input', applyFiltersAndSort);
+        const filteredRankings = allRankings.filter(rank => 
+            (rank.commander_name?.toLowerCase().includes(searchTerm)) ||
+            (rank.alliance?.toLowerCase().includes(searchTerm))
+        );
 
-        // Sort Listener Factory
-        const handleSortClick = (event) => {
-            const newKey = event.currentTarget.dataset.sortKey;
-            
-            // Set direction: descending for numbers (power/merits/ratio), ascending for alliance name
-            let newDirection = (newKey === 'total_power' || newKey === 'total_merits' || newKey === 'merits_power_ratio') ? 'desc' : 'asc';
+        renderRankings(filteredRankings);
+    };
 
+    // --- Event Listeners for Filtering and Sorting ---
+    
+    // Filter Listener
+    searchInputEl.addEventListener('input', applyFiltersAndSort);
 
-            if (sortState.key === newKey) {
-                // Toggle direction if same key is clicked
-                sortState.direction = sortState.direction === 'desc' ? 'asc' : 'desc';
-            } else {
-                // New key, set to default direction
-                sortState.key = newKey;
-                sortState.direction = newDirection;
-            }
-
-            applyFiltersAndSort();
-        };
-
-        sortPowerEl.addEventListener('click', handleSortClick);
-        sortMeritsEl.addEventListener('click', handleSortClick);
-        sortAllianceEl.addEventListener('click', handleSortClick);
-        sortRatioEl.addEventListener('click', handleSortClick);
+    // Sort Listener Factory
+    const handleSortClick = (event) => {
+        const newKey = event.currentTarget.dataset.sortKey;
+        
+        // Set direction: descending for numbers (power/merits/ratio), ascending for alliance name
+        let newDirection = (newKey === 'total_power' || newKey === 'total_merits' || newKey === 'merits_power_ratio') ? 'desc' : 'asc';
 
 
-        // --- APPLICATION START ---
-        window.onload = async () => {
-            // 1. Update system status
-            document.getElementById('auth-status').textContent = 'SECURE LINK: ACTIVE (READ-ONLY)';
-            document.getElementById('auth-status-light').classList.replace('bg-yellow-400', 'bg-green-500');
-            document.getElementById('auth-status-light').classList.remove('animate-pulse');
-            document.getElementById('user-id-display').textContent = 'Commander ID: ANONYMOUS';
+        if (sortState.key === newKey) {
+            // Toggle direction if same key is clicked
+            sortState.direction = sortState.direction === 'desc' ? 'asc' : 'desc';
+        } else {
+            // New key, set to default direction
+            sortState.key = newKey;
+            sortState.direction = newDirection;
+        }
 
-            // 2. Fetch and Render the Ranking Data
-            try {
-                const data = await getRankings();
-                allRankings = data;
-                applyFiltersAndSort(); 
-                document.getElementById('loading-message')?.remove();
-            } catch (e) {
-                console.error("Initial load failed:", e);
-                // Error message handled in getRankings
-            }
-        };
+        applyFiltersAndSort();
+    };
 
-    </script>
+    sortPowerEl.addEventListener('click', handleSortClick);
+    sortMeritsEl.addEventListener('click', handleSortClick);
+    sortAllianceEl.addEventListener('click', handleSortClick);
+    sortRatioEl.addEventListener('click', handleSortClick);
+
+
+    // --- APPLICATION START ---
+    window.onload = async () => {
+        // 1. Update system status
+        document.getElementById('auth-status').textContent = 'SECURE LINK: ACTIVE (READ-ONLY)';
+        document.getElementById('auth-status-light').classList.replace('bg-yellow-400', 'bg-green-500');
+        document.getElementById('auth-status-light').classList.remove('animate-pulse');
+        document.getElementById('user-id-display').textContent = 'Commander ID: ANONYMOUS';
+
+        // 2. Fetch and Render the Ranking Data
+        try {
+            const data = await getRankings();
+            allRankings = data;
+            applyFiltersAndSort(); 
+            document.getElementById('loading-message')?.remove();
+        } catch (e) {
+            console.error("Initial load failed:", e);
+            // Error message handled in getRankings
+        }
+    };
+
+</script>
 </body>
 </html>
