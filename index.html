@@ -148,14 +148,14 @@
         </header>
 
         <nav class="flex justify-center mb-8 game-card p-2">
-            <button id="nav-about" onclick="showView('about-view')" class="nav-btn px-4 py-2 mx-2 rounded-lg">
+            <button id="nav-about" onclick="showView('about-view')" class="nav-btn px-4 py-2 mx-2 rounded-lg active">
                 About Server
+            </button>
+            <button id="nav-ranking" onclick="showView('ranking-view')" class="nav-btn px-4 py-2 mx-2 rounded-lg">
+                Power Ranking
             </button>
             <button id="nav-migration" onclick="showView('migration-view')" class="nav-btn px-4 py-2 mx-2 rounded-lg">
                 Migration Status
-            </button>
-            <button id="nav-ranking" onclick="showView('ranking-view')" class="nav-btn px-4 py-2 mx-2 rounded-lg active">
-                Power Ranking
             </button>
         </nav>
         
@@ -167,7 +167,7 @@
             </div>
         </div>
 
-        <div id="about-view" class="hidden game-card p-6">
+        <div id="about-view" class="game-card p-6">
             <h2 class="text-3xl font-bold mb-4 text-green-400 border-b border-gray-600 pb-2 font-serif">
                 Realm Overview
             </h2>
@@ -200,7 +200,7 @@
                         <strong style="color: #ffd700;">Merit-Driven Culture:</strong> We prize **efficiency and activity** above all. Your individual performance and contribution to server metrics like the **Merits/Power Ratio** are key to your success and recognition here.
                     </li>
                     <li>
-                        <strong style="color: #ffd700;">Truly Global Community:</strong> Connect with warriors worldwide on our fully functional **International Discord Server**. We offer language integration to ensure everyone can communicate, strategize, and thrive.
+                        <strong style="color: #ffd700;">Truly Global Community:** Connect with warriors worldwide on our fully functional **International Discord Server**. We offer language integration to ensure everyone can communicate, strategize, and thrive.
                     </li>
                     <li>
                         <strong style="color: #ffd700;">Organised Conquests:</strong> Never miss a battle! Our Trojan, Marauder Hunt, and Treasure Hunt events run on a clear, **predictable weekly cycle**.
@@ -209,7 +209,7 @@
                         <strong style="color: #ffd700;">Comprehensive Coverage:</strong> We consistently host and cover Wonders, BOD, and more across our allied alliances, ensuring **full map dominance**.
                     </li>
                     <li>
-                        <strong style="color: #ffd700;">Stellar Glory Supremacy:** We boast a vast amount of wins in the serious, high-level Stellar Glory competition.
+                        <strong style="color: #ffd700;">Stellar Glory Supremacy:</strong> We boast a vast amount of wins in the serious, high-level Stellar Glory competition.
                     </li>
                     <li>
                         <strong style="color: #ffd700;">Automated Buffs:</strong> Enjoy maximum efficiency with our **Automated Buff Bot** for Imperial City Buffs. Simply request your time and date on Discord, and we handle the rest, letting you focus **purely on the fight!**
@@ -247,37 +247,7 @@
             </p>
         </div>
 
-        <div id="migration-view" class="hidden game-card p-6">
-            <h2 class="text-3xl font-bold mb-4 text-green-400 border-b border-gray-600 pb-2 font-serif">
-                Server Migration Watch
-            </h2>
-            
-            <p class="text-gray-300 mb-4">
-                This table tracks recent inbound and outbound migration activity as logged by commanders (read-only data feed).
-            </p>
-            
-            <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-600 text-sm">
-                    <thead>
-                        <tr class="text-left text-gray-400 uppercase tracking-wider bg-gray-700/50">
-                            <th class="p-3 font-semibold">Commander</th>
-                            <th class="p-3 font-semibold">Server ID</th>
-                            <th class="p-3 font-semibold">Direction</th>
-                            <th class="p-3 font-semibold">Time Logged</th>
-                        </tr>
-                    </thead>
-                    <tbody id="migration-status-body" class="divide-y divide-gray-700/70 ranking-list">
-                        <tr><td colspan="4" class="p-4 text-center text-yellow-300">Awaiting data transmission...</td></tr>
-                    </tbody>
-                </table>
-            </div>
-            <form id="migration-form" class="hidden"></form>
-            <div id="migration-message-box" class="hidden"></div>
-            <button id="migration-submit-btn" class="hidden"></button>
-        </div>
-
-
-        <div id="ranking-view" class="game-card p-6">
+        <div id="ranking-view" class="hidden game-card p-6">
             <h2 class="text-3xl font-bold mb-4 text-green-400 border-b border-gray-600 pb-2 font-serif">
                 Power Ranking
             </h2>
@@ -319,6 +289,36 @@
                 <p class="p-4 text-center text-yellow-300" id="loading-message">Loading hardcoded data...</p>
             </div>
         </div>
+        
+        <div id="migration-view" class="hidden game-card p-6">
+            <h2 class="text-3xl font-bold mb-4 text-green-400 border-b border-gray-600 pb-2 font-serif">
+                Server Migration Watch
+            </h2>
+            
+            <p class="text-gray-300 mb-4">
+                This table tracks recent inbound and outbound migration activity as logged by commanders (read-only data feed).
+            </p>
+            
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-600 text-sm">
+                    <thead>
+                        <tr class="text-left text-gray-400 uppercase tracking-wider bg-gray-700/50">
+                            <th class="p-3 font-semibold">Commander</th>
+                            <th class="p-3 font-semibold">Server ID</th>
+                            <th class="p-3 font-semibold">Direction</th>
+                            <th class="p-3 font-semibold">Time Logged</th>
+                        </tr>
+                    </thead>
+                    <tbody id="migration-status-body" class="divide-y divide-gray-700/70 ranking-list">
+                        <tr><td colspan="4" class="p-4 text-center text-yellow-300">Awaiting data transmission...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <form id="migration-form" class="hidden"></form>
+            <div id="migration-message-box" class="hidden"></div>
+            <button id="migration-submit-btn" class="hidden"></button>
+        </div>
+
 
     </div>
 
@@ -367,18 +367,17 @@
         ];
 
         // --- UI ELEMENTS & UTILITY FUNCTIONS ---
-        const views = ['about-view', 'migration-view', 'ranking-view'];
+        const views = ['about-view', 'ranking-view', 'migration-view']; // Updated views array
         const rankingsContainerEl = document.getElementById('rankings-container');
         const migrationStatusBodyEl = document.getElementById('migration-status-body');
         
-        // Corrected to reflect the elements in the HTML
         const sortAllianceEl = document.getElementById('sort-alliance');
         const sortRatioEl = document.getElementById('sort-ratio');
         const sortMeritsEl = document.getElementById('sort-merits'); 
         const sortPowerEl = document.getElementById('sort-power'); 
 
-        let allRankings = []; // Will be populated by hardcoded data
-        let sortState = { key: 'merits_power_ratio', direction: 'desc' }; // Default sort is Ratio: Desc
+        let allRankings = []; 
+        let sortState = { key: 'merits_power_ratio', direction: 'desc' }; 
 
 
         window.showView = (viewId) => {
@@ -474,7 +473,7 @@
             }
 
             // Update header arrows
-            const sortHeaders = [sortPowerEl, sortMeritsEl, sortAllianceEl, sortRatioEl].filter(Boolean); // Filter out nulls
+            const sortHeaders = [sortPowerEl, sortMeritsEl, sortAllianceEl, sortRatioEl].filter(Boolean);
             sortHeaders.forEach(el => {
                 el.querySelectorAll('span').forEach(span => span.classList.remove('opacity-100', 'text-green-400'));
                 el.querySelectorAll('span').forEach(span => span.classList.add('opacity-30'));
@@ -496,6 +495,7 @@
                 
                 const formatMillions = (value) => {
                     const num = parseFloat(value) || 0;
+                    // Ensure the formatting matches the user's input format (e.g., 12.67M)
                     return (num / 1000000).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + 'M';
                 };
                 
@@ -561,11 +561,12 @@
             document.getElementById('auth-status-light').classList.remove('animate-pulse');
             document.getElementById('user-id-display').textContent = 'Commander ID: ANONYMOUS';
             
-            // 2. Populate hardcoded data and set default view to rankings
+            // 2. Populate hardcoded data and set default view to About Server
             allRankings = hardcodedRankings;
-            showView('ranking-view'); 
+            showView('about-view'); // Default to the 'about-view' tab
             
             try {
+                // Ensure ranking data is rendered correctly when the user clicks that tab
                 applyFiltersAndSort(); 
                 document.getElementById('loading-message')?.remove();
             } catch (e) {
