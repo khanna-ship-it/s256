@@ -148,13 +148,13 @@
         </header>
 
         <nav class="flex justify-center mb-8 game-card p-2">
-            <button id="nav-about" onclick="showView('about-view')" class="nav-btn px-4 py-2 mx-2 rounded-lg active">
+            <button id="nav-about" onclick="showView('about-view')" class="nav-btn px-4 py-2 mx-2 rounded-lg">
                 About Server
             </button>
             <button id="nav-migration" onclick="showView('migration-view')" class="nav-btn px-4 py-2 mx-2 rounded-lg">
                 Migration Status
             </button>
-            <button id="nav-ranking" onclick="showView('ranking-view')" class="nav-btn px-4 py-2 mx-2 rounded-lg">
+            <button id="nav-ranking" onclick="showView('ranking-view')" class="nav-btn px-4 py-2 mx-2 rounded-lg active">
                 Power Ranking
             </button>
         </nav>
@@ -209,7 +209,7 @@
                         <strong style="color: #ffd700;">Comprehensive Coverage:</strong> We consistently host and cover Wonders, BOD, and more across our allied alliances, ensuring **full map dominance**.
                     </li>
                     <li>
-                        <strong style="color: #ffd700;">Stellar Glory Supremacy:</strong> We boast a vast amount of wins in the serious, high-level Stellar Glory competition.
+                        <strong style="color: #ffd700;">Stellar Glory Supremacy:** We boast a vast amount of wins in the serious, high-level Stellar Glory competition.
                     </li>
                     <li>
                         <strong style="color: #ffd700;">Automated Buffs:</strong> Enjoy maximum efficiency with our **Automated Buff Bot** for Imperial City Buffs. Simply request your time and date on Discord, and we handle the rest, letting you focus **purely on the fight!**
@@ -239,11 +239,11 @@
                     <h3 class="font-bold text-yellow-300">Dominant Alliances:</h3> [IW1] IronWraiths and [DS] DragonSoul
                 </div>
                 <div id="supabase-status-display" class="p-3 bg-gray-700/30 rounded">
-                    <h3 class="font-bold text-yellow-300">Supabase Connection:</h3> <span class="text-gray-400">Checking...</span>
+                    <h3 class="font-bold text-yellow-300">Supabase Connection:</h3> <span class="text-gray-400">Not Used for Rankings</span>
                 </div>
             </div>
             <p class="mt-4 text-xs text-gray-500">
-                Data is updated by the Command Nexus Administrator. All rankings are real-time.
+                Data is static (hardcoded) and updated manually by the Command Nexus Administrator.
             </p>
         </div>
 
@@ -287,7 +287,7 @@
             <button id="submit-btn" class="hidden"></button>
             
             <h3 class="text-xl font-bold mb-3 text-gray-300 flex justify-between items-center">
-                Live Data Feed
+                Static Data Feed (Hardcoded)
             </h3>
             
             <div class="grid grid-cols-12 text-xs font-semibold uppercase tracking-wider text-gray-400 p-3 border-y border-gray-600 bg-gray-700/50">
@@ -298,7 +298,7 @@
                     <span class="sort-icon-asc ml-1 text-xs opacity-30">▲</span>
                     <span class="sort-icon-desc text-xs opacity-30">▼</span>
                 </div>
-                <div class="col-span-2 cursor-pointer sort-header flex items-center hover:text-green-400 transition" id="sort-ratio" data-sort-key="Merits/Power-Ratio">
+                <div class="col-span-2 cursor-pointer sort-header flex items-center hover:text-green-400 transition" id="sort-ratio" data-sort-key="merits_power_ratio">
                     Ratio
                     <span class="sort-icon-asc ml-1 text-xs opacity-30">▲</span>
                     <span class="sort-icon-desc text-xs opacity-30">▼</span>
@@ -316,7 +316,7 @@
             </div>
 
             <div id="rankings-container" class="ranking-list power divide-y divide-gray-700/70">
-                <p class="p-4 text-center text-yellow-300" id="loading-message">Connecting to the Great Library...</p>
+                <p class="p-4 text-center text-yellow-300" id="loading-message">Loading hardcoded data...</p>
             </div>
         </div>
 
@@ -325,7 +325,7 @@
 
     <script type="module">
 
-        // --- SUPABASE SETUP (CLEANED) ---
+        // --- SUPABASE SETUP (RETAINED FOR MIGRATION TAB ONLY) ---
         import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
         const supabaseUrl = 'https://jkgtdjoqqsxzcnoioedm.supabase.co';
@@ -333,32 +333,38 @@
         
         const supabase = createClient(supabaseUrl, supabaseKey);
 
-        const RANKING_TABLE_NAME = '256-players'; 
         const MIGRATION_TABLE_NAME = 'migration_logs'; 
         
-        // --- CORE DATA FETCHING FUNCTION ---
-        async function getRankings() {
-            const statusDisplay = document.querySelector('#supabase-status-display span');
-            if(statusDisplay) statusDisplay.textContent = 'Loading...';
-
-            // IMPORTANT FIX: Using quoted column names for non-standard identifiers
-            // These names MUST match the columns in your Supabase table exactly.
-            const { data, error } = await supabase
-                .from(RANKING_TABLE_NAME) 
-                .select(`"Ratio-Rank", "Commander-Name", alliance, "Merits/Power-Ratio", total_merits, total_power`); 
-
-            if (error) {
-                console.error('SUPABASE FETCH ERROR:', error);
-                const el = document.getElementById('rankings-container');
-                if(el) el.innerHTML = `<p class="p-4 text-center text-red-400">CRITICAL: Supabase connection failed. ${error.message}.</p>`;
-                if(statusDisplay) statusDisplay.innerHTML = '<span class="text-red-400 font-bold">CRITICAL ERROR</span>';
-                return [];
-            }
-            
-            if(statusDisplay) statusDisplay.innerHTML = '<span class="text-green-400 font-bold">CONNECTED</span>';
-            return data;
-        }
-
+        // --- HARDCODED RANKING DATA ---
+        // Converted M values to raw numbers (multiplied by 1,000,000) for consistent numeric sorting.
+        const hardcodedRankings = [
+            { ratio_rank: 1, commander_name: 'SACHII', alliance: '[IW1]', merits_power_ratio: 0.383, total_merits: 12670000, total_power: 33090000 },
+            { ratio_rank: 2, commander_name: '古天乐Louis', alliance: '[DS]', merits_power_ratio: 0.2749, total_merits: 17930000, total_power: 65220000 },
+            { ratio_rank: 3, commander_name: '浅默assassin', alliance: '[DS]', merits_power_ratio: 0.2619, total_merits: 13230000, total_power: 50510000 },
+            { ratio_rank: 4, commander_name: 'Hellscream', alliance: '[DS]', merits_power_ratio: 0.2524, total_merits: 10140000, total_power: 40160000 },
+            { ratio_rank: 5, commander_name: '_MÍLYO_', alliance: '[IW1]', merits_power_ratio: 0.2272, total_merits: 6160000, total_power: 27100000 },
+            { ratio_rank: 6, commander_name: 'wololo²⁵⁶', alliance: '[IW1]', merits_power_ratio: 0.2168, total_merits: 3420000, total_power: 15790000 },
+            { ratio_rank: 7, commander_name: 'Sempekertas', alliance: '[IW1]', merits_power_ratio: 0.2142, total_merits: 5570000, total_power: 26000000 },
+            { ratio_rank: 8, commander_name: 'HyperHeLL', alliance: '[IW1]', merits_power_ratio: 0.194, total_merits: 5540000, total_power: 28580000 },
+            { ratio_rank: 9, commander_name: 'DARKrozwall', alliance: '--', merits_power_ratio: 0.1307, total_merits: 10180000, total_power: 77940000 },
+            { ratio_rank: 10, commander_name: 'nanami', alliance: '[DS]', merits_power_ratio: 0.1204, total_merits: 5310000, total_power: 44120000 },
+            { ratio_rank: 11, commander_name: '꧁太子prΐnce', alliance: '[DS]', merits_power_ratio: 0.1062, total_merits: 3480000, total_power: 32780000 },
+            { ratio_rank: 12, commander_name: 'xMARC²⁵⁶ᵂ', alliance: '[IW1]', merits_power_ratio: 0.1061, total_merits: 3490000, total_power: 32840000 },
+            { ratio_rank: 13, commander_name: 'BÄĐBØYŽïŁŁÄ', alliance: '[IW1]', merits_power_ratio: 0.1056, total_merits: 4840000, total_power: 45810000 },
+            { ratio_rank: 14, commander_name: 'Thornfellᵀᴮᴸ', alliance: '[DS]', merits_power_ratio: 0.1046, total_merits: 4050000, total_power: 38700000 },
+            { ratio_rank: 15, commander_name: 'Exofrost', alliance: '[IW1]', merits_power_ratio: 0.1035, total_merits: 3990000, total_power: 38540000 },
+            { ratio_rank: 16, commander_name: 'TheSpaniard', alliance: '[IW1]', merits_power_ratio: 0.0956, total_merits: 2410000, total_power: 25210000 },
+            { ratio_rank: 17, commander_name: 'Ieevistna', alliance: '[IW1]', merits_power_ratio: 0.0855, total_merits: 1640000, total_power: 19200000 },
+            { ratio_rank: 18, commander_name: 'CAMBIO', alliance: '[IW1]', merits_power_ratio: 0.0778, total_merits: 2020000, total_power: 26000000 },
+            { ratio_rank: 19, commander_name: 'SUPERMEE²⁵⁶', alliance: '[IW1]', merits_power_ratio: 0.0763, total_merits: 2070000, total_power: 27070000 },
+            { ratio_rank: 20, commander_name: 'xDRACO²⁵⁶ᵂ', alliance: '[IW1]', merits_power_ratio: 0.0751, total_merits: 2080000, total_power: 27710000 },
+            { ratio_rank: 21, commander_name: 'Respic', alliance: '[IW1]', merits_power_ratio: 0.071, total_merits: 2160000, total_power: 30440000 },
+            { ratio_rank: 22, commander_name: 'QC²⁵⁶', alliance: '--', merits_power_ratio: 0.0576, total_merits: 2400000, total_power: 41610000 },
+            { ratio_rank: 23, commander_name: '★★ΛRΣS★★', alliance: '[IW1]', merits_power_ratio: 0.0566, total_merits: 1660000, total_power: 29290000 },
+            { ratio_rank: 24, commander_name: 'BULLBERGER', alliance: '[IW1]', merits_power_ratio: 0.0527, total_merits: 3950000, total_power: 75010000 },
+            { ratio_rank: 25, commander_name: 'Creuza', alliance: '[IW1]', merits_power_ratio: 0.0476, total_merits: 1550000, total_power: 32530000 },
+            { ratio_rank: 26, commander_name: 'RŌNiN⁴⁷', alliance: '[IW1]', merits_power_ratio: 0.0303, total_merits: 1840000, total_power: 60550000 }
+        ];
 
         // --- UI ELEMENTS & UTILITY FUNCTIONS ---
         const views = ['about-view', 'migration-view', 'ranking-view'];
@@ -371,8 +377,8 @@
         const sortMeritsEl = document.getElementById('sort-merits'); 
         const sortPowerEl = document.getElementById('sort-power'); 
 
-        let allRankings = []; 
-        let sortState = { key: 'total_power', direction: 'desc' }; 
+        let allRankings = []; // Will be populated by hardcoded data
+        let sortState = { key: 'merits_power_ratio', direction: 'desc' }; // Default sort is Ratio: Desc
 
 
         window.showView = (viewId) => {
@@ -395,7 +401,7 @@
             });
         };
         
-        /** Fetches and Renders Migration Logs (One-time fetch for simplicity) */
+        /** Fetches and Renders Migration Logs (Supabase is still used for this tab) */
         const fetchAndRenderMigrations = async () => {
             migrationStatusBodyEl.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-yellow-300">Fetching migration logs...</td></tr>';
             
@@ -442,7 +448,6 @@
         const renderRankings = (rankings) => {
             
             const sortedRankings = [...rankings].sort((a, b) => {
-                // Use bracket notation to safely access keys with special characters
                 const aVal = a[sortState.key] || 0;
                 const bVal = b[sortState.key] || 0;
 
@@ -456,8 +461,8 @@
                 }
                 
                 // Secondary sort by Commander Name
-                if (a["Commander-Name"] < b["Commander-Name"]) return -1;
-                if (a["Commander-Name"] > b["Commander-Name"]) return 1;
+                if (a.commander_name < b.commander_name) return -1;
+                if (a.commander_name > b.commander_name) return 1;
                 return 0; 
             });
 
@@ -484,20 +489,19 @@
 
             // Render rows
             sortedRankings.forEach((rank, index) => {
-                // FIX: Use the special character names with bracket notation
-                const rankNumber = rank['Ratio-Rank'] || index + 1; 
+                const rankNumber = rank.ratio_rank || index + 1; 
                 
                 const rankEl = document.createElement('div');
                 rankEl.className = 'ranking-row grid grid-cols-12 items-center p-3 text-sm transition duration-150'; 
                 
                 const formatMillions = (value) => {
                     const num = parseFloat(value) || 0;
-                    return (num / 1000000).toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + 'M';
+                    return (num / 1000000).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + 'M';
                 };
                 
                 const formatRatio = (value) => {
                     const num = parseFloat(value) || 0;
-                    return num.toFixed(3);
+                    return num.toFixed(4);
                 };
 
                 let content = `
@@ -505,10 +509,10 @@
                         <span class="rank-number text-gray-400">${rankNumber}</span>
                     </div>
                     <div class="col-span-3 font-bold text-white truncate">
-                        ${rank['Commander-Name'] || 'N/A'}
+                        ${rank.commander_name || 'N/A'}
                     </div>
                     <div class="col-span-2 text-cyan-400 font-inter truncate">${rank.alliance || 'N/A'}</div>
-                    <div class="col-span-2 text-gray-300 font-inter">${formatRatio(rank['Merits/Power-Ratio'])}</div>
+                    <div class="col-span-2 text-gray-300 font-inter">${formatRatio(rank.merits_power_ratio)}</div>
                     <div class="col-span-2 text-red-400 font-inter">${formatMillions(rank.total_merits)}</div>
                     <div class="col-span-2 text-yellow-300 font-inter">${formatMillions(rank.total_power)}</div>
                 `;
@@ -530,7 +534,7 @@
             const newKey = event.currentTarget.dataset.sortKey;
             
             // Set default direction: descending for numbers, ascending for strings
-            let newDirection = (newKey === 'total_power' || newKey === 'total_merits' || newKey === 'Merits/Power-Ratio') ? 'desc' : 'asc';
+            let newDirection = (newKey === 'total_power' || newKey === 'total_merits' || newKey === 'merits_power_ratio') ? 'desc' : 'asc';
 
             if (sortState.key === newKey) {
                 sortState.direction = sortState.direction === 'desc' ? 'asc' : 'desc';
@@ -557,17 +561,16 @@
             document.getElementById('auth-status-light').classList.remove('animate-pulse');
             document.getElementById('user-id-display').textContent = 'Commander ID: ANONYMOUS';
             
-            // 2. Set default view and fetch rankings data
-            showView('ranking-view'); // Default to the ranking view
+            // 2. Populate hardcoded data and set default view to rankings
+            allRankings = hardcodedRankings;
+            showView('ranking-view'); 
             
             try {
-                const data = await getRankings();
-                allRankings = data;
                 applyFiltersAndSort(); 
                 document.getElementById('loading-message')?.remove();
             } catch (e) {
                 console.error("Initial load failed:", e);
-                // Error message handled in getRankings
+                rankingsContainerEl.innerHTML = '<p class="p-4 text-center text-red-400">CRITICAL: Failed to process hardcoded data.</p>';
             }
         };
 
