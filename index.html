@@ -167,7 +167,7 @@
             </div>
         </div>
 
-        <div id="about-view" class="game-card p-6">
+        <div id="about-view" class="hidden game-card p-6">
             <h2 class="text-3xl font-bold mb-4 text-green-400 border-b border-gray-600 pb-2 font-serif">
                 Realm Overview
             </h2>
@@ -277,7 +277,7 @@
         </div>
 
 
-        <div id="ranking-view" class="hidden game-card p-6">
+        <div id="ranking-view" class="game-card p-6">
             <h2 class="text-3xl font-bold mb-4 text-green-400 border-b border-gray-600 pb-2 font-serif">
                 Power Ranking
             </h2>
@@ -288,7 +288,7 @@
             
             <h3 class="text-xl font-bold mb-3 text-gray-300 flex justify-between items-center">
                 Live Data Feed
-                </h3>
+            </h3>
             
             <div class="grid grid-cols-12 text-xs font-semibold uppercase tracking-wider text-gray-400 p-3 border-y border-gray-600 bg-gray-700/50">
                 <div class="col-span-1 flex items-center justify-center">Rank</div>
@@ -298,7 +298,7 @@
                     <span class="sort-icon-asc ml-1 text-xs opacity-30">▲</span>
                     <span class="sort-icon-desc text-xs opacity-30">▼</span>
                 </div>
-                <div class="col-span-2 cursor-pointer sort-header flex items-center hover:text-green-400 transition" id="sort-ratio" data-sort-key="merits_power_ratio">
+                <div class="col-span-2 cursor-pointer sort-header flex items-center hover:text-green-400 transition" id="sort-ratio" data-sort-key="Merits/Power-Ratio">
                     Ratio
                     <span class="sort-icon-asc ml-1 text-xs opacity-30">▲</span>
                     <span class="sort-icon-desc text-xs opacity-30">▼</span>
@@ -326,18 +326,14 @@
     <script type="module">
 
         // --- SUPABASE SETUP (CLEANED) ---
-        // 1. Single Import
         import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
         const supabaseUrl = 'https://jkgtdjoqqsxzcnoioedm.supabase.co';
-        // 2. Hardcoded Public Key (Essential for browser access)
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImprZ3Rkam9xcXN4emNub2lvZWRtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE5MjU3NTIsImV4cCI6MjA3NzUwMTc1Mn0.a3ZtPetBm8s5GwBsB5vpZesDEt4ujhWZ6Kme0qyw_bE'; 
         
-        // 3. Single Client Initialization
         const supabase = createClient(supabaseUrl, supabaseKey);
 
         const RANKING_TABLE_NAME = '256-players'; 
-        // Note: Assuming a table named 'migration_logs' for the other tab
         const MIGRATION_TABLE_NAME = 'migration_logs'; 
         
         // --- CORE DATA FETCHING FUNCTION ---
@@ -345,10 +341,11 @@
             const statusDisplay = document.querySelector('#supabase-status-display span');
             if(statusDisplay) statusDisplay.textContent = 'Loading...';
 
-            // Selecting the columns by name as per your database schema
+            // IMPORTANT FIX: Using quoted column names for non-standard identifiers
+            // These names MUST match the columns in your Supabase table exactly.
             const { data, error } = await supabase
                 .from(RANKING_TABLE_NAME) 
-                .select(`Ratio-Rank, Commander-Name, alliance, Merits/Power-Ratio, total_merits, total_power`); 
+                .select(`"Ratio-Rank", "Commander-Name", alliance, "Merits/Power-Ratio", total_merits, total_power`); 
 
             if (error) {
                 console.error('SUPABASE FETCH ERROR:', error);
@@ -366,11 +363,9 @@
         // --- UI ELEMENTS & UTILITY FUNCTIONS ---
         const views = ['about-view', 'migration-view', 'ranking-view'];
         const rankingsContainerEl = document.getElementById('rankings-container');
-        // searchInputEl removed
-
         const migrationStatusBodyEl = document.getElementById('migration-status-body');
         
-        // Use document.getElementById for all elements to be safe
+        // Corrected to reflect the elements in the HTML
         const sortAllianceEl = document.getElementById('sort-alliance');
         const sortRatioEl = document.getElementById('sort-ratio');
         const sortMeritsEl = document.getElementById('sort-merits'); 
@@ -447,6 +442,7 @@
         const renderRankings = (rankings) => {
             
             const sortedRankings = [...rankings].sort((a, b) => {
+                // Use bracket notation to safely access keys with special characters
                 const aVal = a[sortState.key] || 0;
                 const bVal = b[sortState.key] || 0;
 
@@ -460,8 +456,8 @@
                 }
                 
                 // Secondary sort by Commander Name
-                if (a.commander_name < b.commander_name) return -1;
-                if (a.commander_name > b.commander_name) return 1;
+                if (a["Commander-Name"] < b["Commander-Name"]) return -1;
+                if (a["Commander-Name"] > b["Commander-Name"]) return 1;
                 return 0; 
             });
 
@@ -488,14 +484,13 @@
 
             // Render rows
             sortedRankings.forEach((rank, index) => {
-                // Ensure rank.rank_rank is correctly mapped to your data if it exists, otherwise use index + 1
+                // FIX: Use the special character names with bracket notation
                 const rankNumber = rank['Ratio-Rank'] || index + 1; 
                 
                 const rankEl = document.createElement('div');
                 rankEl.className = 'ranking-row grid grid-cols-12 items-center p-3 text-sm transition duration-150'; 
                 
                 const formatMillions = (value) => {
-                    // Assuming values are in the raw units (e.g., millions * 1000000)
                     const num = parseFloat(value) || 0;
                     return (num / 1000000).toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + 'M';
                 };
@@ -526,20 +521,16 @@
         
         /** Applies sort, then calls renderRankings (Filter removed) */
         const applyFiltersAndSort = () => {
-            // NOTE: Search/filter capability has been removed.
-            // This function now only handles sorting.
             renderRankings(allRankings);
         };
 
 
-        // --- Event Listeners for Filtering and Sorting ---
-        // searchInputEl.addEventListener('input', applyFiltersAndSort); // REMOVED
-
+        // --- Event Listeners for Sorting ---
         const handleSortClick = (event) => {
             const newKey = event.currentTarget.dataset.sortKey;
             
             // Set default direction: descending for numbers, ascending for strings
-            let newDirection = (newKey === 'total_power' || newKey === 'total_merits' || newKey === 'merits_power_ratio') ? 'desc' : 'asc';
+            let newDirection = (newKey === 'total_power' || newKey === 'total_merits' || newKey === 'Merits/Power-Ratio') ? 'desc' : 'asc';
 
             if (sortState.key === newKey) {
                 sortState.direction = sortState.direction === 'desc' ? 'asc' : 'desc';
@@ -567,13 +558,11 @@
             document.getElementById('user-id-display').textContent = 'Commander ID: ANONYMOUS';
             
             // 2. Set default view and fetch rankings data
-            showView('about-view'); // Default to the about view
+            showView('ranking-view'); // Default to the ranking view
             
             try {
                 const data = await getRankings();
                 allRankings = data;
-                // Ensure the Power Ranking tab gets rendered correctly on initial load
-                // by running applyFiltersAndSort even though it's not the default view.
                 applyFiltersAndSort(); 
                 document.getElementById('loading-message')?.remove();
             } catch (e) {
