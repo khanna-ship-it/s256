@@ -401,7 +401,7 @@
             // Selecting the columns by name as per your database schema
             const { data, error } = await supabase
                 .from(RANKING_TABLE_NAME) 
-                .select(`Ratio-Rank, Commander-Name, alliance, merits_power_ratio, total_merits, total_power`); 
+                .select(`Ratio-Rank, Commander-Name, alliance, Merits/Power-Ratio, total_merits, total_power`); 
 
             if (error) {
                 console.error('SUPABASE FETCH ERROR:', error);
